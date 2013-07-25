@@ -1,4 +1,5 @@
 class ResourcesController < ApplicationController
+
   def create
     # Create resource
     redirect_to action: :show
@@ -6,7 +7,8 @@ class ResourcesController < ApplicationController
 
   def show
     # 'Index' page - list of all resources and options
-    @id = session[:id]
+    @id = session[:user_id]
+    @resources = DatabaseHelper.resources
 
   end
 

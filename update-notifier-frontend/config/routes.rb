@@ -1,19 +1,19 @@
 UpdateNotifierFrontend::Application.routes.draw do
-  get "resources/create"
 
-  match 'index', to: 'resources#show'
-
+  get 'index', to: 'resources#show'
   get "resources/update"
 
-  get "resources/delete"
+  # TODO learn about 'resource'
+  #get "resources/create"
+  #get "resources/delete"
 
   root to: 'static_pages#home'
 
-  post 'signin', to: 'static_pages#signin'
+  post '/signin', to: 'static_pages#signin'
 
-  get "static_pages/help"
+  get '/help', to: "static_pages#help"
 
-  get "static_pages/contact"
+  get '/contact', to: "static_pages#contact"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

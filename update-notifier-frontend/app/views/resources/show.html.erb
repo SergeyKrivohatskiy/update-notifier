@@ -1,4 +1,32 @@
+<% provide(:title, 'Resources') %>
 <h1>Hello!</h1>
 <p>Find me in app/views/resources/show.html.erb</p>
 <%= @id || 'empty email :(' %>
 
+
+<table class="table table-bordered table-striped table-condensed">
+  <thead>
+    <tr>
+      <th style="width: 10%">№</th>
+      <th style="width: 40%">URL</th>
+      <th style="width: 40%">Tags</th>
+      <th style="width: 10%">&nbsp</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @resources.each_with_index do |resource, count| %>
+      <tr>
+        <td><%= count+1 %></td>
+        <td><%= link_to resource.name, resource.url %></td>
+        <td>
+          <% resource.tags.each do |tag| %>
+            <div class="label"><%= tag %></div>
+          <% end %>
+        </td>
+        <td style="text-align: center">
+          <%= link_to 'Edit', { action: 'update' }, class: 'btn' %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
