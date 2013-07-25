@@ -4,3 +4,6 @@
 *.jar
 *.war
 *.ear
+
+update-notifier-frontend/.idea
+update-notifier-frontend/tmp
