@@ -12,7 +12,7 @@ class StaticPagesControllerTest < ActionController::TestCase
   end
 
   test "should get contact" do
-    get :contact
+    get :about
     assert_response :success
   end
 

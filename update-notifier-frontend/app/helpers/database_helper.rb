@@ -1,5 +1,25 @@
 # encoding: UTF-8
 module DatabaseHelper
+  @address = '172.16.9.215'
+  @port = '8080'
+
+  def self.address(command, *args)
+    unless args.empty?
+      params_hash = args[0]
+      full_args = params_hash.inject('') do |addr, pair|
+        addr+"&#{pair.first}=#{pair.last}"
+      end
+      full_args[0]='?'
+    end
+
+    "http://#{@address}:#{@port}/#{command}#{full_args}"
+  end
+
+  def self.get(command, *args)
+    HTTParty.get(address(command, *args))
+  end
+
+
   class Resource
     attr_accessor :url, :tags, :name
 
@@ -12,7 +32,10 @@ module DatabaseHelper
 
   def self.sign_in(email)
     # TODO It's stub. User id must be returned
-    1
+    email = 'example@mail.com'
+    #response = get('signin', {email: email})
+    #response.parsed_response
+    2
   end
 
   def self.resources
@@ -32,6 +55,8 @@ module DatabaseHelper
     #   }
     # ]
     #
+    #response = get('resources')
+    #response.parsed_ersponse
     return [Resource.new('Гогле', 'http://google.ru', ['search', 'favorite', 'GDG']),
             Resource.new('Яndex', 'http://yandex.ru', %w[search]),
             Resource.new('Thumbtack', 'http://thumbtack.net', %w[favorite it development]),

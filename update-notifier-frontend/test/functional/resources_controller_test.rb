@@ -7,7 +7,7 @@ class ResourcesControllerTest < ActionController::TestCase
   end
 
   test "should get show" do
-    get :show
+    get :index
     assert_response :success
   end
 
@@ -17,7 +17,7 @@ class ResourcesControllerTest < ActionController::TestCase
   end
 
   test "should get delete" do
-    get :delete
+    get :destroy
     assert_response :success
   end
 

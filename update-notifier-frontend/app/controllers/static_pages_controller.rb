@@ -7,12 +7,9 @@ class StaticPagesController < ApplicationController
   def signin
     #session[:email] = session[:email] || params[:email]
     session[:user_id] = DatabaseHelper.sign_in(params[:email])
-    redirect_to index_path
+    redirect_to resources_path
   end
 
-  def help
-  end
-
-  def contact
+  def about
   end
 end
