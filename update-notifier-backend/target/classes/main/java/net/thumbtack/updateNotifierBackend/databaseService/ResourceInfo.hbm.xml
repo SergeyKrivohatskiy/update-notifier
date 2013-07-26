@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Configuration DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+   <class name="main.java.net.thumbtack.updateNotifierBackend.databaseService.ResourceInfo" 
+       table="resources">
+       
+     <id column="resource_id" name="id" type="java.lang.Long">
+       <generator class="increment"/>
+     </id>
+     
+     <property column="resource_hash" name="resourceHash" type="java.lang.Long"/>
+     
+     <property column="resource_url" name="url" type="java.lang.String"/>
+     
+     <set name="accounts" table="accountResources" lazy="false">
+       <key column="resource_id"/>
+       <many-to-many column="account_id" 
+           class="main.java.net.thumbtack.updateNotifierBackend.databaseService.AccountInfo"/>
+     </set>
+
+   </class>
+</hibernate-mapping>
