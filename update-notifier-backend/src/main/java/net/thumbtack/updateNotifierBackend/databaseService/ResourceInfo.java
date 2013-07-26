@@ -1,12 +1,20 @@
 package main.java.net.thumbtack.updateNotifierBackend.databaseService;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ResourceInfo {
+public class ResourceInfo implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	
 	private Long id;
-	private Long resourceHash;
+
+	private transient Long resourceHash;
 	private String url;
 	private Set<AccountInfo> accounts = new HashSet<AccountInfo>();
 
@@ -45,4 +53,5 @@ public class ResourceInfo {
 	public void setResourceHash(Long resourceHash) {
 		this.resourceHash = resourceHash;
 	}
+
 }

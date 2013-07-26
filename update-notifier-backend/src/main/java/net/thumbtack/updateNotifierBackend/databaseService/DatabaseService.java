@@ -1,6 +1,8 @@
 package main.java.net.thumbtack.updateNotifierBackend.databaseService;
 
 import java.util.List;
+
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -47,7 +49,31 @@ public class DatabaseService {
 		}
 	}
 	
-	public boolean addAccountInfo(AccountInfo accountInfo) {
+	// Cast from List to List<ResourceInfo>
+	@SuppressWarnings("unchecked")
+	public List<ResourceInfo> getResourcesInfoByAccountId(Long id) {
+		Session currentSession = null;
+		
+		try {
+			currentSession = sessionFactory.openSession();
+			currentSession.beginTransaction();
+			Query query = currentSession.createQuery(" select r "
+		               + " from ResourceInfo r INNER JOIN r.accounts account"
+		               + " where account.id = :accountId ").setLong("accountId", id);
+			List<ResourceInfo> resourceInfoList =  (List<ResourceInfo>) query.list();
+			currentSession.getTransaction().commit();
+			return resourceInfoList;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			if(currentSession != null && currentSession.isOpen()) {
+				currentSession.close();
+			}
+		}
+	}
+	
+	private boolean addAccountInfo(AccountInfo accountInfo) {
 		Session currentSession = null;
 		try {
 			currentSession = sessionFactory.openSession();
@@ -65,7 +91,31 @@ public class DatabaseService {
 		}
 	}
 	
-	public boolean addResourceInfo(ResourceInfo resourceInfo) {
+	public Long getAccountIdByEmail(String email) {
+		Session currentSession = null;
+		try {
+			currentSession = sessionFactory.openSession();
+			currentSession.beginTransaction();
+			Query query = currentSession.createQuery("from AccountInfo where email = :email ").setString("email", email);
+			AccountInfo userAccount =  ((AccountInfo) query.uniqueResult());
+			currentSession.getTransaction().commit();
+			if(userAccount == null) {
+				AccountInfo newAccount = new AccountInfo();
+				newAccount.setEmail(email);
+				return addAccountInfo(newAccount) ? newAccount.getId() : null;
+			}
+			return userAccount.getId();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			if(currentSession != null && currentSession.isOpen()) {
+				currentSession.close();
+			}
+		}
+	}
+	
+	private boolean addResourceInfo(ResourceInfo resourceInfo) {
 		Session currentSession = null;
 		try {
 			currentSession = sessionFactory.openSession();

@@ -5,6 +5,14 @@ import java.util.Set;
 
 public class AccountInfo {
 
+	private Long id;
+	private String email;
+	private Set<ResourceInfo> resources = new HashSet<ResourceInfo>();
+	
+	public AccountInfo() {
+		
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -28,14 +36,6 @@ public class AccountInfo {
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
-	}
-
-	private Long id;
-	private String email;
-	private Set<ResourceInfo> resources = new HashSet<ResourceInfo>();
-	
-	public AccountInfo() {
-		
 	}
 	
 	public Long getId() {
