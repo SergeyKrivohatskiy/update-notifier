@@ -1,6 +1,7 @@
 # encoding: UTF-8
 module DatabaseHelper
-  @address = '172.16.9.215'
+  #@address = '172.16.9.215'
+  @address = 'localhost'
   @port = '8080'
 
   def self.address(command, *args)
@@ -33,9 +34,9 @@ module DatabaseHelper
   def self.sign_in(email)
     # TODO It's stub. User id must be returned
     email = 'example@mail.com'
-    #response = get('signin', {email: email})
-    #response.parsed_response
-    2
+    response = get('signin', {email: email})
+    response.parsed_response
+    #2
   end
 
   def self.resources
