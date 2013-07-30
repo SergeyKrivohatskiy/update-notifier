@@ -1,3 +1,4 @@
+require 'active_record'
 class Resource
   include ActiveRecord::Validations
   include ActiveModel::Validations::Callbacks
