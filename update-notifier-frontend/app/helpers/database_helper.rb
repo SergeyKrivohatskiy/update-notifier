@@ -1,45 +1,30 @@
 # encoding: UTF-8
+require 'httparty_wrapper'
+
 module DatabaseHelper
-  #@address = '172.16.9.215'
-  @address = 'localhost'
-  @port = '8080'
 
-  def self.address(command, *args)
-    unless args.empty?
-      params_hash = args[0]
-      full_args = params_hash.inject('') do |addr, pair|
-        addr+"&#{pair.first}=#{pair.last}"
-      end
-      full_args[0]='?'
-    end
-
-    "http://#{@address}:#{@port}/#{command}#{full_args}"
-  end
-
-  def self.get(command, *args)
-    HTTParty.get(address(command, *args))
-  end
-
-
-  class Resource
-    attr_accessor :url, :tags, :name
-
-    def initialize(name, url, tags)
-      @name = name
-      @url = url
-      @tags = tags
-    end
-  end
+  @resources = [Resource.new(name: 'Гогле', url: 'http://google.ru', tags: %w[search, favorite, GDG]),
+                Resource.new(name: 'Яndex', url: 'http://yandex.ru', tags: %w[search]),
+                Resource.new(name: 'Thumbtack', url: 'http://thumbtack.net', tags: %w[favorite it development]),
+                Resource.new(name: 'ИСС Арт', url: 'http://issart.ru', tags: %w[it development])]
+  #class Resource
+  #  attr_accessor :url, :tags, :name
+  #
+  #  def initialize(name, url, tags)
+  #    @name = name
+  #    @url = url
+  #    @tags = tags
+  #  end
+  #end
 
   def self.sign_in(email)
-    # TODO It's stub. User id must be returned
     email = 'example@mail.com'
-    response = get('signin', {email: email})
-    response.parsed_response
-    #2
+    #response = HTTPartyWrapper::get('signin', email)
+    #response.parsed_response
+    2
   end
 
-  def self.resources
+  def self.resources(user_id)
     # TODO It's stub. It receive json with resources and parse it to collection (Hash ?)
     # Structure of response:
     # [
@@ -56,21 +41,26 @@ module DatabaseHelper
     #   }
     # ]
     #
-    #response = get('resources')
-    #response.parsed_ersponse
-    return [Resource.new('Гогле', 'http://google.ru', ['search', 'favorite', 'GDG']),
-            Resource.new('Яndex', 'http://yandex.ru', %w[search]),
-            Resource.new('Thumbtack', 'http://thumbtack.net', %w[favorite it development]),
-            Resource.new('ИСС Арт', 'http://issart.ru', %w[it development])]
+    #response = HTTPartyWrapper::get('resources', user_id )
+    #response.parsed_response
+    return @resources
   end
 
-  def self.edit_resource(user_id, url, *args)
+  def self.edit_resource(user_id, resource_id, name, url, tags)
     # TODO It's stub. It, I think, should return boolean value - result of updating. Maybe error code
-    rand(0..1) == 0
+    # TODO Передавать ли дату? (пока ресурс дойдёт до базы, пройдёт время)
+    resource = Resource.new(name: name, url: url, tags: tags)
+    if resource.valid?
+      #response = HTTPartyWrapper::post('resource', user_id, id: resource_id, name: name, url: url,
+      #                tags: tags)
+      @resources.push Resource.new(name: name, url: url, tags: tags)
+    end
+    resource.errors.full_messages
   end
 
-  def self.delete_resource(url)
+  def self.delete_resource(resource_id)
     # TODO It' stub. Return boolean ?
+    #response = HTTPartyWrapper::delete('resource', resource_id)
     rand(0..1) == 0
   end
 
