@@ -16,6 +16,7 @@
 		
 		<mapping resource="main/java/net/thumbtack/updateNotifierBackend/databaseService/AccountInfo.hbm.xml"/>
 		<mapping resource="main/java/net/thumbtack/updateNotifierBackend/databaseService/ResourceInfo.hbm.xml"/>
+		<mapping resource="main/java/net/thumbtack/updateNotifierBackend/databaseService/Category.hbm.xml"/>
 	</session-factory>
    
 </hibernate-configuration>

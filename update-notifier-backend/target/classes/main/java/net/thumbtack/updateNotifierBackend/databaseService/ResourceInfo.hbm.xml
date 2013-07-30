@@ -3,20 +3,24 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
    <class name="main.java.net.thumbtack.updateNotifierBackend.databaseService.ResourceInfo" 
-       table="resources">
+       table="RESOURCES">
        
-     <id column="resource_id" name="id" type="java.lang.Long">
+     <id column="RESOURCE_ID" name="id" type="java.lang.Long">
        <generator class="increment"/>
      </id>
      
-     <property column="resource_hash" name="resourceHash" type="java.lang.Long"/>
+     <property column="HASH" name="resourceHash" type="java.lang.Long"/>
      
-     <property column="resource_url" name="url" type="java.lang.String"/>
+     <property column="URL" name="url" type="java.lang.String"/>
      
-     <set name="accounts" table="accountResources" lazy="false">
-       <key column="resource_id"/>
-       <many-to-many column="account_id" 
-           class="main.java.net.thumbtack.updateNotifierBackend.databaseService.AccountInfo"/>
+     <many-to-one fetch="select" name="account" class="main.java.net.thumbtack.updateNotifierBackend.databaseService.AccountInfo">
+            <column name="ACCOUNT_ID" not-null="true"/>
+     </many-to-one>
+     
+     <set cascade="save-update, delete-orphan" name="categories" table="categoryResources" lazy="false">
+       <key column="RESOURCE_ID" not-null="true" />
+       <many-to-many column="CATEGORY_ID"
+           class="main.java.net.thumbtack.updateNotifierBackend.databaseService.Category"/>
      </set>
 
    </class>

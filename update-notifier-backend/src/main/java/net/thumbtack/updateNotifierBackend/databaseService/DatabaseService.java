@@ -1,6 +1,7 @@
 package main.java.net.thumbtack.updateNotifierBackend.databaseService;
 
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -49,20 +50,16 @@ public class DatabaseService {
 		}
 	}
 	
-	// Cast from List to List<ResourceInfo>
-	@SuppressWarnings("unchecked")
-	public List<ResourceInfo> getResourcesInfoByAccountId(Long id) {
+	public Set<ResourceInfo> getResourcesByIdAndTags(Long id, String[] tags) {
 		Session currentSession = null;
 		
 		try {
 			currentSession = sessionFactory.openSession();
-			currentSession.beginTransaction();
-			Query query = currentSession.createQuery(" select r "
-		               + " from ResourceInfo r INNER JOIN r.accounts account"
-		               + " where account.id = :accountId ").setLong("accountId", id);
-			List<ResourceInfo> resourceInfoList =  (List<ResourceInfo>) query.list();
-			currentSession.getTransaction().commit();
-			return resourceInfoList;
+			AccountInfo account = (AccountInfo) currentSession.get(AccountInfo.class, id);
+			if(account == null) {
+				return null;
+			}
+			return account.getResources();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -77,6 +74,7 @@ public class DatabaseService {
 		Session currentSession = null;
 		try {
 			currentSession = sessionFactory.openSession();
+			accountInfo.setId(new Long(1001));
 			Transaction transaction = currentSession.beginTransaction();
 			currentSession.save(accountInfo);
 			transaction.commit();
@@ -121,6 +119,33 @@ public class DatabaseService {
 			currentSession = sessionFactory.openSession();
 			Transaction transaction = currentSession.beginTransaction();
 			currentSession.save(resourceInfo);
+			transaction.commit();
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		} finally {
+			if(currentSession != null && currentSession.isOpen()) {
+				currentSession.close();
+			}
+		}
+	}
+
+	public boolean appendResource(long userId, ResourceInfo resourceInfo) {
+		AccountInfo account = new AccountInfo();
+		account.setId(userId);
+		resourceInfo.setAccount(account);
+		return addResourceInfo(resourceInfo);
+	}
+
+	public boolean deleteResource(long resourceId) {
+		Session currentSession = null;
+		ResourceInfo resourceInfo = new ResourceInfo();
+		resourceInfo.setId(resourceId);
+		try {
+			currentSession = sessionFactory.openSession();
+			Transaction transaction = currentSession.beginTransaction();
+			currentSession.delete(resourceInfo);
 			transaction.commit();
 			return true;
 		} catch (Exception e) {

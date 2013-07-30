@@ -2,20 +2,17 @@ package main.java.net.thumbtack.updateNotifierBackend;
 
 import java.io.IOException;
 
-import main.java.net.thumbtack.updateNotifierBackend.accountManagment.AccountManager;
 import main.java.net.thumbtack.updateNotifierBackend.databaseService.DatabaseService;
 import main.java.net.thumbtack.updateNotifierBackend.updateChecker.UpdateChecker;
 import main.java.net.thumbtack.updateNotifierBackend.HTTPServer.HTTPServer;
-import main.java.net.thumbtack.updateNotifierBackend.IOService.RESTfulService;
+import main.java.net.thumbtack.updateNotifierBackend.HTTPServer.UpdateNotifierRequestHandler;
 
 
 public class UpdateNotifierBackend {
 
-	private static final String EXIT_STRING = "exit";
 	private static final int PORT = 8080;
 	private static DatabaseService databaseService = null;
-	private static AccountManager accountManager = null;
-	private static RESTfulService RESTfulService = null;
+	private static UpdateNotifierRequestHandler RESTfulService = null;
 	private static UpdateChecker updateChecker = null;
 	
 	/**
@@ -26,8 +23,7 @@ public class UpdateNotifierBackend {
 		databaseService = new DatabaseService();
 		updateChecker = new UpdateChecker(databaseService);
 		updateChecker.start();
-		accountManager = new AccountManager(databaseService);
-		RESTfulService = new RESTfulService(accountManager, databaseService);
+		RESTfulService = new UpdateNotifierRequestHandler(databaseService);
 
         Thread server = null;
 		try {

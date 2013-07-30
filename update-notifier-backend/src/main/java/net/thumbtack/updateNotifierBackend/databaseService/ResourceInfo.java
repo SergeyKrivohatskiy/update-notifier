@@ -16,7 +16,8 @@ public class ResourceInfo implements Serializable {
 
 	private transient Long resourceHash;
 	private String url;
-	private Set<AccountInfo> accounts = new HashSet<AccountInfo>();
+	private Set<Category> categories = new HashSet<Category>();
+	private transient AccountInfo account;
 
 	public ResourceInfo() {
 		
@@ -37,21 +38,29 @@ public class ResourceInfo implements Serializable {
 	public void setUrl(String url) {
 		this.url = url;
 	}
-
-	public Set<AccountInfo> getAccounts() {
-		return accounts;
-	}
-
-	public void setAccounts(Set<AccountInfo> accounts) {
-		this.accounts = accounts;
-	}
-
+	
 	public Long getResourceHash() {
 		return resourceHash;
 	}
 
 	public void setResourceHash(Long resourceHash) {
 		this.resourceHash = resourceHash;
+	}
+
+	public AccountInfo getAccount() {
+		return account;
+	}
+
+	public void setAccount(AccountInfo account) {
+		this.account = account;
+	}
+
+	public Set<Category> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(Set<Category> categories) {
+		this.categories = categories;
 	}
 
 }

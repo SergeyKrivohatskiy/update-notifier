@@ -5,6 +5,7 @@ import java.util.Set;
 
 public class Category {
 
+	private Long id;
 	private String name;
 	private Set<ResourceInfo> resources = new HashSet<ResourceInfo>();
 	private AccountInfo account;
@@ -35,6 +36,14 @@ public class Category {
 
 	public void setAccount(AccountInfo account) {
 		this.account = account;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 	
 	
