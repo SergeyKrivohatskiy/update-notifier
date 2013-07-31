@@ -27,7 +27,7 @@ public class UsersHandler {
 	@GET
 	public long signIn(@QueryParam("email") String userEmail) {
 		Long userId = UpdateNotifierBackend.getDatabaseService()
-				.getAccountIdByEmail(userEmail);
+				.getUserIdByEmail(userEmail);
 		if (userId == null) {
 			// TODO process errors
 		}

@@ -32,7 +32,7 @@ public class CheckUpdatesTimerTask extends TimerTask {
 			return;
 		}
        
-		List<ResourceInfo> resources = database.getAllResources();
+		List<ResourceInfo> resources = database.getResources();
 		for(ResourceInfo resourceInfo: resources) {
 			threadPool.execute(new CheckUpdateTask(resourceInfo));
 		}
