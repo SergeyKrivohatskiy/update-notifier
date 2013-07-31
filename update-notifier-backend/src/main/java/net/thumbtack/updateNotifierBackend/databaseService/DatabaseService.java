@@ -2,8 +2,12 @@ package net.thumbtack.updateNotifierBackend.databaseService;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import net.thumbtack.updateNotifierBackend.mappers.UserMapper;
 
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -45,10 +49,11 @@ public class DatabaseService {
 	public List<ResourceInfo> getResources() {
 		SqlSession session = sqlSessionFactory.openSession();
 		try{
-			List<ResourceInfo> resourcesList = null;
+			List<ResourceInfo> resourcesList = new LinkedList<ResourceInfo>();
 			// TODO get resource list
 //			resourceInfoList = currentSession
 //					.createCriteria(ResourceInfo.class).list();
+			
 			return resourcesList;
 		} finally {
 			session.close();
@@ -65,7 +70,7 @@ public class DatabaseService {
 //				return null;
 //			}
 //			return account.getResources();
-			return null;
+			return new HashSet<ResourceInfo>();
 		} finally {
 			session.close();
 		}
@@ -102,8 +107,13 @@ public class DatabaseService {
 //				return addAccountInfo(newAccount) ? newAccount.getId() : null;
 //			}
 //			return userAccount.getId();
-			return null;
-			
+			UserMapper mapper = session.getMapper(UserMapper.class);
+			Long accountId = mapper.getIdByEmail(email);
+			if (accountId == null) {
+				accountId = (long) 0;
+//				mapper.addUser(email);
+			}
+			return accountId;
 		} finally {
 			session.close();
 		}
@@ -122,6 +132,7 @@ public class DatabaseService {
 		} finally {
 			session.close();
 		}
+		System.out.println("addResource ");
 		return result;
 	}
 	
@@ -135,7 +146,7 @@ public class DatabaseService {
 //				return null;
 //			}
 //			return account.getCategories();
-			return null;
+			return new HashSet<Category>();
 		} finally {
 			session.close();
 		}
