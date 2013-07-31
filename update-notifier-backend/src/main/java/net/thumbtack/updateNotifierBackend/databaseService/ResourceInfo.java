@@ -1,4 +1,4 @@
-package main.java.net.thumbtack.updateNotifierBackend.databaseService;
+package net.thumbtack.updateNotifierBackend.databaseService;
 
 import java.io.Serializable;
 import java.util.HashSet;

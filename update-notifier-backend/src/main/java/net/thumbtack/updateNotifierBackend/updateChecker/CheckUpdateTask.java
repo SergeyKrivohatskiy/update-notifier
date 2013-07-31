@@ -1,6 +1,6 @@
-package main.java.net.thumbtack.updateNotifierBackend.updateChecker;
+package net.thumbtack.updateNotifierBackend.updateChecker;
 
-import main.java.net.thumbtack.updateNotifierBackend.databaseService.ResourceInfo;
+import net.thumbtack.updateNotifierBackend.databaseService.ResourceInfo;
 
 
 public class CheckUpdateTask implements Runnable {

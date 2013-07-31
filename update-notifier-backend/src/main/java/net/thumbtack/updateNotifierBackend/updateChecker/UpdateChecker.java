@@ -1,10 +1,10 @@
-package main.java.net.thumbtack.updateNotifierBackend.updateChecker;
+package net.thumbtack.updateNotifierBackend.updateChecker;
 
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import main.java.net.thumbtack.updateNotifierBackend.databaseService.DatabaseService;
+import net.thumbtack.updateNotifierBackend.databaseService.DatabaseService;
 
 
 public class UpdateChecker {

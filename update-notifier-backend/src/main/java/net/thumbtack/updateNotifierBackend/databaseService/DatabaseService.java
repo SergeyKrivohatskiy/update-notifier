@@ -1,4 +1,4 @@
-package main.java.net.thumbtack.updateNotifierBackend.databaseService;
+package net.thumbtack.updateNotifierBackend.databaseService;
 
 import java.util.List;
 import java.util.Set;

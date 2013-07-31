@@ -2,7 +2,7 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Configuration DTD//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-   <class name="main.java.net.thumbtack.updateNotifierBackend.databaseService.ResourceInfo" 
+   <class name="net.thumbtack.updateNotifierBackend.databaseService.ResourceInfo" 
        table="RESOURCES">
        
      <id column="RESOURCE_ID" name="id" type="java.lang.Long">
@@ -13,14 +13,14 @@
      
      <property column="URL" name="url" type="java.lang.String"/>
      
-     <many-to-one fetch="select" name="account" class="main.java.net.thumbtack.updateNotifierBackend.databaseService.AccountInfo">
+     <many-to-one fetch="select" name="account" class="net.thumbtack.updateNotifierBackend.databaseService.AccountInfo">
             <column name="ACCOUNT_ID" not-null="true"/>
      </many-to-one>
      
      <set cascade="save-update, delete-orphan" name="categories" table="categoryResources" lazy="false">
        <key column="RESOURCE_ID" not-null="true" />
        <many-to-many column="CATEGORY_ID"
-           class="main.java.net.thumbtack.updateNotifierBackend.databaseService.Category"/>
+           class="net.thumbtack.updateNotifierBackend.databaseService.Category"/>
      </set>
 
    </class>
