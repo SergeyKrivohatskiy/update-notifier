@@ -50,7 +50,7 @@ public class DatabaseService {
 		}
 	}
 	
-	public Set<ResourceInfo> getResourcesByIdAndTags(Long id, String[] tags) {
+	public Set<ResourceInfo> getResourcesByIdAndTags(Long id, long[] tags) {
 		Session currentSession = null;
 		
 		try {
@@ -178,6 +178,26 @@ public class DatabaseService {
 				currentSession.close();
 			}
 		}
+	}
+
+	public Set<ResourceInfo> deleteResourcesByIdAndTags(long userId, long[] tags) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void editResource(long userId, long resourceId, ResourceInfo fromJson) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void getResource(long userId, long resourceId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void getTags(long userId) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
