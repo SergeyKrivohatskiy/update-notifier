@@ -3,7 +3,7 @@
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
    <class name="main.java.net.thumbtack.updateNotifierBackend.databaseService.Category" 
-       table="categories">
+       table="CATEGORIES">
        
      <id column="CATEGORY_ID" name="id" type="java.lang.Long">
      </id>

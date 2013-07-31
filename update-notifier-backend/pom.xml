@@ -28,15 +28,35 @@
 		  <artifactId>mysql-connector-java</artifactId>
 		  <version>5.1.25</version>
 	</dependency>
-    
-	<dependency>
-		  <groupId>org.apache.httpcomponents</groupId>
-		  <artifactId>httpcore</artifactId>
-		  <version>4.2.4</version>
-	</dependency>
-    
-	
+	  <dependency>
+     <groupId>org.eclipse.jetty</groupId>
+     <artifactId>jetty-server</artifactId>
+     <version>9.0.4.v20130625</version>
+    </dependency>
+    <dependency>
+     <groupId>org.glassfish.jersey.core</groupId>
+     <artifactId>jersey-server</artifactId>
+     <version>2.1</version>
+    </dependency>
+    <dependency>
+     <groupId>org.glassfish.jersey.core</groupId>
+     <artifactId>jersey-common</artifactId>
+     <version>2.1</version>
+    </dependency>
+    <dependency>
+     <groupId>org.glassfish.jersey.containers</groupId>
+     <artifactId>jersey-container-servlet</artifactId>
+     <version>2.1</version>
+    </dependency>
 	
   </dependencies>
-  
+    <build>
+   <plugins>
+    <plugin>
+     <groupId>org.eclipse.jetty</groupId>
+     <artifactId>jetty-maven-plugin</artifactId>
+     <version>9.0.4.v20130625</version>
+    </plugin>
+   </plugins>
+  </build>
 </project>

@@ -8,6 +8,7 @@ public class AccountInfo {
 	private Long id;
 	private String email;
 	private Set<ResourceInfo> resources = new HashSet<ResourceInfo>();
+	private Set<Category> categories = new HashSet<Category>();
 	
 	public AccountInfo() {
 		
@@ -60,6 +61,14 @@ public class AccountInfo {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public Set<Category> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(Set<Category> categories) {
+		this.categories = categories;
 	}
 	
 }

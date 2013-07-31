@@ -1,45 +1,21 @@
 package main.java.net.thumbtack.updateNotifierBackend;
 
-import java.io.IOException;
+import javax.ws.rs.ApplicationPath;
+
+import org.glassfish.jersey.server.ResourceConfig;
 
 import main.java.net.thumbtack.updateNotifierBackend.databaseService.DatabaseService;
-import main.java.net.thumbtack.updateNotifierBackend.updateChecker.UpdateChecker;
-import main.java.net.thumbtack.updateNotifierBackend.HTTPServer.HTTPServer;
-import main.java.net.thumbtack.updateNotifierBackend.HTTPServer.UpdateNotifierRequestHandler;
 
+@ApplicationPath("/")
+public class UpdateNotifierBackend extends ResourceConfig {
 
-public class UpdateNotifierBackend {
-
-	private static final int PORT = 8080;
-	private static DatabaseService databaseService = null;
-	private static UpdateNotifierRequestHandler RESTfulService = null;
-	private static UpdateChecker updateChecker = null;
+	private static DatabaseService databaseService = new DatabaseService();
 	
-	/**
-	 * @param args not used
-	 */
-	public static void main(String[] args) {
-		
-		databaseService = new DatabaseService();
-		updateChecker = new UpdateChecker(databaseService);
-		updateChecker.start();
-		RESTfulService = new UpdateNotifierRequestHandler(databaseService);
-
-        Thread server = null;
-		try {
-			server = new HTTPServer(PORT, RESTfulService);
-			
-	        server.setDaemon(false);
-	        server.start();
-
-			System.in.read();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		updateChecker.stop();
-		server.interrupt();
+	public UpdateNotifierBackend() {
+		packages("main.java.net.thumbtack.updateNotifierBackend.resourceHandlers");
 	}
 
+	public static DatabaseService getDatabaseService() {
+		return databaseService;
+	}
 }

@@ -27,12 +27,12 @@ public class DatabaseService {
 		} catch (Throwable ex) {
 			throw new ExceptionInInitializerError(ex);
 		}
-		getResourcesInfo();
+		getAllResources();
 	}
 	
 	// Cast from List to List<ResourceInfo>
 	@SuppressWarnings("unchecked")
-	public List<ResourceInfo> getResourcesInfo() {
+	public List<ResourceInfo> getAllResources() {
 		Session currentSession = null;
 		List<ResourceInfo> resourceInfoList;
 		try {
@@ -126,6 +126,28 @@ public class DatabaseService {
 			return false;
 		} finally {
 			if(currentSession != null && currentSession.isOpen()) {
+				currentSession.close();
+			}
+		}
+	}
+	
+	public Set<Category> getCategoriesByUser(long userId) {
+		
+		Session currentSession = null;
+
+		try {
+			currentSession = sessionFactory.openSession();
+			AccountInfo account = (AccountInfo) currentSession.get(
+					AccountInfo.class, userId);
+			if (account == null) {
+				return null;
+			}
+			return account.getCategories();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		} finally {
+			if (currentSession != null && currentSession.isOpen()) {
 				currentSession.close();
 			}
 		}
