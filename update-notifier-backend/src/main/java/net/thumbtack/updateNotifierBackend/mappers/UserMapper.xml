@@ -11,6 +11,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-ma
 	
 	<insert id="addUser" parameterType="string">
 		insert into users
-		values (null, #{email})
+		value (null, #{email})
 	</insert>
 </mapper>

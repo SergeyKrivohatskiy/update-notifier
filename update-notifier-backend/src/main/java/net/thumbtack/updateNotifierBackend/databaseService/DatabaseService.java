@@ -97,23 +97,15 @@ public class DatabaseService {
 	public Long getUserIdByEmail(String email) {
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
-			//TODO param pam pam
-//			Query query = currentSession.createQuery("from AccountInfo where email = :email ").setString("email", email);
-//			AccountInfo userAccount =  ((AccountInfo) query.uniqueResult());
-//			currentSession.getTransaction().commit();
-//			if(userAccount == null) {
-//				AccountInfo newAccount = new AccountInfo();
-//				newAccount.setEmail(email);
-//				return addAccountInfo(newAccount) ? newAccount.getId() : null;
-//			}
-//			return userAccount.getId();
 			UserMapper mapper = session.getMapper(UserMapper.class);
-			Long accountId = mapper.getIdByEmail(email);
-			if (accountId == null) {
-				accountId = (long) 0;
-//				mapper.addUser(email);
+			Long userId = mapper.getIdByEmail(email);
+			if (userId == null) {
+				mapper.addUser(email);
+				//TODO what about exception on add?
+				userId = mapper.getIdByEmail(email);
 			}
-			return accountId;
+			session.commit();
+			return userId;
 		} finally {
 			session.close();
 		}
