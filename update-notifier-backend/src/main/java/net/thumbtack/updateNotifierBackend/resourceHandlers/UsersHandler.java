@@ -80,7 +80,7 @@ public class UsersHandler {
 	public void addUserResource(@PathParam("id") long userId, String resourceJson) {
 		// TODO process errors
 		UpdateNotifierBackend.getDatabaseService()
-		.appendResource(userId, new Gson().fromJson(resourceJson, ResourceInfo.class));
+		.addResource(userId, new Gson().fromJson(resourceJson, ResourceInfo.class));
 	}
 
 	@Path("/{id}/resourses/{resourceId}")

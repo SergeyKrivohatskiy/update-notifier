@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import net.thumbtack.updateNotifierBackend.mappers.ResourceMapper;
 import net.thumbtack.updateNotifierBackend.mappers.UserMapper;
 
 import org.apache.ibatis.io.Resources;
@@ -76,24 +77,6 @@ public class DatabaseService {
 		}
 	}
 	
-	private boolean addUser(AccountInfo accountInfo) {
-		SqlSession session = sqlSessionFactory.openSession();
-		boolean result = false;
-		try{
-			//TODO add acc info
-//			accountInfo.setId(new Long(1001));
-//			Transaction transaction = currentSession.beginTransaction();
-//			currentSession.save(accountInfo);
-//			transaction.commit();
-
-//			result = true;
-		} finally {
-			session.close();
-		}
-		
-		return result;
-	}
-	
 	public Long getUserIdByEmail(String email) {
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
@@ -111,16 +94,15 @@ public class DatabaseService {
 		}
 	}
 	
-	private boolean addResource(ResourceInfo resourceInfo) {
+	public boolean addResource(long userId, ResourceInfo resourceInfo) {
 		SqlSession session = sqlSessionFactory.openSession();
 		boolean result = false;
 		try {
 			//TODO
-//			Transaction transaction = currentSession.beginTransaction();
-//			currentSession.save(resourceInfo);
-//			transaction.commit();
-
-//			result = true;
+//			ResourceMapper mapper = session.getMapper(ResourceMapper.class);
+//			mapper.addResource(userId, resourceInfo);
+//			session.commit();
+			result = true;
 		} finally {
 			session.close();
 		}
@@ -142,13 +124,6 @@ public class DatabaseService {
 		} finally {
 			session.close();
 		}
-	}
-
-	public boolean appendResource(long userId, ResourceInfo resourceInfo) {
-		AccountInfo account = new AccountInfo();
-		account.setId(userId);
-		resourceInfo.setAccount(account);
-		return addResource(resourceInfo);
 	}
 
 	public boolean deleteResource(long resourceId) {
