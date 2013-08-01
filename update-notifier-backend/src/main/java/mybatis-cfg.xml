@@ -8,7 +8,7 @@
 		<property name="username" value="root" />
 		<property name="password" value="root" />
 		<property name="driver" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="jdbc:mysql://localhost/updateNotifier" />
+		<property name="url" value="jdbc:mysql://localhost/update_notifier" />
 	</properties>
 
 	<settings>
