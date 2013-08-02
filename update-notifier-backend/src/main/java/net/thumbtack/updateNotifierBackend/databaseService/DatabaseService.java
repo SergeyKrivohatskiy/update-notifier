@@ -167,5 +167,10 @@ public class DatabaseService {
 	public Set<Resource> getResourcesBySheduleCode(int sheduleCode) {
 		return null;	
 	}
+
+	public void updateResourceHash(Long id, Integer newHashCode) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

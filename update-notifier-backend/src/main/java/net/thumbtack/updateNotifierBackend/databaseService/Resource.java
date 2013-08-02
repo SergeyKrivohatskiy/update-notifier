@@ -18,6 +18,7 @@ public class Resource implements Serializable {
 	private String url;
 	private Set<Tag> categories = new HashSet<Tag>();
 	private transient User account;
+	private Integer hashCode;
 
 	public Resource() {
 		
@@ -92,6 +93,14 @@ public class Resource implements Serializable {
 		} else if (!url.equals(other.url))
 			return false;
 		return true;
+	}
+
+	public Integer getHashCode() {
+		return hashCode;
+	}
+
+	public void setHashCode(Integer hashCode) {
+		this.hashCode = hashCode;
 	}
 
 }

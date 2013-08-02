@@ -16,6 +16,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
@@ -26,9 +29,12 @@ import net.thumbtack.updateNotifierBackend.databaseService.Resource;
 @Singleton
 public class UsersHandler {
 
+	private static final Logger log = LoggerFactory.getLogger(UsersHandler.class);
+	
 	@Path("signin")
 	@GET
 	public long signIn(@QueryParam("email") String userEmail) {
+		log.debug("Sign in: " + userEmail);
 		Long userId = UpdateNotifierBackend.getDatabaseService()
 				.getUserIdByEmail(userEmail);
 		if (userId == null) {

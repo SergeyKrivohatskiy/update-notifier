@@ -1,9 +1,17 @@
 package net.thumbtack.updateNotifierBackend.updateChecker;
 
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import net.thumbtack.updateNotifierBackend.UpdateNotifierBackend;
 import net.thumbtack.updateNotifierBackend.databaseService.Resource;
 
 public class CheckForUpdate implements Runnable {
 
+	private static final Logger log = LoggerFactory.getLogger(CheckForUpdate.class);
 	private Resource resource;
 	
 	public CheckForUpdate(Resource resource) {
@@ -11,7 +19,28 @@ public class CheckForUpdate implements Runnable {
 	}
 
 	public void run() {
-		System.out.println("updateChecking URL = \"" + resource.getUrl() + "\"");
+		if(isResourceWasUpdated(resource)) {
+			UpdateNotifierBackend.getResourcesUpdateListener().
+				onResourceUpdate(resource);
+		}
+	}
+
+	public static boolean isResourceWasUpdated(Resource resource) {
+		log.debug("CheckForUpdate URL = \"" + resource.getUrl() + "\"");
+		Document document;
+		try {
+			document = Jsoup.connect(resource.getUrl()).get();
+		} catch (Exception e) {
+			log.error("Jsoup connect to resource failed. Resource marked as not updated", e);
+			return false;
+		}
+		Integer newHashCode = document.html().hashCode();
+		if(!newHashCode.equals(resource.getHashCode())) {
+			resource.setHashCode(newHashCode);
+			UpdateNotifierBackend.getDatabaseService().updateResourceHash(resource.getId(), newHashCode);
+			return true;
+		}
+		return false;
 	}
 
 }

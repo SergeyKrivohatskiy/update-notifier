@@ -1,10 +1,10 @@
 package net.thumbtack.updateNotifierBackend;
 
-import java.util.Properties;
-
 import javax.ws.rs.ApplicationPath;
 
 import org.glassfish.jersey.server.ResourceConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.thumbtack.updateNotifierBackend.databaseService.DatabaseService;
 import net.thumbtack.updateNotifierBackend.listeners.ResourcesUpdateListener;
@@ -14,12 +14,14 @@ import net.thumbtack.updateNotifierBackend.updateChecker.UpdateChecker;
 @ApplicationPath("/")
 public class UpdateNotifierBackend extends ResourceConfig {
 
+	private static final Logger log = LoggerFactory.getLogger(UpdateNotifierBackend.class);
 	private static DatabaseService databaseService = new DatabaseService();
 	private static UpdateChecker updateChecker = new UpdateChecker();
 	private static ResourcesUpdateListener resUpdateListener = new ResourcesUpdateListener();
 	private static ResourcesChangesListener resChangesListener = new ResourcesChangesListener();
 	
 	public UpdateNotifierBackend() {
+		log.debug("Starting");
 		packages("net.thumbtack.updateNotifierBackend.resourceHandlers");
 		updateChecker.start();
 	}
