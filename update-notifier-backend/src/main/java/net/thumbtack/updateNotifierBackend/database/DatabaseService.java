@@ -169,4 +169,10 @@ public class DatabaseService {
 		}
 	}
 
+	
+	public void updateResourceHash(Long id, Integer newHashCode) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

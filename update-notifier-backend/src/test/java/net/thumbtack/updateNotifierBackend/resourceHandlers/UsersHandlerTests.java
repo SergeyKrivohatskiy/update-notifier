@@ -70,7 +70,7 @@ public class UsersHandlerTests {
 		Assert.assertEquals(res.getId(), existingResourceId);
 		
 		resourceToAdd.setUrl("yandex.ru");
-		handler.editUserResource(handler.signIn(EXAMPLE_USER_EMAIL), resourceToAdd.getId(),
+		handler.editUserResource(handler.signIn(EXAMPLE_USER_EMAIL), 
 				new Gson().toJson(resourceToAdd));
 		
 		res = new Gson().fromJson(handler.getUserResource(handler.signIn(EXAMPLE_USER_EMAIL),

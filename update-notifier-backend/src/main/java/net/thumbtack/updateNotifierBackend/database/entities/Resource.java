@@ -11,6 +11,12 @@ public class Resource implements Serializable {
 
 	private transient Long resourceHash;
 	private String url;
+	private int hash;
+	private Long[] tagsIdArray;
+	
+	public Resource() {
+	}
+
 	public String getUrl() {
 		return url;
 	}
@@ -35,10 +41,13 @@ public class Resource implements Serializable {
 		return tagsIdArray;
 	}
 
-	private Long[] tagsIdArray;
 
-	public Resource() {
-		
+	public int getHash() {
+		return hash;
+	}
+
+	public void setHash(int hash) {
+		this.hash = hash;
 	}
 
 	@Override
