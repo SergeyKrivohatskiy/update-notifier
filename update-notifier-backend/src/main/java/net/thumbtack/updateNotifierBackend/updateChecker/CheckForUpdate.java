@@ -1,12 +1,12 @@
 package net.thumbtack.updateNotifierBackend.updateChecker;
 
-import net.thumbtack.updateNotifierBackend.databaseService.ResourceInfo;
+import net.thumbtack.updateNotifierBackend.databaseService.Resource;
 
 public class CheckForUpdate implements Runnable {
 
-	private ResourceInfo resource;
+	private Resource resource;
 	
-	public CheckForUpdate(ResourceInfo resource) {
+	public CheckForUpdate(Resource resource) {
 		this.resource = resource;
 	}
 

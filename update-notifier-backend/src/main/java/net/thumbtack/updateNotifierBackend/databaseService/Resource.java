@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ResourceInfo implements Serializable {
+public class Resource implements Serializable {
 	
 	/**
 	 * 
@@ -16,10 +16,10 @@ public class ResourceInfo implements Serializable {
 
 	private transient Long resourceHash;
 	private String url;
-	private Set<Category> categories = new HashSet<Category>();
-	private transient AccountInfo account;
+	private Set<Tag> categories = new HashSet<Tag>();
+	private transient User account;
 
-	public ResourceInfo() {
+	public Resource() {
 		
 	}
 
@@ -47,19 +47,19 @@ public class ResourceInfo implements Serializable {
 		this.resourceHash = resourceHash;
 	}
 
-	public AccountInfo getAccount() {
+	public User getAccount() {
 		return account;
 	}
 
-	public void setAccount(AccountInfo account) {
+	public void setAccount(User account) {
 		this.account = account;
 	}
 
-	public Set<Category> getCategories() {
+	public Set<Tag> getCategories() {
 		return categories;
 	}
 
-	public void setCategories(Set<Category> categories) {
+	public void setCategories(Set<Tag> categories) {
 		this.categories = categories;
 	}
 
@@ -80,7 +80,7 @@ public class ResourceInfo implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ResourceInfo other = (ResourceInfo) obj;
+		Resource other = (Resource) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;

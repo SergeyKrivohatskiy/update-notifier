@@ -3,14 +3,14 @@ package net.thumbtack.updateNotifierBackend.databaseService;
 import java.util.HashSet;
 import java.util.Set;
 
-public class AccountInfo {
+public class User {
 
 	private Long id;
 	private String email;
-	private Set<ResourceInfo> resources = new HashSet<ResourceInfo>();
-	private Set<Category> categories = new HashSet<Category>();
+	private Set<Resource> resources = new HashSet<Resource>();
+	private Set<Tag> categories = new HashSet<Tag>();
 	
-	public AccountInfo() {
+	public User() {
 		
 	}
 
@@ -30,7 +30,7 @@ public class AccountInfo {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AccountInfo other = (AccountInfo) obj;
+		User other = (User) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;
@@ -47,11 +47,11 @@ public class AccountInfo {
 		this.id = id;
 	}
 	
-	public Set<ResourceInfo> getResources() {
+	public Set<Resource> getResources() {
 		return resources;
 	}
 	
-	public void setResources(Set<ResourceInfo> resources) {
+	public void setResources(Set<Resource> resources) {
 		this.resources = resources;
 	}
 
@@ -63,11 +63,11 @@ public class AccountInfo {
 		this.email = email;
 	}
 
-	public Set<Category> getCategories() {
+	public Set<Tag> getCategories() {
 		return categories;
 	}
 
-	public void setCategories(Set<Category> categories) {
+	public void setCategories(Set<Tag> categories) {
 		this.categories = categories;
 	}
 	

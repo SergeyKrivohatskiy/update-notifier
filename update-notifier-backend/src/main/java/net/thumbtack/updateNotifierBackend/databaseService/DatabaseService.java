@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import net.thumbtack.updateNotifierBackend.mappers.ResourceMapper;
 import net.thumbtack.updateNotifierBackend.mappers.UserMapper;
 
 import org.apache.ibatis.io.Resources;
@@ -46,11 +45,10 @@ public class DatabaseService {
 	}
 	
 	// Cast from List to List<ResourceInfo>
-	@SuppressWarnings("unchecked")
-	public List<ResourceInfo> getResources() {
+	public List<Resource> getResources() {
 		SqlSession session = sqlSessionFactory.openSession();
 		try{
-			List<ResourceInfo> resourcesList = new LinkedList<ResourceInfo>();
+			List<Resource> resourcesList = new LinkedList<Resource>();
 			// TODO get resource list
 //			resourceInfoList = currentSession
 //					.createCriteria(ResourceInfo.class).list();
@@ -62,7 +60,7 @@ public class DatabaseService {
 		
 	}
 	
-	public Set<ResourceInfo> getResourcesByIdAndTags(Long id, long[] tags) {
+	public Set<Resource> getResourcesByIdAndTags(Long id, long[] tags) {
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
 			//TODO get resources by id and tags
@@ -71,7 +69,7 @@ public class DatabaseService {
 //				return null;
 //			}
 //			return account.getResources();
-			return new HashSet<ResourceInfo>();
+			return new HashSet<Resource>();
 		} finally {
 			session.close();
 		}
@@ -94,7 +92,7 @@ public class DatabaseService {
 		}
 	}
 	
-	public boolean addResource(long userId, ResourceInfo resourceInfo) {
+	public boolean addResource(long userId, Resource resourceInfo) {
 		SqlSession session = sqlSessionFactory.openSession();
 		boolean result = false;
 		try {
@@ -110,7 +108,7 @@ public class DatabaseService {
 		return result;
 	}
 	
-	public Set<Category> getTagsByUser(long userId) {
+	public Set<Tag> getTagsByUser(long userId) {
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
 			//TODO
@@ -120,7 +118,7 @@ public class DatabaseService {
 //				return null;
 //			}
 //			return account.getCategories();
-			return new HashSet<Category>();
+			return new HashSet<Tag>();
 		} finally {
 			session.close();
 		}
@@ -148,19 +146,26 @@ public class DatabaseService {
 		
 	}
 
-	public void editResource(long userId, long resourceId, ResourceInfo fromJson) {
+	public void editResource(long userId, long resourceId, Resource fromJson) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void getResource(long userId, long resourceId) {
+	public Resource getResource(long userId, long resourceId) {
+		return null;
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void getTags(long userId) {
+	public Set<Tag> getTags(long userId) {
+		return null;
 		// TODO Auto-generated method stub
 		
+		
+	}
+
+	public Set<Resource> getResourcesBySheduleCode(int sheduleCode) {
+		return null;	
 	}
 	
 }

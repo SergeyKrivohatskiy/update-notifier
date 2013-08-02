@@ -4,8 +4,8 @@ import java.text.MessageFormat;
 
 import javax.ws.rs.BadRequestException;
 
-import net.thumbtack.updateNotifierBackend.databaseService.Category;
-import net.thumbtack.updateNotifierBackend.databaseService.ResourceInfo;
+import net.thumbtack.updateNotifierBackend.databaseService.Tag;
+import net.thumbtack.updateNotifierBackend.databaseService.Resource;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,17 +40,17 @@ public class UsersHandlerTests {
 		final String CORRECT_TAGS_STRING = "11,125,21,12";
 		final String INCORRECT_TAGS_STRING = "11,125,asd,5";
 		
-		ResourceInfo[] resources;
+		Resource[] resources;
 		resources = new Gson().fromJson(handler.getUserResources(
-				handler.signIn(EXAMPLE_USER_EMAIL), null), ResourceInfo[].class);
+				handler.signIn(EXAMPLE_USER_EMAIL), null), Resource[].class);
 		int initialSize = resources.length;
-		ResourceInfo resourceToAdd = new ResourceInfo();
+		Resource resourceToAdd = new Resource();
 		resourceToAdd.setUrl("google.com");
 		handler.addUserResource(handler.signIn(EXAMPLE_USER_EMAIL), 
 				new Gson().toJson(resourceToAdd));
 
 		resources = new Gson().fromJson(handler.getUserResources(
-				handler.signIn(EXAMPLE_USER_EMAIL), null), ResourceInfo[].class);
+				handler.signIn(EXAMPLE_USER_EMAIL), null), Resource[].class);
 		Assert.assertEquals(resources.length, initialSize + 1);
 
 		handler.getUserResources(handler.signIn(EXAMPLE_USER_EMAIL), CORRECT_TAGS_STRING);
@@ -62,8 +62,8 @@ public class UsersHandlerTests {
 		
 		Long existingResourceId = resources[0].getId();
 		
-		ResourceInfo res = new Gson().fromJson(handler.getUserResource(handler.signIn(EXAMPLE_USER_EMAIL),
-				existingResourceId), ResourceInfo.class);
+		Resource res = new Gson().fromJson(handler.getUserResource(handler.signIn(EXAMPLE_USER_EMAIL),
+				existingResourceId), Resource.class);
 		
 		Assert.assertTrue(res != null);
 		
@@ -74,7 +74,7 @@ public class UsersHandlerTests {
 				new Gson().toJson(resourceToAdd));
 		
 		res = new Gson().fromJson(handler.getUserResource(handler.signIn(EXAMPLE_USER_EMAIL),
-				resourceToAdd.getId()), ResourceInfo.class);
+				resourceToAdd.getId()), Resource.class);
 		
 		Assert.assertEquals(res.getUrl(), resourceToAdd.getUrl());
 		
@@ -86,7 +86,7 @@ public class UsersHandlerTests {
 		
 		Long userId = handler.signIn(EXAMPLE_USER_EMAIL);
 		
-		Category[] tags = new Gson().fromJson(handler.getUserTags(userId), Category[].class);
+		Tag[] tags = new Gson().fromJson(handler.getUserTags(userId), Tag[].class);
 		Assert.assertTrue(tags != null);
 	}
 	

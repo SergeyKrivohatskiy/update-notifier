@@ -1,10 +1,10 @@
 package net.thumbtack.updateNotifierBackend.listeners;
 
-import net.thumbtack.updateNotifierBackend.databaseService.ResourceInfo;
+import net.thumbtack.updateNotifierBackend.databaseService.Resource;
 
 public class ResourcesUpdateListener {
 
-	public void onResourceUpdate(ResourceInfo resource) {
+	public void onResourceUpdate(Resource resource) {
 		
 	}
 	

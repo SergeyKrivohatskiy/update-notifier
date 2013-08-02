@@ -20,7 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
 import net.thumbtack.updateNotifierBackend.UpdateNotifierBackend;
-import net.thumbtack.updateNotifierBackend.databaseService.ResourceInfo;
+import net.thumbtack.updateNotifierBackend.databaseService.Resource;
 
 @Path("/users")
 @Singleton
@@ -30,7 +30,7 @@ public class UsersHandler {
 	@GET
 	public long signIn(@QueryParam("email") String userEmail) {
 		Long userId = UpdateNotifierBackend.getDatabaseService()
-				.getAccountIdByEmail(userEmail);
+				.getUserIdByEmail(userEmail);
 		if (userId == null) {
 			throw(new WebApplicationException("Database get account error"));
 		}
@@ -44,7 +44,7 @@ public class UsersHandler {
 			@DefaultValue("") @QueryParam("tags") String tagsString) {
 		// TODO process errors
 		long[] tags = parseTags(tagsString);
-		Set<ResourceInfo> resources = UpdateNotifierBackend
+		Set<Resource> resources = UpdateNotifierBackend
 				.getDatabaseService().getResourcesByIdAndTags(userId, tags);
 		if(resources == null) {
 			throw(new BadRequestException("Incorrect userId"));
@@ -67,10 +67,10 @@ public class UsersHandler {
 	@Consumes({"application/json"})
 	public void addUserResource(@PathParam("id") long userId, String resourceJson) {
 		// TODO process errors
-		ResourceInfo res = parseResource(resourceJson);
+		Resource res = parseResource(resourceJson);
 		UpdateNotifierBackend.getResourcesChangesListener().onAddResource(res);
 		UpdateNotifierBackend.getDatabaseService()
-		.appendResource(userId, res);
+		.addResource(userId, res);
 	}
 
 	@Path("/{id}/resourses/{resourceId}")
@@ -79,8 +79,8 @@ public class UsersHandler {
 	public void editUserResource(@PathParam("id") long userId, 
 			@PathParam("resourceId") long resourceId, String resourceJson) {
 		// TODO process errors
-		ResourceInfo res = parseResource(resourceJson);
-		ResourceInfo savedResource = UpdateNotifierBackend
+		Resource res = parseResource(resourceJson);
+		Resource savedResource = UpdateNotifierBackend
 				.getDatabaseService().getResource(userId, resourceId);
 		if(savedResource == null) {
 			throw(new BadRequestException("Resource not exist"));
@@ -113,9 +113,9 @@ public class UsersHandler {
 		.getTags(userId));
 	}
 
-	private ResourceInfo parseResource(String resourceJson) {
+	private Resource parseResource(String resourceJson) {
 		try{
-			return new Gson().fromJson(resourceJson, ResourceInfo.class);
+			return new Gson().fromJson(resourceJson, Resource.class);
 		} catch(JsonSyntaxException ex) {
 			throw(new BadRequestException("Json parsing error"));
 		}
