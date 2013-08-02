@@ -1,4 +1,4 @@
-package net.thumbtack.updateNotifierBackend.mappers;
+package net.thumbtack.updateNotifierBackend.database.mappers;
 
 public interface ResourceMapper {
 	

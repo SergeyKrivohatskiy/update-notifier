@@ -4,8 +4,8 @@ import java.text.MessageFormat;
 
 import javax.ws.rs.BadRequestException;
 
-import net.thumbtack.updateNotifierBackend.databaseService.Tag;
-import net.thumbtack.updateNotifierBackend.databaseService.Resource;
+import net.thumbtack.updateNotifierBackend.database.entities.Resource;
+import net.thumbtack.updateNotifierBackend.database.entities.Tag;
 
 import org.junit.Assert;
 import org.junit.Test;

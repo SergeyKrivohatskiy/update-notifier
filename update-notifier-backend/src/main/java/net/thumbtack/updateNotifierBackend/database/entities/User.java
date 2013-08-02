@@ -1,4 +1,4 @@
-package net.thumbtack.updateNotifierBackend.databaseService;
+package net.thumbtack.updateNotifierBackend.database.entities;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -8,7 +8,7 @@ public class User {
 	private Long id;
 	private String email;
 	private Set<Resource> resources = new HashSet<Resource>();
-	private Set<Tag> categories = new HashSet<Tag>();
+	private Set<Tag> tags = new HashSet<Tag>();
 	
 	public User() {
 		
@@ -63,12 +63,12 @@ public class User {
 		this.email = email;
 	}
 
-	public Set<Tag> getCategories() {
-		return categories;
+	public Set<Tag> getTags() {
+		return tags;
 	}
 
-	public void setCategories(Set<Tag> categories) {
-		this.categories = categories;
+	public void setTags(Set<Tag> categories) {
+		this.tags = categories;
 	}
 	
 }

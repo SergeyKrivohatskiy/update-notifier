@@ -1,6 +1,6 @@
 package net.thumbtack.updateNotifierBackend.listeners;
 
-import net.thumbtack.updateNotifierBackend.databaseService.Resource;
+import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 
 
 public class ResourcesChangesListener {

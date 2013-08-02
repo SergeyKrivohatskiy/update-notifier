@@ -3,7 +3,7 @@ package net.thumbtack.updateNotifierBackend.updateChecker;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-import net.thumbtack.updateNotifierBackend.databaseService.Resource;
+import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 
 public class UpdatesChecking implements Runnable {
 

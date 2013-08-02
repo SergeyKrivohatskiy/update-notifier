@@ -16,11 +16,11 @@
 	</settings>
 	<typeAliases>
 		<typeAlias alias="User"
-			type="net.thumbtack.updateNotifierBackend.databaseService.AccountInfo" />
+			type="net.thumbtack.updateNotifierBackend.databaseService.User" />
 		<typeAlias alias="Tag"
-			type="net.thumbtack.updateNotifierBackend.databaseService.Category" />
+			type="net.thumbtack.updateNotifierBackend.databaseService.Tag" />
 		<typeAlias alias="Resource"
-			type="net.thumbtack.updateNotifierBackend.databaseService.ResourceInfo" />
+			type="net.thumbtack.updateNotifierBackend.databaseService.Resource" />
 	</typeAliases>
 
 	<environments default="development">

@@ -1,36 +1,16 @@
-package net.thumbtack.updateNotifierBackend.databaseService;
+package net.thumbtack.updateNotifierBackend.database.entities;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 public class Resource implements Serializable {
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	
-	
 	private Long id;
+	private transient Long user_id;
 
 	private transient Long resourceHash;
 	private String url;
-	private Set<Tag> categories = new HashSet<Tag>();
-	private transient User account;
-
-	public Resource() {
-		
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
 	public String getUrl() {
 		return url;
 	}
@@ -38,29 +18,27 @@ public class Resource implements Serializable {
 	public void setUrl(String url) {
 		this.url = url;
 	}
-	
+
+	public Long getId() {
+		return id;
+	}
+
+	public Long getUser_id() {
+		return user_id;
+	}
+
 	public Long getResourceHash() {
 		return resourceHash;
 	}
 
-	public void setResourceHash(Long resourceHash) {
-		this.resourceHash = resourceHash;
+	public Long[] getTagsIdArray() {
+		return tagsIdArray;
 	}
 
-	public User getAccount() {
-		return account;
-	}
+	private Long[] tagsIdArray;
 
-	public void setAccount(User account) {
-		this.account = account;
-	}
-
-	public Set<Tag> getCategories() {
-		return categories;
-	}
-
-	public void setCategories(Set<Tag> categories) {
-		this.categories = categories;
+	public Resource() {
+		
 	}
 
 	@Override

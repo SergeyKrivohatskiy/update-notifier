@@ -6,7 +6,7 @@ import javax.ws.rs.ApplicationPath;
 
 import org.glassfish.jersey.server.ResourceConfig;
 
-import net.thumbtack.updateNotifierBackend.databaseService.DatabaseService;
+import net.thumbtack.updateNotifierBackend.database.DatabaseService;
 import net.thumbtack.updateNotifierBackend.listeners.ResourcesUpdateListener;
 import net.thumbtack.updateNotifierBackend.listeners.ResourcesChangesListener;
 import net.thumbtack.updateNotifierBackend.updateChecker.UpdateChecker;
