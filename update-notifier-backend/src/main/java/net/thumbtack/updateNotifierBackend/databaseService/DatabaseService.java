@@ -190,12 +190,14 @@ public class DatabaseService {
 		
 	}
 
-	public void getResource(long userId, long resourceId) {
+	public ResourceInfo getResource(long userId, long resourceId) {
+		return null;
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void getTags(long userId) {
+	public Set<Category> getTags(long userId) {
+		return null;
 		// TODO Auto-generated method stub
 		
 	}

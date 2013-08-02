@@ -1,37 +1,41 @@
 package net.thumbtack.updateNotifierBackend.updateChecker;
 
 import java.util.Timer;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
-import net.thumbtack.updateNotifierBackend.databaseService.DatabaseService;
 
 
 public class UpdateChecker {
+
+	private static final long VERY_OFTEN = 60000;
+	private static final long OFTEN = 300000;
+	private static final long REGULAR = 600000;
+	private static final long RARELY = 3600000;
+	private static final long VERY_RARELY = 86400000;
+	private final static long INTERVALS[] = 
+		{VERY_OFTEN, OFTEN, REGULAR, RARELY, VERY_RARELY};
+
+	private static final long TIME_TO_STOP = 10000;
 	
-	private static final int THREDS_COUNT = 1;
-	/**
-	 * Timeout to skip timer task
-	 */
-	private static final long TASK_TIMEOUT = 5000;
-	private static final long TASK_PERIOD = 60000;
-	private ExecutorService threadPool;
-	private Timer timer = null;
-	private CheckUpdatesTimerTask timerTask;
+	private Timer timer = new Timer(true);
+	private static final int THREADS_COUNT = 2;
+	private Executor executor = Executors.newFixedThreadPool(THREADS_COUNT);
 	
-	public UpdateChecker(DatabaseService database) {
-		threadPool = Executors.newFixedThreadPool(THREDS_COUNT);
-		timerTask = new CheckUpdatesTimerTask(database, TASK_TIMEOUT, threadPool);
-		timer = new Timer();
+	public UpdateChecker() {
 	}
 
 	public void start() {
-		timer.schedule(timerTask, 0, TASK_PERIOD);
+		for(int i = 0; i < INTERVALS.length; i += 1) {
+			timer.schedule(new StartUpdatesChecking(i, executor), INTERVALS[i], INTERVALS[i]);
+		}
 	}
-	
+
 	public void stop() {
 		timer.cancel();
 		timer.purge();
+		System.out.println("Stopping");
+		try {
+			Thread.sleep(TIME_TO_STOP);
+		} catch (InterruptedException e) {} // Ignore
 	}
-	
 }

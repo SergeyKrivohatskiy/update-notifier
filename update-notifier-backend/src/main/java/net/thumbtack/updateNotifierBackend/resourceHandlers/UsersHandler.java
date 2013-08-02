@@ -3,6 +3,7 @@ package net.thumbtack.updateNotifierBackend.resourceHandlers;
 import java.util.Set;
 
 import javax.inject.Singleton;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -13,8 +14,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import net.thumbtack.updateNotifierBackend.UpdateNotifierBackend;
 import net.thumbtack.updateNotifierBackend.databaseService.ResourceInfo;
@@ -29,7 +32,7 @@ public class UsersHandler {
 		Long userId = UpdateNotifierBackend.getDatabaseService()
 				.getAccountIdByEmail(userEmail);
 		if (userId == null) {
-			// TODO process errors
+			throw(new WebApplicationException("Database get account error"));
 		}
 		return userId;
 	}
@@ -40,18 +43,12 @@ public class UsersHandler {
 	public String getUserResources(@PathParam("id") long userId,
 			@DefaultValue("") @QueryParam("tags") String tagsString) {
 		// TODO process errors
-		long[] tags;
-		if("".equals(tagsString)) {
-			tags = null;
-		} else {
-			String[] tagsStrings = tagsString.split(",");
-			tags = new long[tagsStrings.length];
-			for(int i = 0; i < tagsStrings.length; i += 1) {
-				tags[i] = Long.parseLong(tagsStrings[i]);
-			}
-		}
+		long[] tags = parseTags(tagsString);
 		Set<ResourceInfo> resources = UpdateNotifierBackend
 				.getDatabaseService().getResourcesByIdAndTags(userId, tags);
+		if(resources == null) {
+			throw(new BadRequestException("Incorrect userId"));
+		}
 		return new Gson().toJson(resources);
 	}
 
@@ -60,16 +57,7 @@ public class UsersHandler {
 	public void deleteUserResources(@PathParam("id") long userId,
 			@DefaultValue("") @QueryParam("tags") String tagsString) {
 		// TODO process errors
-		long[] tags;
-		if("".equals(tagsString)) {
-			tags = null;
-		} else {
-			String[] tagsStrings = tagsString.split(",");
-			tags = new long[tagsStrings.length];
-			for(int i = 0; i < tagsStrings.length; i += 1) {
-				tags[i] = Long.parseLong(tagsStrings[i]);
-			}
-		}
+		long[] tags = parseTags(tagsString);
 		UpdateNotifierBackend.getDatabaseService()
 		.deleteResourcesByIdAndTags(userId, tags);
 	}
@@ -79,8 +67,10 @@ public class UsersHandler {
 	@Consumes({"application/json"})
 	public void addUserResource(@PathParam("id") long userId, String resourceJson) {
 		// TODO process errors
+		ResourceInfo res = parseResource(resourceJson);
+		UpdateNotifierBackend.getResourcesChangesListener().onAddResource(res);
 		UpdateNotifierBackend.getDatabaseService()
-		.appendResource(userId, new Gson().fromJson(resourceJson, ResourceInfo.class));
+		.appendResource(userId, res);
 	}
 
 	@Path("/{id}/resourses/{resourceId}")
@@ -89,27 +79,63 @@ public class UsersHandler {
 	public void editUserResource(@PathParam("id") long userId, 
 			@PathParam("resourceId") long resourceId, String resourceJson) {
 		// TODO process errors
-		UpdateNotifierBackend.getDatabaseService()
-		.editResource(userId, resourceId, new Gson().fromJson(resourceJson, ResourceInfo.class));
+		ResourceInfo res = parseResource(resourceJson);
+		ResourceInfo savedResource = UpdateNotifierBackend
+				.getDatabaseService().getResource(userId, resourceId);
+		if(savedResource == null) {
+			throw(new BadRequestException("Resource not exist"));
+		}
+		
+		if(savedResource.getUrl() != res.getUrl()) {
+			UpdateNotifierBackend.getResourcesChangesListener().onEditResourceUrl(res);
+		}
+		
+		UpdateNotifierBackend.getDatabaseService().editResource(userId, resourceId, res);
+		
 	}
 
 	@Path("/{id}/resourses/{resourceId}")
 	@GET
 	@Produces({"application/json"})
-	public void getUserResource(@PathParam("id") long userId, 
-			@PathParam("resourceId") long resourceId, String resourceJson) {
+	public String getUserResource(@PathParam("id") long userId, 
+			@PathParam("resourceId") long resourceId) {
 		// TODO process errors
-		UpdateNotifierBackend.getDatabaseService()
-		.getResource(userId, resourceId);
+		return new Gson().toJson(UpdateNotifierBackend.getDatabaseService()
+		.getResource(userId, resourceId));
 	}
 
 	@Path("/{id}/tags")
 	@GET
 	@Produces({"application/json"})
-	public void getUserTags(@PathParam("id") long userId, 
-			@PathParam("resourceId") long resourceId, String resourceJson) {
+	public String getUserTags(@PathParam("id") long userId) {
 		// TODO process errors
-		UpdateNotifierBackend.getDatabaseService()
-		.getTags(userId);
+		return new Gson().toJson(UpdateNotifierBackend.getDatabaseService()
+		.getTags(userId));
+	}
+
+	private ResourceInfo parseResource(String resourceJson) {
+		try{
+			return new Gson().fromJson(resourceJson, ResourceInfo.class);
+		} catch(JsonSyntaxException ex) {
+			throw(new BadRequestException("Json parsing error"));
+		}
+	}
+	
+	private static long[] parseTags(String tagsString) {
+		long[] tags;
+		if("".equals(tagsString) || tagsString == null) {
+			tags = null;
+		} else {
+			String[] tagsStrings = tagsString.split(",");
+			tags = new long[tagsStrings.length];
+			try{
+				for(int i = 0; i < tagsStrings.length; i += 1) {
+					tags[i] = Long.parseLong(tagsStrings[i]);
+				}
+			} catch(NumberFormatException ex) {
+				throw(new BadRequestException("Tags id parsing error"));
+			}
+		}
+		return tags;
 	}
 }
