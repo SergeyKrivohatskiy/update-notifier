@@ -14,15 +14,17 @@ import net.thumbtack.updateNotifierBackend.UpdateNotifierBackend;
 public class UpdatesChecking implements Runnable {
 
 	private static final Logger log = LoggerFactory.getLogger(UpdatesChecking.class);
-	private int periodicity;
+	private int sheduleCode;
 	private Executor executor;
 	private Set<Resource> resources;
 	private Semaphore canBeRunned;
+	private boolean isTerminated;
 	
-	public UpdatesChecking(int periodicity, Executor executor) {
-		this.periodicity = periodicity;
+	public UpdatesChecking(int sheduleCode, Executor executor) {
+		this.sheduleCode = sheduleCode;
 		this.executor = executor;
 		canBeRunned = new Semaphore(0);
+		isTerminated = true;
 	}
 
 	public void run() {
@@ -30,6 +32,7 @@ public class UpdatesChecking implements Runnable {
 			while(true) {
 				canBeRunned.acquire();
 				doUpdateChecking();
+				isTerminated = true;
 			}
 		} catch (InterruptedException e) {
 			log.debug("UpdatesChecking was interrupted");
@@ -39,12 +42,17 @@ public class UpdatesChecking implements Runnable {
 
 	public void startIfTerminated() {
 		if(isTerminated()) {
-			canBeRunned.release();
+			start();
 		}
 	}
 
+	private void start() {
+		isTerminated = false;
+		canBeRunned.release();
+	}
+
 	private boolean isTerminated() {
-		return canBeRunned.availablePermits() == 0;
+		return canBeRunned.availablePermits() == 0 && isTerminated;
 	}
 
 	public void doUpdateChecking() {
@@ -60,7 +68,7 @@ public class UpdatesChecking implements Runnable {
 
 	private Set<Resource> loadResources() {
 		return UpdateNotifierBackend.getDatabaseService().
-				getResourcesBySheduleCode(periodicity);
+				getResourcesBySheduleCode(sheduleCode);
 	}
 
 }

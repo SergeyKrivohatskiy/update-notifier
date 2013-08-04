@@ -2,6 +2,7 @@ package net.thumbtack.updateNotifierBackend.database;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -160,13 +161,22 @@ public class DatabaseService {
 	}
 
 	public Set<Resource> getResourcesBySheduleCode(int sheduleCode) {
-		SqlSession session = sqlSessionFactory.openSession();
-		try {
-			return ResourceDAO.getResources(
-					session.getMapper(ResourceMapper.class), sheduleCode);
-		} finally {
-			session.close();
-		}
+		Set<Resource> set = new HashSet<Resource>();
+		Resource res = new Resource();
+		res.setUrl("http://bigpicture.ru");
+		set.add(res);
+		Resource res2 = new Resource();
+		res2.setUrl("http://habrahabr.ru");
+		set.add(res2);
+		
+		return set;
+//		SqlSession session = sqlSessionFactory.openSession();
+//		try {
+//			return ResourceDAO.getResources(
+//					session.getMapper(ResourceMapper.class), sheduleCode);
+//		} finally {
+//			session.close();
+//		}
 	}
 
 	

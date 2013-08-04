@@ -1,6 +1,8 @@
 package net.thumbtack.updateNotifierBackend.updateChecker;
 
 
+import java.io.IOException;
+
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 
 import org.jsoup.Jsoup;
@@ -20,28 +22,35 @@ public class CheckForUpdate implements Runnable {
 	}
 
 	public void run() {
-		if(isResourceWasUpdated(resource)) {
+		if(isResourceWasUpdated()) {
 			UpdateNotifierBackend.getResourcesUpdateListener().
 				onResourceUpdate(resource);
 		}
 	}
-
-	public static boolean isResourceWasUpdated(Resource resource) {
+	
+	private boolean isResourceWasUpdated() {
 		log.debug("CheckForUpdate URL = \"" + resource.getUrl() + "\"");
-		Document document;
+		Integer newHashCode;
 		try {
-			document = Jsoup.connect(resource.getUrl()).get();
+			newHashCode = getNewHashCode(resource);
 		} catch (Exception e) {
 			log.error("Jsoup connect to resource failed. Resource marked as not updated", e);
 			return false;
 		}
-		Integer newHashCode = document.html().hashCode();
 		if(!newHashCode.equals(resource.getHash())) {
+			log.debug("New HashCode = " + newHashCode);
 			resource.setHash(newHashCode);
 			UpdateNotifierBackend.getDatabaseService().updateResourceHash(resource.getId(), newHashCode);
 			return true;
 		}
 		return false;
+	}
+
+	public static Integer getNewHashCode(Resource resource) throws IOException {
+		Document document;
+		document = Jsoup.connect(resource.getUrl()).get();
+		Integer newHashCode = document.html().hashCode();
+		return newHashCode;
 	}
 
 }

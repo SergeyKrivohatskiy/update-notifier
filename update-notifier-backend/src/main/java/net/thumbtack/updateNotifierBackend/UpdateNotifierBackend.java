@@ -55,10 +55,4 @@ public class UpdateNotifierBackend extends ResourceConfig {
 	public static ResourcesUpdateListener getResourcesUpdateListener() {
 		return resUpdateListener;
 	}
-	
-	@Override
-	protected void finalize() throws Throwable {
-		updateChecker.stop();
-		super.finalize();
-	}
 }
