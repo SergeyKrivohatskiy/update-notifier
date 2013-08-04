@@ -11,4 +11,7 @@ update-notifier-frontend/log
 
 update-notifier-backend/.classpath
 update-notifier-backend/target
+
+update-notifier-backend/bin
+
 *.log

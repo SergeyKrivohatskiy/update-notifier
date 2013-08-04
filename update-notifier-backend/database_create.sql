@@ -23,12 +23,13 @@ create table tags (
 	user_id bigint(20) unsigned not null,
 	name varchar(30) not null,
 	primary key (id),
+	constraint no_duplicate_tags unique(user_id, name),
 	foreign key (user_id) references users(id) on delete cascade
 );
 
-create table tag_resource (
-	tag_id bigint(20) unsigned, 
+create table resource_tag (
 	resource_id bigint(20) unsigned, 
+	tag_id bigint(20) unsigned, 
 	primary key (tag_id, resource_id),
 	foreign key (tag_id) references tags(id),
 	foreign key (resource_id) references resources(id)

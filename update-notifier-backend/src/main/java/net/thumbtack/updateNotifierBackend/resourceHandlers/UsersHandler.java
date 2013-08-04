@@ -1,7 +1,6 @@
 package net.thumbtack.updateNotifierBackend.resourceHandlers;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.inject.Singleton;
 import javax.ws.rs.BadRequestException;
@@ -44,13 +43,13 @@ public class UsersHandler {
 		return userId;
 	}
 
-	@Path("/{id}/resourses")
+	@Path("/{id}/resources")
 	@GET
 	@Produces({ "application/json" })
 	public String getUserResources(@PathParam("id") long userId,
 			@DefaultValue("") @QueryParam("tags") String tagsString) {
 		// TODO process errors
-		long[] tags = parseTags(tagsString);
+		Long[] tags = parseTags(tagsString);
 		List<Resource> resources = UpdateNotifierBackend.getDatabaseService()
 				.getResourcesByIdAndTags(userId, tags);
 		if (resources == null) {
@@ -59,28 +58,28 @@ public class UsersHandler {
 		return new Gson().toJson(resources);
 	}
 
-	@Path("/{id}/resourses")
+	@Path("/{id}/resources")
 	@DELETE
 	public void deleteUserResources(@PathParam("id") long userId,
 			@DefaultValue("") @QueryParam("tags") String tagsString) {
 		// TODO process errors
-		long[] tags = parseTags(tagsString);
-		UpdateNotifierBackend.getDatabaseService().deleteResourcesByIdAndTags(
-				userId, tags);
+//		Long[] tags = parseTags(tagsString);
+//		UpdateNotifierBackend.getDatabaseService().deleteResourcesByIdAndTags(
+//				userId, tags);
 	}
 
-	@Path("/{id}/resourses")
+	@Path("/{id}/resources")
 	@POST
 	@Consumes({ "application/json" })
 	public void addUserResource(@PathParam("id") long userId,
 			String resourceJson) {
 		// TODO process errors
-		Resource res = parseResource(resourceJson);
-		UpdateNotifierBackend.getResourcesChangesListener().onAddResource(res);
-		UpdateNotifierBackend.getDatabaseService().addResource(userId, res);
+//		Resource res = parseResource(resourceJson);
+//		UpdateNotifierBackend.getResourcesChangesListener().onAddResource(res);
+//		UpdateNotifierBackend.getDatabaseService().addResource(userId, res);
 	}
 
-	@Path("/{id}/resourses")
+	@Path("/{id}/resources")
 	@PUT
 	@Consumes({ "application/json" })
 	public void editUserResource(@PathParam("id") long userId,
@@ -104,7 +103,7 @@ public class UsersHandler {
 
 	}
 
-	@Path("/{id}/resourses/{resourceId}")
+	@Path("/{id}/resources/{resourceId}")
 	@GET
 	@Produces({ "application/json" })
 	public String getUserResource(@PathParam("id") long userId,
@@ -123,6 +122,14 @@ public class UsersHandler {
 				.getTags(userId));
 	}
 
+	@Path("/{id}/tags")
+	@POST
+	public void addTag(@PathParam("id") long userId,
+			String tagName) {
+		// TODO process errors
+		UpdateNotifierBackend.getDatabaseService().addTag(userId, tagName);
+	}
+
 	private Resource parseResource(String resourceJson) {
 		try {
 			return new Gson().fromJson(resourceJson, Resource.class);
@@ -131,13 +138,13 @@ public class UsersHandler {
 		}
 	}
 
-	private static long[] parseTags(String tagsString) {
-		long[] tags;
+	private static Long[] parseTags(String tagsString) {
+		Long[] tags;
 		if ("".equals(tagsString) || tagsString == null) {
 			tags = null;
 		} else {
 			String[] tagsStrings = tagsString.split(",");
-			tags = new long[tagsStrings.length];
+			tags = new Long[tagsStrings.length];
 			try {
 				for (int i = 0; i < tagsStrings.length; i += 1) {
 					tags[i] = Long.parseLong(tagsStrings[i]);

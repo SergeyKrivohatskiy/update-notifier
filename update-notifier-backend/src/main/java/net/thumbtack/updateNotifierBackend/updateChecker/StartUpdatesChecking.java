@@ -7,7 +7,7 @@ public class StartUpdatesChecking extends TimerTask {
 	private Thread updateCheckingThread;
 	private UpdatesChecking updateChecking;
 	
-	public StartUpdatesChecking(int periodicity, Executor executor) {
+	public StartUpdatesChecking(byte periodicity, Executor executor) {
 		updateChecking = new UpdatesChecking(periodicity, executor);
 		updateCheckingThread = new Thread(updateChecking);
 		updateCheckingThread.setDaemon(true);

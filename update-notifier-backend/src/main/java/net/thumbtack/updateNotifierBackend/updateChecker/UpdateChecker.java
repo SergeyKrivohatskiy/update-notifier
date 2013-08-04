@@ -30,7 +30,7 @@ public class UpdateChecker {
 
 	public void start() {
 		log.debug("Starting");
-		for(int i = 0; i < INTERVALS.length; i += 1) {
+		for(byte i = 0; i < INTERVALS.length; i += 1) {
 			timer.schedule(new StartUpdatesChecking(i, executor), INTERVALS[i], INTERVALS[i]);
 		}
 	}

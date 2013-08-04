@@ -3,7 +3,7 @@ package net.thumbtack.updateNotifierBackend.database.entities;
 public class Tag {
 
 	private Long id;
-	private Long user;
+	private Long user_id;
 	private String name;
 //	private Set<Resource> resources = new HashSet<Resource>();
 	
@@ -11,6 +11,11 @@ public class Tag {
 		
 	}
 	
+	public Tag(Long id, String name) {
+		this.id = id;
+		this.name = name;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -20,11 +25,11 @@ public class Tag {
 	}
 	
 	public Long getAccount() {
-		return user;
+		return user_id;
 	}
 
 	public void setAccount(Long user) {
-		this.user = user;
+		this.user_id = user;
 	}
 
 	public Long getId() {
@@ -39,7 +44,7 @@ public class Tag {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((user == null) ? 0 : user.hashCode());
+		result = prime * result + ((user_id == null) ? 0 : user_id.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;
@@ -55,10 +60,10 @@ public class Tag {
 			return false;
 		}
 		Tag other = (Tag) obj;
-		if (user == null) {
-			if (other.user != null)
+		if (user_id == null) {
+			if (other.user_id != null)
 				return false;
-		} else if (!user.equals(other.user))
+		} else if (!user_id.equals(other.user_id))
 			return false;
 		if (id == null) {
 			if (other.id != null)

@@ -14,12 +14,12 @@ import net.thumbtack.updateNotifierBackend.UpdateNotifierBackend;
 public class UpdatesChecking implements Runnable {
 
 	private static final Logger log = LoggerFactory.getLogger(UpdatesChecking.class);
-	private int periodicity;
+	private byte periodicity;
 	private Executor executor;
 	private Set<Resource> resources;
 	private Semaphore canBeRunned;
 	
-	public UpdatesChecking(int periodicity, Executor executor) {
+	public UpdatesChecking(byte periodicity, Executor executor) {
 		this.periodicity = periodicity;
 		this.executor = executor;
 		canBeRunned = new Semaphore(0);

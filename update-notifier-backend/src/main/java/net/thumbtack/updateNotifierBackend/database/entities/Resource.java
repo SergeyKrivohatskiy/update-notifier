@@ -11,6 +11,7 @@ public class Resource implements Serializable {
 
 	private transient Long resourceHash;
 	private String url;
+	private byte sheduleCode;
 	private int hash;
 	private Long[] tagsIdArray;
 	
@@ -23,6 +24,10 @@ public class Resource implements Serializable {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public byte getSheduleCode() {
+		return sheduleCode;
 	}
 
 	public Long getId() {

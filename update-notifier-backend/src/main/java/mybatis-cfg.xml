@@ -16,11 +16,11 @@
 	</settings>
 	<typeAliases>
 		<typeAlias alias="User"
-			type="net.thumbtack.updateNotifierBackend.databaseService.User" />
+			type="net.thumbtack.updateNotifierBackend.database.entities.User" />
 		<typeAlias alias="Tag"
-			type="net.thumbtack.updateNotifierBackend.databaseService.Tag" />
+			type="net.thumbtack.updateNotifierBackend.database.entities.Tag" />
 		<typeAlias alias="Resource"
-			type="net.thumbtack.updateNotifierBackend.databaseService.Resource" />
+			type="net.thumbtack.updateNotifierBackend.database.entities.Resource" />
 	</typeAliases>
 
 	<environments default="development">
@@ -36,7 +36,7 @@
 	</environments>
 
 	<mappers>
-		<package name="net.thumbtack.updateNotifierBackend.mappers" />
+		<package name="net.thumbtack.updateNotifierBackend.database.mappers" />
 	</mappers>
 
 

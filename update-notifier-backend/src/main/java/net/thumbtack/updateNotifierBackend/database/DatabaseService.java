@@ -2,20 +2,23 @@ package net.thumbtack.updateNotifierBackend.database;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import net.thumbtack.updateNotifierBackend.database.daos.ResourceDAO;
 import net.thumbtack.updateNotifierBackend.database.daos.TagDAO;
-import net.thumbtack.updateNotifierBackend.database.daos.TagResourceDAO;
+import net.thumbtack.updateNotifierBackend.database.daos.ResourceTagDAO;
 import net.thumbtack.updateNotifierBackend.database.daos.UserDAO;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
 import net.thumbtack.updateNotifierBackend.database.mappers.ResourceMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.TagMapper;
+import net.thumbtack.updateNotifierBackend.database.mappers.TagResourceMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.UserMapper;
 
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
@@ -72,22 +75,24 @@ public class DatabaseService {
 		}
 	}
 
-	public List<Resource> getResourcesByIdAndTags(Long userId, long[] tags) {
-		SqlSession session = sqlSessionFactory.openSession();
+	public List<Resource> getResourcesByIdAndTags(Long userId, Long[] tagIds) {
+		SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH);
 		try {
-			return ResourceDAO.getResources(
-					session.getMapper(ResourceMapper.class), userId, tags);
+			return ResourceDAO.getByUserIdAndTags(
+					session.getMapper(ResourceMapper.class), userId, tagIds);
 		} finally {
 			session.close();
 		}
 	}
 
 	public boolean addResource(long userId, Resource resource) {
-		SqlSession session = sqlSessionFactory.openSession();
+		SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH);
 		boolean result = false;
 		try {
-			result = ResourceDAO.addResource(userId, resource)
-					&& TagResourceDAO.addRelations(resource.getId(),
+			// TODO check that after addition resource have not-null id
+			result = ResourceDAO.add(session.getMapper(ResourceMapper.class),
+					userId, resource)
+					&& ResourceTagDAO.addRelations(session.getMapper(TagResourceMapper.class), resource.getId(),
 							resource.getTagsIdArray());
 			if (result) {
 				session.commit();
@@ -113,7 +118,7 @@ public class DatabaseService {
 		return result;
 	}
 
-	public boolean deleteResourcesByIdAndTags(long userId, long[] tagsId) {
+	public boolean deleteResourcesByIdAndTags(long userId, Long[] tagsId) {
 		SqlSession session = sqlSessionFactory.openSession();
 		boolean result = false;
 		try {
@@ -146,10 +151,15 @@ public class DatabaseService {
 	public Resource getResource(long userId, long resourceId) {
 		return null;
 		// TODO Auto-generated method stub
-		// TODO Do you need in this method?
+		// TODO Do you need this method?
 
 	}
 
+	/**
+	 * Return all tags for specified user.
+	 * @param userId
+	 * @return all tags for user with <code>userId</code>
+	 */
 	public Set<Tag> getTags(long userId) {
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
@@ -159,10 +169,15 @@ public class DatabaseService {
 		}
 	}
 
-	public Set<Resource> getResourcesBySheduleCode(int sheduleCode) {
+	/**
+	 * Get from database resources with specified <code>sheduleCode</code>
+	 * @param sheduleCode
+	 * @return
+	 */
+	public Set<Resource> getResourcesBySheduleCode(byte sheduleCode) {
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
-			return ResourceDAO.getResources(
+			return ResourceDAO.getBySheduleCode(
 					session.getMapper(ResourceMapper.class), sheduleCode);
 		} finally {
 			session.close();
@@ -170,9 +185,34 @@ public class DatabaseService {
 	}
 
 	
-	public void updateResourceHash(Long id, Integer newHashCode) {
+	/**
+	 * Update (in database) hash for resource with <code>resourceId</code>. 
+	 * @param resourceId resource, which hash will be overridden 
+	 * @param newHash new hash value
+	 */
+	public void updateResourceHash(Long resourceId, Integer newHash) {
 		// TODO Auto-generated method stub
-		
+	}
+
+	/**
+	 * Add tag with specified name and user id to database
+	 * @param userId 
+	 * @param tagName
+	 * @return true, if success, false otherwise
+	 */
+	public boolean addTag(long userId, String tagName) {
+		SqlSession session = sqlSessionFactory.openSession();
+		boolean result = false;
+		try {
+			result = TagDAO.addTag(session.getMapper(TagMapper.class), userId,
+					tagName);
+			if (result) {
+				session.commit();
+			}
+		} finally {
+			session.close();
+		}
+		return result;
 	}
 
 }
