@@ -192,8 +192,20 @@ public class DatabaseService {
 	 * @param resourceId resource, which hash will be overridden 
 	 * @param newHash new hash value
 	 */
-	public void updateResourceHash(Long resourceId, Integer newHash) {
-		// TODO Auto-generated method stub
+	public boolean updateResourceHash(Long resourceId, Integer newHash) {
+		SqlSession session = sqlSessionFactory.openSession();
+		boolean result = false;
+		try {
+			// Don't forget - hash will be update only with 'true' result
+			result = ResourceDAO.updateHash(session.getMapper(ResourceMapper.class), resourceId,
+					newHash);
+			if (result) {
+				session.commit();
+			}
+		} finally {
+			session.close();
+		}
+		return result;
 	}
 
 	/**

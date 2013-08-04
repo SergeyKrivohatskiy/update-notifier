@@ -58,12 +58,12 @@ public class ResourceDAO {
 	public static Set<Resource> getBySheduleCode(ResourceMapper mapper,
 			byte sheduleCode) {
 		// TODO Does it return collection of resources?
-		return new HashSet<Resource>();
-//		Set<Resource> list = mapper.getBySheduleCode(sheduleCode);
-//		if (list == null) {
-//			list = Collections.emptySet();
-//		}
-//		return list;
+//		return new HashSet<Resource>();
+		Set<Resource> list = mapper.getBySheduleCode(sheduleCode);
+		if (list == null) {
+			list = Collections.emptySet();
+		}
+		return list;
 	}
 
 	public static boolean deleteByTags(ResourceMapper mapper, long userId,
@@ -82,5 +82,12 @@ public class ResourceDAO {
 		mapper.update(userId, resource);
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public static boolean updateHash(ResourceMapper mapper, Long id,
+			Integer hash) {
+		boolean result = false;
+		result = mapper.updateHash(id, hash) > 0;
+		return result;
 	}
 }
