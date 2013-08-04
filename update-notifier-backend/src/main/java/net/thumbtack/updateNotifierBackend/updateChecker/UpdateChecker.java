@@ -11,11 +11,11 @@ import org.slf4j.LoggerFactory;
 public class UpdateChecker {
 
 	private static final Logger log = LoggerFactory.getLogger(UpdateChecker.class);
-	private static final long VERY_OFTEN = 6000;
-	private static final long OFTEN = 30000;
-	private static final long REGULAR = 60000;
-	private static final long RARELY = 360000;
-	private static final long VERY_RARELY = 8640000;
+	private static final long VERY_OFTEN = 60000;
+	private static final long OFTEN = 300000;
+	private static final long REGULAR = 600000;
+	private static final long RARELY = 3600000;
+	private static final long VERY_RARELY = 86400000;
 	private final static long INTERVALS[] = 
 		{VERY_OFTEN, OFTEN, REGULAR, RARELY, VERY_RARELY};
 
@@ -30,8 +30,9 @@ public class UpdateChecker {
 
 	public void start() {
 		log.debug("Starting");
-		for(byte i = 0; i < INTERVALS.length; i += 1) {
-			timer.schedule(new StartUpdatesChecking(i, executor), INTERVALS[i], INTERVALS[i]);
+		for(byte sheduleCode = 0; sheduleCode < INTERVALS.length; sheduleCode += 1) {
+			timer.schedule(new StartUpdatesChecking(sheduleCode, executor), 
+					INTERVALS[sheduleCode], INTERVALS[sheduleCode]);
 		}
 	}
 

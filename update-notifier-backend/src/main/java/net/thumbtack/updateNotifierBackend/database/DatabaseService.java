@@ -2,7 +2,6 @@ package net.thumbtack.updateNotifierBackend.database;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -78,6 +77,7 @@ public class DatabaseService {
 	public List<Resource> getResourcesByIdAndTags(Long userId, Long[] tagIds) {
 		SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH);
 		try {
+
 			return ResourceDAO.getByUserIdAndTags(
 					session.getMapper(ResourceMapper.class), userId, tagIds);
 		} finally {
@@ -86,9 +86,11 @@ public class DatabaseService {
 	}
 
 	public boolean addResource(long userId, Resource resource) {
+
 		SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH);
 		boolean result = false;
 		try {
+
 			// TODO check that after addition resource have not-null id
 			result = ResourceDAO.add(session.getMapper(ResourceMapper.class),
 					userId, resource)

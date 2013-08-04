@@ -34,10 +34,11 @@ public class UsersHandler {
 	@Path("signin")
 	@GET
 	public long signIn(@QueryParam("email") String userEmail) {
-		log.debug("Sign in: " + userEmail);
+		log.trace("Sign in: " + userEmail);
 		Long userId = UpdateNotifierBackend.getDatabaseService()
 				.getUserIdByEmail(userEmail);
 		if (userId == null) {
+			log.error("Database request failed.Sign in failed");
 			throw (new WebApplicationException("Database get account error"));
 		}
 		return userId;
@@ -49,10 +50,12 @@ public class UsersHandler {
 	public String getUserResources(@PathParam("id") long userId,
 			@DefaultValue("") @QueryParam("tags") String tagsString) {
 		// TODO process errors
+		log.trace(userId + "/resourses?" + tagsString);
 		Long[] tags = parseTags(tagsString);
 		List<Resource> resources = UpdateNotifierBackend.getDatabaseService()
 				.getResourcesByIdAndTags(userId, tags);
 		if (resources == null) {
+			log.debug("Database request failed. Get resources bad request");
 			throw (new BadRequestException("Incorrect userId"));
 		}
 		return new Gson().toJson(resources);
@@ -85,7 +88,7 @@ public class UsersHandler {
 	public void editUserResource(@PathParam("id") long userId,
 			String resourceJson) {
 		// TODO process errors
-		Resource res = parseResource(resourceJson);
+		// Resource res = parseResource(resourceJson);
 		// TODO Do it one more time
 //		Resource savedResource = UpdateNotifierBackend.getDatabaseService()
 //				.getResource(userId, resourceId);
