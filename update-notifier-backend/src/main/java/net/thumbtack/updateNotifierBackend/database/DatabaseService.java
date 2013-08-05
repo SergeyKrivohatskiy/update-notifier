@@ -11,6 +11,7 @@ import net.thumbtack.updateNotifierBackend.database.daos.ResourceTagDAO;
 import net.thumbtack.updateNotifierBackend.database.daos.UserDAO;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
+import net.thumbtack.updateNotifierBackend.database.entities.User;
 import net.thumbtack.updateNotifierBackend.database.mappers.ResourceMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.TagMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.TagResourceMapper;
@@ -229,6 +230,11 @@ public class DatabaseService {
 	public boolean editTag(long userId, long tagId, String tagName) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public String getUserEmailById(Long id) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
