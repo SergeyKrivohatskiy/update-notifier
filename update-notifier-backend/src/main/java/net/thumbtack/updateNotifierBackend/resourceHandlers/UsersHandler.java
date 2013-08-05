@@ -1,6 +1,7 @@
 package net.thumbtack.updateNotifierBackend.resourceHandlers;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Singleton;
 import javax.ws.rs.BadRequestException;
@@ -8,6 +9,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -24,6 +26,7 @@ import com.google.gson.JsonSyntaxException;
 
 import net.thumbtack.updateNotifierBackend.UpdateNotifierBackend;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
+import net.thumbtack.updateNotifierBackend.database.entities.Tag;
 
 @Path("/users")
 @Singleton
@@ -49,13 +52,12 @@ public class UsersHandler {
 	@Produces({ "application/json" })
 	public String getUserResources(@PathParam("id") long userId,
 			@DefaultValue("") @QueryParam("tags") String tagsString) {
-		// TODO process errors
-		log.trace(userId + "/resourses?" + tagsString);
+		log.trace("Get resources");
 		Long[] tags = parseTags(tagsString);
 		List<Resource> resources = UpdateNotifierBackend.getDatabaseService()
 				.getResourcesByIdAndTags(userId, tags);
 		if (resources == null) {
-			log.debug("Database request failed. Get resources bad request");
+			log.debug("Database get request failed. Get resources bad request");
 			throw (new BadRequestException("Incorrect userId"));
 		}
 		return new Gson().toJson(resources);
@@ -65,10 +67,13 @@ public class UsersHandler {
 	@DELETE
 	public void deleteUserResources(@PathParam("id") long userId,
 			@DefaultValue("") @QueryParam("tags") String tagsString) {
-		// TODO process errors
-//		Long[] tags = parseTags(tagsString);
-//		UpdateNotifierBackend.getDatabaseService().deleteResourcesByIdAndTags(
-//				userId, tags);
+		log.trace("Delete resources");
+		Long[] tags = parseTags(tagsString);
+		if(!UpdateNotifierBackend.getDatabaseService().deleteResourcesByIdAndTags(
+				userId, tags)) {
+			log.debug("Database delete request failed. Delete resources bnot found");
+			throw (new NotFoundException());
+		}
 	}
 
 	@Path("/{id}/resources")
@@ -76,10 +81,13 @@ public class UsersHandler {
 	@Consumes({ "application/json" })
 	public void addUserResource(@PathParam("id") long userId,
 			String resourceJson) {
-		// TODO process errors
-//		Resource res = parseResource(resourceJson);
-//		UpdateNotifierBackend.getResourcesChangesListener().onAddResource(res);
-//		UpdateNotifierBackend.getDatabaseService().addResource(userId, res);
+		log.trace("Add resource");
+		Resource res = parseResource(resourceJson);
+		UpdateNotifierBackend.getResourcesChangesListener().onAddResource(res);
+		if(!UpdateNotifierBackend.getDatabaseService().addResource(userId, res)) {
+			log.debug("Database add request failed. Add resources bad request");
+			throw (new BadRequestException("Incorrect params"));
+		}
 	}
 
 	@Path("/{id}/resources")
@@ -87,22 +95,25 @@ public class UsersHandler {
 	@Consumes({ "application/json" })
 	public void editUserResource(@PathParam("id") long userId,
 			String resourceJson) {
-		// TODO process errors
-		// Resource res = parseResource(resourceJson);
-		// TODO Do it one more time
-//		Resource savedResource = UpdateNotifierBackend.getDatabaseService()
-//				.getResource(userId, resourceId);
-//		if (savedResource == null) {
-//			throw (new BadRequestException("Resource not exist"));
-//		}
-//
-//		if (savedResource.getUrl() != res.getUrl()) {
-//			UpdateNotifierBackend.getResourcesChangesListener()
-//					.onEditResourceUrl(res);
-//		}
-//
-//		UpdateNotifierBackend.getDatabaseService().editResource(userId,
-//				resourceId, res);
+		log.trace("Edit resource");
+		Resource res = parseResource(resourceJson);
+		Resource savedResource = UpdateNotifierBackend.getDatabaseService()
+				.getResource(userId, res.getId());
+		if (savedResource == null) {
+			log.debug("Database get request failed. Edit resources not found");
+			throw (new NotFoundException("Resource not exist"));
+		}
+
+		if (savedResource.getUrl() != res.getUrl()) {
+			UpdateNotifierBackend.getResourcesChangesListener()
+					.onEditResourceUrl(res);
+		}
+
+		if(!UpdateNotifierBackend.getDatabaseService().editResource(userId,
+				res.getId(), res)) {
+			log.debug("Database edit request failed. Edit resources bad request");
+			throw (new BadRequestException());
+		}
 
 	}
 
@@ -111,32 +122,55 @@ public class UsersHandler {
 	@Produces({ "application/json" })
 	public String getUserResource(@PathParam("id") long userId,
 			@PathParam("resourceId") long resourceId) {
-		// TODO process errors
-		return new Gson().toJson(UpdateNotifierBackend.getDatabaseService()
-				.getResource(userId, resourceId));
+		log.trace("Get resource");
+		Resource res = UpdateNotifierBackend.getDatabaseService().getResource(userId, resourceId);
+		if(res == null) {
+			log.debug("Database get request failed. Get resource not found");
+			throw (new NotFoundException("Resource not exist"));
+		}
+		return new Gson().toJson(res);
 	}
 
 	@Path("/{id}/tags")
 	@GET
 	@Produces({ "application/json" })
 	public String getUserTags(@PathParam("id") long userId) {
-		// TODO process errors
-		return new Gson().toJson(UpdateNotifierBackend.getDatabaseService()
-				.getTags(userId));
+		log.trace("Get tags");
+		Set<Tag> tags = UpdateNotifierBackend.getDatabaseService().getTags(userId);
+		if(tags == null) {
+			log.debug("Database get request failed. Get tags not found");
+			throw (new NotFoundException());
+		}
+		return new Gson().toJson(tags);
 	}
 
 	@Path("/{id}/tags")
 	@POST
 	public void addTag(@PathParam("id") long userId,
 			String tagName) {
-		// TODO process errors
-		UpdateNotifierBackend.getDatabaseService().addTag(userId, tagName);
+		log.trace("Add tag");
+		if(!UpdateNotifierBackend.getDatabaseService().addTag(userId, tagName)) {
+			log.debug("Database add request failed. Edit resources bad request");
+			throw (new BadRequestException());
+		}
+	}
+	
+	@Path("/{id}/tags/{tagId}")
+	@PUT
+	public void editTag(@PathParam("id") long userId, @PathParam("tagId") long tagId,
+			String tagName) {
+		log.trace("Edit tag");
+		if(!UpdateNotifierBackend.getDatabaseService().editTag(userId, tagId, tagName)) {
+			log.debug("Database add request failed. Edit resources bad request");
+			throw (new BadRequestException());
+		}
 	}
 
-	private Resource parseResource(String resourceJson) {
+	private static Resource parseResource(String resourceJson) {
 		try {
 			return new Gson().fromJson(resourceJson, Resource.class);
 		} catch (JsonSyntaxException ex) {
+			log.debug("Resource parsing error");
 			throw (new BadRequestException("Json parsing error"));
 		}
 	}
@@ -153,6 +187,7 @@ public class UsersHandler {
 					tags[i] = Long.parseLong(tagsStrings[i]);
 				}
 			} catch (NumberFormatException ex) {
+				log.debug("Tags id parsing error");
 				throw (new BadRequestException("Tags id parsing error"));
 			}
 		}

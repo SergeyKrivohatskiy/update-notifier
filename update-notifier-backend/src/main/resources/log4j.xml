@@ -39,7 +39,7 @@
     
     <root>
 
-        <priority value="debug" />
+        <priority value="trace" />
         
         <appender-ref ref="file" />
 

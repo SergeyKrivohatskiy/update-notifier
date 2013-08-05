@@ -3,8 +3,6 @@ package net.thumbtack.updateNotifierBackend.database.mappers;
 import java.util.List;
 import java.util.Set;
 
-import javax.ws.rs.QueryParam;
-
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;

@@ -1,11 +1,9 @@
 package net.thumbtack.updateNotifierBackend.database.daos;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static net.thumbtack.updateNotifierBackend.database.StringMaker.*;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.mappers.ResourceMapper;
 

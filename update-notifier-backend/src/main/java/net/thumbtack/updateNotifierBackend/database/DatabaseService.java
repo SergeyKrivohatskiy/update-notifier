@@ -152,9 +152,6 @@ public class DatabaseService {
 
 	public Resource getResource(long userId, long resourceId) {
 		return null;
-		// TODO Auto-generated method stub
-		// TODO Do you need this method?
-
 	}
 
 	/**
@@ -227,6 +224,11 @@ public class DatabaseService {
 			session.close();
 		}
 		return result;
+	}
+
+	public boolean editTag(long userId, long tagId, String tagName) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
