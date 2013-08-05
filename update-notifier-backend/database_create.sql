@@ -32,5 +32,5 @@ create table resource_tag (
 	tag_id bigint(20) unsigned, 
 	primary key (tag_id, resource_id),
 	foreign key (tag_id) references tags(id),
-	foreign key (resource_id) references resources(id)
+	foreign key (resource_id) references resources(id) on delete cascade
 );

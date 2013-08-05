@@ -1,19 +1,19 @@
 package net.thumbtack.updateNotifierBackend.database.entities;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class Resource implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
 	private Long id;
-	private transient Long user_id;
+	private transient Long userId;
 
-	private transient Long resourceHash;
 	private String url;
 	private byte sheduleCode;
-	private int hash;
-	private Long[] tagsIdArray;
+	private transient int hash;
+	private List<Long> tagIds;
 	
 	public Resource() {
 	}
@@ -34,18 +34,22 @@ public class Resource implements Serializable {
 		return id;
 	}
 
-	public Long getUser_id() {
-		return user_id;
+	public Long getUserId() {
+		return userId;
 	}
 
-	public Long getResourceHash() {
-		return resourceHash;
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
-	public Long[] getTagsIdArray() {
-		return tagsIdArray;
+	public List<Long> getTagIds() {
+		return tagIds;
 	}
 
+
+	public void setTagIds(List<Long> list) {
+		this.tagIds = list;
+	}
 
 	public int getHash() {
 		return hash;

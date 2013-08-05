@@ -35,8 +35,11 @@ public class UsersHandler {
 	@GET
 	public long signIn(@QueryParam("email") String userEmail) {
 		log.trace("Sign in: " + userEmail);
+		if(userEmail == null) {
+			throw new BadRequestException("Missing 'email' parameter in the url");
+		}
 		Long userId = UpdateNotifierBackend.getDatabaseService()
-				.getUserIdByEmail(userEmail);
+				.getUserIdByEmailOrAdd(userEmail);
 		if (userId == null) {
 			log.error("Database request failed.Sign in failed");
 			throw (new WebApplicationException("Database get account error"));
@@ -77,9 +80,9 @@ public class UsersHandler {
 	public void addUserResource(@PathParam("id") long userId,
 			String resourceJson) {
 		// TODO process errors
-//		Resource res = parseResource(resourceJson);
-//		UpdateNotifierBackend.getResourcesChangesListener().onAddResource(res);
-//		UpdateNotifierBackend.getDatabaseService().addResource(userId, res);
+		Resource res = parseResource(resourceJson);
+		UpdateNotifierBackend.getResourcesChangesListener().onAddResource(res);
+		UpdateNotifierBackend.getDatabaseService().addResource(userId, res);
 	}
 
 	@Path("/{id}/resources")
@@ -88,22 +91,16 @@ public class UsersHandler {
 	public void editUserResource(@PathParam("id") long userId,
 			String resourceJson) {
 		// TODO process errors
-		// Resource res = parseResource(resourceJson);
-		// TODO Do it one more time
-//		Resource savedResource = UpdateNotifierBackend.getDatabaseService()
-//				.getResource(userId, resourceId);
-//		if (savedResource == null) {
-//			throw (new BadRequestException("Resource not exist"));
-//		}
-//
-//		if (savedResource.getUrl() != res.getUrl()) {
-//			UpdateNotifierBackend.getResourcesChangesListener()
-//					.onEditResourceUrl(res);
-//		}
-//
-//		UpdateNotifierBackend.getDatabaseService().editResource(userId,
-//				resourceId, res);
+		Resource res = parseResource(resourceJson);
+		Resource savedResource = UpdateNotifierBackend.getDatabaseService()
+				.getResource(userId, res.getId());
 
+		if (savedResource.getUrl() != res.getUrl()) {
+			UpdateNotifierBackend.getResourcesChangesListener()
+					.onEditResourceUrl(res);
+		}
+		UpdateNotifierBackend.getDatabaseService().editResource(userId,
+				res);
 	}
 
 	@Path("/{id}/resources/{resourceId}")

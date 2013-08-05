@@ -2,8 +2,12 @@ package net.thumbtack.updateNotifierBackend.database;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import javax.ws.rs.BadRequestException;
 
 import net.thumbtack.updateNotifierBackend.database.daos.ResourceDAO;
 import net.thumbtack.updateNotifierBackend.database.daos.TagDAO;
@@ -12,8 +16,8 @@ import net.thumbtack.updateNotifierBackend.database.daos.UserDAO;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
 import net.thumbtack.updateNotifierBackend.database.mappers.ResourceMapper;
+import net.thumbtack.updateNotifierBackend.database.mappers.ResourceTagMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.TagMapper;
-import net.thumbtack.updateNotifierBackend.database.mappers.TagResourceMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.UserMapper;
 
 import org.apache.ibatis.io.Resources;
@@ -60,10 +64,10 @@ public class DatabaseService {
 		// getResources();
 	}
 
-	public Long getUserIdByEmail(String email) {
+	public Long getUserIdByEmailOrAdd(String email) {
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
-			Long userId = UserDAO.getUserId(
+			Long userId = UserDAO.getUserIdOrAdd(
 					session.getMapper(UserMapper.class), email);
 			if (userId != null) {
 				session.commit();
@@ -74,29 +78,59 @@ public class DatabaseService {
 		}
 	}
 
+	public String getUserEmailbyId(Long id) {
+		SqlSession session = sqlSessionFactory.openSession();
+		try {
+			String email = UserDAO.getUserEmail(
+					session.getMapper(UserMapper.class), id);
+			if (email != null) {
+				session.commit();
+			} else {
+				email = "";
+			}
+			return email;
+		} finally {
+			session.close();
+		}
+	}
+
 	public List<Resource> getResourcesByIdAndTags(Long userId, Long[] tagIds) {
 		SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH);
 		try {
-
-			return ResourceDAO.getByUserIdAndTags(
+			List<Long> resIds = ResourceTagDAO.getResourcesIdsByTags(
+					session.getMapper(ResourceTagMapper.class), tagIds);
+			List<Resource> list = ResourceDAO.getByUserIdAndTags(
 					session.getMapper(ResourceMapper.class), userId, tagIds);
+			if (list == null) {
+				list = Collections.emptyList();
+			} else {
+				if (tagIds != null) {
+					for (Resource resource : list) {
+						resource.setTagIds(Arrays.asList(tagIds));
+					}
+				}
+			}
+			return list;
 		} finally {
 			session.close();
 		}
 	}
 
 	public boolean addResource(long userId, Resource resource) {
-
 		SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH);
 		boolean result = false;
 		try {
-
-			// TODO check that after addition resource have not-null id
-			result = ResourceDAO.add(session.getMapper(ResourceMapper.class),
-					userId, resource)
-					&& ResourceTagDAO.addRelations(session.getMapper(TagResourceMapper.class), resource.getId(),
-							resource.getTagsIdArray());
-			if (result) {
+			resource.setUserId(userId);
+			Long id = ResourceDAO.add(session.getMapper(ResourceMapper.class),
+					resource);
+			if (id != 0) {
+				if (resource.getTagIds() != null) {
+					for (Long tagId : resource.getTagIds()) {
+						ResourceTagDAO.addRelation(
+								session.getMapper(ResourceTagMapper.class), id,
+								tagId);
+					}
+				}
 				session.commit();
 			}
 		} finally {
@@ -135,12 +169,17 @@ public class DatabaseService {
 		return result;
 	}
 
-	public boolean editResource(long userId, long resourceId, Resource resource) {
+	public boolean editResource(long userId, Resource resource) {
 		SqlSession session = sqlSessionFactory.openSession();
 		boolean result = false;
 		try {
+			resource.setUserId(userId);
+			if (ResourceDAO.get(session.getMapper(ResourceMapper.class),
+					resource.getId()) == null) {
+				throw (new BadRequestException("Resource not exist"));
+			}
 			result = ResourceDAO.edit(session.getMapper(ResourceMapper.class),
-					userId, resource);
+					resource);
 			if (result) {
 				session.commit();
 			}
@@ -151,14 +190,23 @@ public class DatabaseService {
 	}
 
 	public Resource getResource(long userId, long resourceId) {
-		return null;
-		// TODO Auto-generated method stub
-		// TODO Do you need this method?
-
+		SqlSession session = sqlSessionFactory.openSession();
+		Resource result = null;
+		try {
+			result = ResourceDAO.get(session.getMapper(ResourceMapper.class),
+					resourceId);
+			List<Long> tagIds = ResourceTagDAO.getForResource(
+					session.getMapper(ResourceTagMapper.class), result.getId());
+			result.setTagIds(tagIds);
+		} finally {
+			session.close();
+		}
+		return result;
 	}
 
 	/**
 	 * Return all tags for specified user.
+	 * 
 	 * @param userId
 	 * @return all tags for user with <code>userId</code>
 	 */
@@ -173,31 +221,39 @@ public class DatabaseService {
 
 	/**
 	 * Get from database resources with specified <code>sheduleCode</code>
+	 * 
 	 * @param sheduleCode
 	 * @return
 	 */
 	public Set<Resource> getResourcesBySheduleCode(byte sheduleCode) {
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
-			return ResourceDAO.getBySheduleCode(
+			Set<Resource> tags = ResourceDAO.getBySheduleCode(
 					session.getMapper(ResourceMapper.class), sheduleCode);
+			if (tags == null) {
+				return Collections.emptySet();
+			}
+			return tags;
 		} finally {
 			session.close();
 		}
 	}
 
-	
 	/**
-	 * Update (in database) hash for resource with <code>resourceId</code>. 
-	 * @param resourceId resource, which hash will be overridden 
-	 * @param newHash new hash value
+	 * Update (in database) hash for resource with <code>resourceId</code>.
+	 * 
+	 * @param resourceId
+	 *            resource, which hash will be overridden
+	 * @param newHash
+	 *            new hash value
 	 */
 	public boolean updateResourceHash(Long resourceId, Integer newHash) {
 		SqlSession session = sqlSessionFactory.openSession();
 		boolean result = false;
 		try {
 			// Don't forget - hash will be update only with 'true' result
-			result = ResourceDAO.updateHash(session.getMapper(ResourceMapper.class), resourceId,
+			result = ResourceDAO.updateHash(
+					session.getMapper(ResourceMapper.class), resourceId,
 					newHash);
 			if (result) {
 				session.commit();
@@ -210,7 +266,8 @@ public class DatabaseService {
 
 	/**
 	 * Add tag with specified name and user id to database
-	 * @param userId 
+	 * 
+	 * @param userId
 	 * @param tagName
 	 * @return true, if success, false otherwise
 	 */

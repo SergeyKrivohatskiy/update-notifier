@@ -1,7 +1,4 @@
-delete from users;
-delete from resources;
-delete from tags;
-delete from resource_tag;
+use update_notifier;
 
 insert into users value 
 	(null, 'mail@post.com'), #Assume, that user id equals 1
@@ -41,6 +38,6 @@ insert into resource_tag values
 	(5,2), (6,2), 
 	(7,4), (8,4),
 
-	(9,1), (13,1), 
-	(11,2), (12,2), 
-	(14,3), (15,3);
+	(9,5), (13,5), 
+	(11,6), (12,6), 
+	(14,7), (15,7);

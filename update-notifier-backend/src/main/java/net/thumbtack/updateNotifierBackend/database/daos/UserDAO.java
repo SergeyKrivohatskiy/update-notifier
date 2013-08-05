@@ -10,13 +10,18 @@ public class UserDAO {
 	 * @param email user email
 	 * @return existing or new user id
 	 */
-	public static Long getUserId(UserMapper mapper, String email) {
-		Long userId = mapper.getIdByEmail(email);
+	public static Long getUserIdOrAdd(UserMapper mapper, String email) {
+		Long userId = mapper.getId(email);
 		if (userId == null) {
 			mapper.addUser(email);
 			//TODO what about exception on add?
-			userId = mapper.getIdByEmail(email);
+			userId = mapper.getId(email);
 		}
 		return userId;
 	}
+
+	public static String getUserEmail(UserMapper mapper, Long id) {
+		return mapper.getEmail(id);
+	}
+	
 }
