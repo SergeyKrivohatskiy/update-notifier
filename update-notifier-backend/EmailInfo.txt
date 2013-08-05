@@ -1,0 +1,4 @@
+email: UpdateNotifier@mail.ru
+pass: updatenotifierpass
+
+answ: CPU time

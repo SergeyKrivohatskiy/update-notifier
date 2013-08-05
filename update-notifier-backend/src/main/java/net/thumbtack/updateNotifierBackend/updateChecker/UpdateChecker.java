@@ -32,7 +32,7 @@ public class UpdateChecker {
 		log.debug("Starting");
 		for(byte sheduleCode = 0; sheduleCode < INTERVALS.length; sheduleCode += 1) {
 			timer.schedule(new StartUpdatesChecking(sheduleCode, executor), 
-					INTERVALS[sheduleCode], INTERVALS[sheduleCode]);
+					INTERVALS[sheduleCode] / 10, INTERVALS[sheduleCode]);
 		}
 	}
 

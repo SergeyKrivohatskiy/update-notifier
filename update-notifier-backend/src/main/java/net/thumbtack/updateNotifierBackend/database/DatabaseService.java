@@ -15,6 +15,7 @@ import net.thumbtack.updateNotifierBackend.database.daos.ResourceTagDAO;
 import net.thumbtack.updateNotifierBackend.database.daos.UserDAO;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
+import net.thumbtack.updateNotifierBackend.database.entities.User;
 import net.thumbtack.updateNotifierBackend.database.mappers.ResourceMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.ResourceTagMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.TagMapper;
@@ -174,10 +175,10 @@ public class DatabaseService {
 		boolean result = false;
 		try {
 			resource.setUserId(userId);
-			if (ResourceDAO.get(session.getMapper(ResourceMapper.class),
-					resource.getId()) == null) {
-				throw (new BadRequestException("Resource not exist"));
-			}
+//			if (ResourceDAO.get(session.getMapper(ResourceMapper.class),
+//					resource.getId()) == null) {
+//				throw (new BadRequestException("Resource not exist"));
+//			}
 			result = ResourceDAO.edit(session.getMapper(ResourceMapper.class),
 					resource);
 			if (result) {
@@ -195,9 +196,12 @@ public class DatabaseService {
 		try {
 			result = ResourceDAO.get(session.getMapper(ResourceMapper.class),
 					resourceId);
-			List<Long> tagIds = ResourceTagDAO.getForResource(
-					session.getMapper(ResourceTagMapper.class), result.getId());
-			result.setTagIds(tagIds);
+			if (result != null) {
+				List<Long> tagIds = ResourceTagDAO.getForResource(
+						session.getMapper(ResourceTagMapper.class),
+						result.getId());
+				result.setTagIds(tagIds);
+			}
 		} finally {
 			session.close();
 		}
@@ -284,6 +288,16 @@ public class DatabaseService {
 			session.close();
 		}
 		return result;
+	}
+
+	public boolean editTag(long userId, long tagId, String tagName) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public String getUserEmailById(Long id) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
