@@ -24,15 +24,12 @@ public class UpdateChecker {
 	private Timer timer = new Timer(true);
 	private static final int THREADS_COUNT = 2;
 	private Executor executor = Executors.newFixedThreadPool(THREADS_COUNT);
-	
-	public UpdateChecker() {
-	}
 
 	public void start() {
 		log.debug("Starting");
 		for(byte sheduleCode = 0; sheduleCode < INTERVALS.length; sheduleCode += 1) {
 			timer.schedule(new StartUpdatesChecking(sheduleCode, executor), 
-					INTERVALS[sheduleCode] / 10, INTERVALS[sheduleCode]);
+					INTERVALS[sheduleCode], INTERVALS[sheduleCode]);
 		}
 	}
 

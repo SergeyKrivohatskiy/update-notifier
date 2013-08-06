@@ -1,7 +1,5 @@
 package net.thumbtack.updateNotifierBackend.listeners;
 
-import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +17,6 @@ public class ResourcesChangesListener {
 	 */
 	public void onAddResource(Resource resource) {
 		log.trace("On add: URL = " + resource.getUrl());
-		// recompute hash for new resource
 		renewResource(resource);
 	}
 	
@@ -33,11 +30,7 @@ public class ResourcesChangesListener {
 	}
 
 	private void renewResource(Resource resource) {
-		try {
-			Integer newHashCode = CheckForUpdate.getNewHashCode(resource);
-			log.trace("New hash = " + newHashCode);
-			resource.setHash(newHashCode);
-		} catch (IOException e) {} // Ignore
+		Integer newHashCode = CheckForUpdate.getNewHashCode(resource);
+		resource.setHash(newHashCode);
 	}
-	
 }

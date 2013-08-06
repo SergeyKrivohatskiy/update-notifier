@@ -14,6 +14,7 @@ import javax.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.thumbtack.updateNotifierBackend.UpdateNotifierBackend;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 
 public class ResourcesUpdateListener {
@@ -27,9 +28,9 @@ public class ResourcesUpdateListener {
 	
 	static {
         PROPS = new Properties();
- 
-        PROPS.put("mail.smtp.host", HOST);
+
         PROPS.put("mail.transport.protocol", "smtp");
+        PROPS.put("mail.smtp.host", HOST);
         PROPS.put("mail.smtp.auth", "true");
         
         if(log.isDebugEnabled()) {
@@ -45,11 +46,11 @@ public class ResourcesUpdateListener {
 	}
 
 	private boolean sendEmail(Resource resource) {
-        String to = "cthutq66a@yandex.ru";//UpdateNotifierBackend.getDatabaseService().
-				//getUserEmailById(resource.getId());
-//        if(to == null) {
-//        	return false;
-//        }
+        String to = UpdateNotifierBackend.getDatabaseService().
+				getUserEmailById(resource.getId());
+        if(to == null) {
+        	return false;
+        }
         
         Session session = Session.getInstance(PROPS, new SMTPAuthenticator());
  

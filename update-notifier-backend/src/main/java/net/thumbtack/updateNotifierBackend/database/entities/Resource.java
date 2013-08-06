@@ -90,4 +90,12 @@ public class Resource implements Serializable {
 		return true;
 	}
 
+	public String getDomPath() {
+		return "/0/1/1/1/0/2/0/1/0";
+	}
+	
+	public String getFilter() {
+		return null;
+	}
+
 }
