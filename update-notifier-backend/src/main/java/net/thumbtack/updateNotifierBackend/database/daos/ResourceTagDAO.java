@@ -13,9 +13,4 @@ public class ResourceTagDAO {
 	public static List<Long> getForResource(ResourceTagMapper mapper, Long id) {
 		return mapper.getForResource(id);
 	}
-
-	public static List<Long> getResourcesIdsByTags(ResourceTagMapper mapper,
-			Long[] tagIds) {
-		return mapper.getResourcesIdsByTags(tagIds);
-	}
 }

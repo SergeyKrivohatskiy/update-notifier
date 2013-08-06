@@ -18,10 +18,10 @@ public interface ResourceMapper {
 	String DEL_RESOURCE = "DELETE FROM resources WHERE id=#{resourceId}";
 	String GET_ALL_FOR_USER = "SELECT * FROM resources WHERE user_id=#{id}";
 	String GET_BY_ID = "SELECT * FROM resources WHERE id=#{id}";
-	String GET_BY_USER_ID_AND_TAGS = "SELECT resources.* FROM resources INNER JOIN resource_tag ON resources.id = resource_tag.resource_id WHERE tag_id IN (#{tagIds})";
+	String GET_BY_USER_ID_AND_TAGS = "SELECT DISTINCT * FROM resources WHERE NOT EXISTS (SELECT id FROM tags WHERE tags.id IN (${tagIds}) AND NOT EXISTS (SELECT * FROM resource_tag WHERE resource_id=resources.id AND tag_id = tags.id))";
 	String GET_BY_SHEDULE_CODE = "SELECT * FROM resources WHERE shedule_code=#{sheduleCode}";
 	String DEL_ALL = "DELETE FROM resources WHERE id=#{id}";
-	String DEL_BY_TAGS = "";
+	String DEL_BY_TAGS = "DELETE FROM resources WHERE NOT EXISTS (SELECT id FROM tags WHERE tags.id IN (${tagIds}) AND NOT EXISTS (SELECT * FROM resource_tag WHERE resource_id=resources.id AND tag_id = tags.id))";
 	String UPD_RESOURCE = "UPDATE resources SET user_id=#{userId}, url=#{url}, hash=#{hash}, shedule_code=#{sheduleCode} WHERE id=#{id}";
 	String UPD_HASH = "UPDATE resources SET hash=#{hash} WHERE id=#{id}";
 	String LAST_ID = "SELECT LAST_INSERT_ID()";
@@ -47,7 +47,7 @@ public interface ResourceMapper {
 	int deleteAll(long id);
 
 	@Delete(DEL_BY_TAGS)
-	int deleteByTags(long id);
+	int deleteByTags(@Param(value = "tagIds") String tagIds);
 
 	@Update(UPD_RESOURCE)
 	int update(Resource resource);
