@@ -13,6 +13,8 @@ create table resources (
 	user_id bigint(20) unsigned not null,
 	url varchar(255) not null,
 	shedule_code tinyint not null,
+	dom_path varchar(255) not null,
+	filter varchar(255),
 	hash int not null,
 	primary key (id),
 	foreign key (user_id) references users(id) on delete cascade
