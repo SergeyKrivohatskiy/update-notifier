@@ -2,12 +2,9 @@ package net.thumbtack.updateNotifierBackend.database;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
-import javax.ws.rs.BadRequestException;
 
 import net.thumbtack.updateNotifierBackend.database.daos.ResourceDAO;
 import net.thumbtack.updateNotifierBackend.database.daos.TagDAO;
@@ -15,7 +12,6 @@ import net.thumbtack.updateNotifierBackend.database.daos.ResourceTagDAO;
 import net.thumbtack.updateNotifierBackend.database.daos.UserDAO;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
-import net.thumbtack.updateNotifierBackend.database.entities.User;
 import net.thumbtack.updateNotifierBackend.database.mappers.ResourceMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.ResourceTagMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.TagMapper;
@@ -79,7 +75,7 @@ public class DatabaseService {
 		}
 	}
 
-	public String getUserEmailbyId(Long id) {
+	public String getUserEmailById(Long id) {
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
 			String email = UserDAO.getUserEmail(
@@ -98,20 +94,19 @@ public class DatabaseService {
 	public List<Resource> getResourcesByIdAndTags(Long userId, Long[] tagIds) {
 		SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH);
 		try {
-			List<Long> resIds = ResourceTagDAO.getResourcesIdsByTags(
-					session.getMapper(ResourceTagMapper.class), tagIds);
-			List<Resource> list = ResourceDAO.getByUserIdAndTags(
+			List<Resource> resources = null;
+			resources = ResourceDAO.getByUserIdAndTags(
 					session.getMapper(ResourceMapper.class), userId, tagIds);
-			if (list == null) {
-				list = Collections.emptyList();
+			if (resources == null) {
+				resources = Collections.emptyList();
 			} else {
-				if (tagIds != null) {
-					for (Resource resource : list) {
-						resource.setTagIds(Arrays.asList(tagIds));
-					}
+				for (Resource resource : resources) {
+					resource.setTagIds(ResourceTagDAO.getForResource(
+							session.getMapper(ResourceTagMapper.class),
+							resource.getId()));
 				}
 			}
-			return list;
+			return resources;
 		} finally {
 			session.close();
 		}
@@ -133,6 +128,7 @@ public class DatabaseService {
 					}
 				}
 				session.commit();
+				result = true;
 			}
 		} finally {
 			session.close();
@@ -141,6 +137,7 @@ public class DatabaseService {
 	}
 
 	public boolean deleteResource(long resourceId) {
+		// Not checked
 		SqlSession session = sqlSessionFactory.openSession();
 		boolean result = false;
 		try {
@@ -175,10 +172,10 @@ public class DatabaseService {
 		boolean result = false;
 		try {
 			resource.setUserId(userId);
-//			if (ResourceDAO.get(session.getMapper(ResourceMapper.class),
-//					resource.getId()) == null) {
-//				throw (new BadRequestException("Resource not exist"));
-//			}
+			// if (ResourceDAO.get(session.getMapper(ResourceMapper.class),
+			// resource.getId()) == null) {
+			// throw (new BadRequestException("Resource not exist"));
+			// }
 			result = ResourceDAO.edit(session.getMapper(ResourceMapper.class),
 					resource);
 			if (result) {
@@ -291,13 +288,19 @@ public class DatabaseService {
 	}
 
 	public boolean editTag(long userId, long tagId, String tagName) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public String getUserEmailById(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+		SqlSession session = sqlSessionFactory.openSession();
+		boolean result = false;
+		
+		try {
+			result = TagDAO.editTag(session.getMapper(TagMapper.class), tagId,
+					tagName);
+			if (result) {
+				session.commit();
+			}
+		} finally {
+			session.close();
+		}
+		return result;
 	}
 
 }

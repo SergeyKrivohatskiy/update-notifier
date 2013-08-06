@@ -35,7 +35,6 @@ public class ResourceDAO {
 	 */
 	public static List<Resource> getByUserIdAndTags(ResourceMapper mapper,
 			Long userId, Long[] tagsId) {
-		
 		List<Resource> list = null;
 		if (tagsId == null) {
 			list = mapper.getAllForUser(userId);
@@ -57,7 +56,7 @@ public class ResourceDAO {
 		if (tagsId == null) {
 			result = mapper.deleteAll(userId) > 0;
 		} else {
-			result = mapper.deleteByTags(userId) > 0;
+			result = mapper.deleteByTags(makeString(tagsId)) > 0;
 		}
 		return result;
 	}
@@ -85,5 +84,4 @@ public class ResourceDAO {
 		stringBuilder.deleteCharAt(stringBuilder.length()-1);
 		return stringBuilder.toString();
 	}
-
 }
