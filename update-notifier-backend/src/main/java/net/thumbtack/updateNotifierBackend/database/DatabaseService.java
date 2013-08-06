@@ -44,21 +44,6 @@ public class DatabaseService {
 	}
 
 	public DatabaseService() {
-		// try {
-		// ServiceRegistry serviceRegistry;
-		//
-		// Configuration configuration = new Configuration();
-		// configuration.configure();
-		// serviceRegistry = new
-		// ServiceRegistryBuilder().applySettings(configuration.getProperties()).buildServiceRegistry();
-		// sqlSessionFactory =
-		// configuration.buildSessionFactory(serviceRegistry);
-		// sqlSessionFactory = new
-		// Configuration().configure().buildSessionFactory(serviceRegistry);
-		// } catch (Throwable ex) {
-		// throw new ExceptionInInitializerError(ex);
-		// }
-		// getResources();
 	}
 
 	public Long getUserIdByEmailOrAdd(String email) {
@@ -83,6 +68,7 @@ public class DatabaseService {
 			if (email != null) {
 				session.commit();
 			} else {
+				// REVU (06.08) sKrivohatskiy Why do not you return null here?
 				email = "";
 			}
 			return email;
@@ -95,6 +81,7 @@ public class DatabaseService {
 		SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH);
 		try {
 			List<Resource> resources = null;
+			// REVU (06.08) sKrivohatskiy Why is this method called getByUserIdAndTags?
 			resources = ResourceDAO.getByUserIdAndTags(
 					session.getMapper(ResourceMapper.class), userId, tagIds);
 			if (resources == null) {
