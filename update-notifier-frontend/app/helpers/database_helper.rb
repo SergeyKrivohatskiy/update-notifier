@@ -19,9 +19,9 @@ module DatabaseHelper
 
   def self.sign_in(email)
     email = 'example@mail.com'
-    #response = HTTPartyWrapper::get('signin', email)
-    #response.parsed_response
-    2
+    response = HTTPartyWrapper::get('users/signin', { email: email })
+    response.parsed_response
+    #2
   end
 
   def self.resources(user_id)
@@ -41,8 +41,8 @@ module DatabaseHelper
     #   }
     # ]
     #
-    #response = HTTPartyWrapper::get('resources', user_id )
-    #response.parsed_response
+    response = HTTPartyWrapper::get("users/#{user_id}/resources", nil)
+    p response.parsed_response
     return @resources
   end
 
