@@ -55,7 +55,7 @@ public class CheckForUpdate implements Runnable {
 			Document document;
 			document = Jsoup.connect(resource.getUrl()).get();
 			String domPathString = resource.getDomPath();
-			String filter = resource.getDomPath();
+			String filter = resource.getFilter();
 			
 			String[] domPath = domPathString.split("/");
 			Element targetElement = document.body();
@@ -72,9 +72,12 @@ public class CheckForUpdate implements Runnable {
 		}
 	}
 
-	private static String applyFilter(Element targetElement, String filter) {
-		// TODO Write this method
-		return targetElement.html();
+	private static String applyFilter(Element element, String filter) {
+		if(filter == null) {
+			return element.text();
+		}
+		// http://jsoup.org/apidocs/org/jsoup/select/Selector.html
+		return element.select(filter).text();
 	}
 
 }
