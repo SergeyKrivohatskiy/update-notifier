@@ -31,6 +31,9 @@ public class ResourcesChangesListener {
 
 	private void renewResource(Resource resource) {
 		Integer newHashCode = CheckForUpdate.getNewHashCode(resource);
+		if(newHashCode == null) {
+			newHashCode = 0;
+		}
 		resource.setHash(newHashCode);
 	}
 }

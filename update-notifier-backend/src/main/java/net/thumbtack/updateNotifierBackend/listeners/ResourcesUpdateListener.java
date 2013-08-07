@@ -49,9 +49,10 @@ public class ResourcesUpdateListener {
         String to = UpdateNotifierBackend.getDatabaseService().
 				getUserEmailById(resource.getId());
         if(to == null) {
+            log.error("Get email failed");
         	return false;
         }
-        
+        log.debug("Email to " + to);
         Session session = Session.getInstance(PROPS, new SMTPAuthenticator());
  
         try {

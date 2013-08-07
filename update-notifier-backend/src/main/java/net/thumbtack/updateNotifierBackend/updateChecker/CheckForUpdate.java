@@ -2,6 +2,8 @@ package net.thumbtack.updateNotifierBackend.updateChecker;
 
 
 
+import java.net.URL;
+
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 
 import org.jsoup.Jsoup;
@@ -15,6 +17,7 @@ import net.thumbtack.updateNotifierBackend.UpdateNotifierBackend;
 public class CheckForUpdate implements Runnable {
 
 	private static final Logger log = LoggerFactory.getLogger(CheckForUpdate.class);
+	private static final int TIMEOUT = 1000;
 	private Resource resource;
 	
 	public CheckForUpdate(Resource resource) {
@@ -53,21 +56,28 @@ public class CheckForUpdate implements Runnable {
 	public static Integer getNewHashCode(Resource resource) {
 		try {
 			Document document;
-			document = Jsoup.connect(resource.getUrl()).get();
+			
+			document = Jsoup.parse(new URL(resource.getUrl()), TIMEOUT);
 			String domPathString = resource.getDomPath();
 			String filter = resource.getFilter();
-			
+			if(domPathString.startsWith("/")) {
+				domPathString = domPathString.substring(1);
+			} else {
+				log.debug("incorrect dom path " + domPathString);
+				return null;
+			}
 			String[] domPath = domPathString.split("/");
 			Element targetElement = document.body();
 			
-			for(int i = 1; i < domPath.length; i += 1) {
+			for(int i = 0; i < domPath.length; i += 1) {
 				targetElement = targetElement.child(Integer.parseInt(domPath[i]));
 			}
-			log.debug(applyFilter(targetElement, filter));
-			return targetElement.html().hashCode();
+			
+			return applyFilter(targetElement, filter).hashCode();
 		} catch (Throwable e) {
-			// May be NullPtrEx, NumberFormatException, 
-			// IOex or other Jsoup.connect exceptions
+			// May be NullPtrEx, NumberFormatException, IndexOutOfBoundsException,
+			// IOex or other Jsoup exceptions
+			log.debug(e.toString());
 			return null;
 		}
 	}
@@ -76,8 +86,13 @@ public class CheckForUpdate implements Runnable {
 		if(filter == null) {
 			return element.text();
 		}
-		// http://jsoup.org/apidocs/org/jsoup/select/Selector.html
-		return element.select(filter).text();
+		try{
+			// http://jsoup.org/apidocs/org/jsoup/select/Selector.html
+			return element.select(filter).text();
+		} catch(Throwable e) {
+			log.debug("Selection error, filter ignored");
+			return element.text();
+		}
 	}
 
 }

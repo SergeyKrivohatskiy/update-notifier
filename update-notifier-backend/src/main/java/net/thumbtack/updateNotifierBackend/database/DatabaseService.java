@@ -68,7 +68,6 @@ public class DatabaseService {
 			if (email != null) {
 				session.commit();
 			} else {
-				// REVU (06.08) sKrivohatskiy Why do not you return null here?
 				email = "";
 			}
 			return email;
@@ -81,7 +80,6 @@ public class DatabaseService {
 		SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH);
 		try {
 			List<Resource> resources = null;
-			// REVU (06.08) sKrivohatskiy Why is this method called getByUserIdAndTags?
 			resources = ResourceDAO.getByUserIdAndTags(
 					session.getMapper(ResourceMapper.class), userId, tagIds);
 			if (resources == null) {
@@ -216,12 +214,12 @@ public class DatabaseService {
 	public Set<Resource> getResourcesBySheduleCode(byte sheduleCode) {
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
-			Set<Resource> tags = ResourceDAO.getBySheduleCode(
+			Set<Resource> resources = ResourceDAO.getBySheduleCode(
 					session.getMapper(ResourceMapper.class), sheduleCode);
-			if (tags == null) {
+			if (resources == null) {
 				return Collections.emptySet();
 			}
-			return tags;
+			return resources;
 		} finally {
 			session.close();
 		}
@@ -288,6 +286,10 @@ public class DatabaseService {
 			session.close();
 		}
 		return result;
+	}
+
+	public void deleteAllData() {
+		
 	}
 
 }
