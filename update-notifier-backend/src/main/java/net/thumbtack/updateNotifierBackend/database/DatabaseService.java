@@ -1,10 +1,14 @@
 package net.thumbtack.updateNotifierBackend.database;
 
+import static net.thumbtack.updateNotifierBackend.updateChecker.CheckForUpdate.getNewHashCode;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import javax.ws.rs.NotFoundException;
 
 import net.thumbtack.updateNotifierBackend.database.daos.ResourceDAO;
 import net.thumbtack.updateNotifierBackend.database.daos.TagDAO;
@@ -68,7 +72,6 @@ public class DatabaseService {
 			if (email != null) {
 				session.commit();
 			} else {
-				// REVU (06.08) sKrivohatskiy Why do not you return null here?
 				email = "";
 			}
 			return email;
@@ -81,7 +84,6 @@ public class DatabaseService {
 		SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH);
 		try {
 			List<Resource> resources = null;
-			// REVU (06.08) sKrivohatskiy Why is this method called getByUserIdAndTags?
 			resources = ResourceDAO.getByUserIdAndTags(
 					session.getMapper(ResourceMapper.class), userId, tagIds);
 			if (resources == null) {
@@ -104,6 +106,7 @@ public class DatabaseService {
 		boolean result = false;
 		try {
 			resource.setUserId(userId);
+			resource.setHash(getNewHashCode(resource));
 			Long id = ResourceDAO.add(session.getMapper(ResourceMapper.class),
 					resource);
 			if (id != 0) {
@@ -158,11 +161,19 @@ public class DatabaseService {
 		SqlSession session = sqlSessionFactory.openSession();
 		boolean result = false;
 		try {
+			Resource savedResource = ResourceDAO.get(
+					session.getMapper(ResourceMapper.class), resource.getId());
+			if (savedResource == null) {
+				// log.debug("Database get request failed. Edit resources not found");
+				throw (new NotFoundException("Resource not exist"));
+			}
+
+			if (savedResource.getUrl() != resource.getUrl()) {
+				ResourceDAO.updateAfterCheck(
+						session.getMapper(ResourceMapper.class),
+						resource.getId(), getNewHashCode(resource));
+			}
 			resource.setUserId(userId);
-			// if (ResourceDAO.get(session.getMapper(ResourceMapper.class),
-			// resource.getId()) == null) {
-			// throw (new BadRequestException("Resource not exist"));
-			// }
 			result = ResourceDAO.edit(session.getMapper(ResourceMapper.class),
 					resource);
 			if (result) {
@@ -240,7 +251,7 @@ public class DatabaseService {
 		boolean result = false;
 		try {
 			// Don't forget - hash will be update only with 'true' result
-			result = ResourceDAO.updateHash(
+			result = ResourceDAO.updateAfterCheck(
 					session.getMapper(ResourceMapper.class), resourceId,
 					newHash);
 			if (result) {
@@ -277,7 +288,7 @@ public class DatabaseService {
 	public boolean editTag(long userId, long tagId, String tagName) {
 		SqlSession session = sqlSessionFactory.openSession();
 		boolean result = false;
-		
+
 		try {
 			result = TagDAO.editTag(session.getMapper(TagMapper.class), tagId,
 					tagName);

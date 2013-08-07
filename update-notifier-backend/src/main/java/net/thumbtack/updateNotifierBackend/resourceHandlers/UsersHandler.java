@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
-import net.thumbtack.updateNotifierBackend.UpdateNotifierBackend;
+import static net.thumbtack.updateNotifierBackend.UpdateNotifierBackend.getDatabaseService;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
 
@@ -41,7 +41,7 @@ public class UsersHandler {
 		if(userEmail == null) {
 			throw new BadRequestException("Missing 'email' parameter in the url");
 		}
-		Long userId = UpdateNotifierBackend.getDatabaseService()
+		Long userId = getDatabaseService()
 				.getUserIdByEmailOrAdd(userEmail);
 		if (userId == null) {
 			log.error("Database request failed.Sign in failed");
@@ -57,7 +57,7 @@ public class UsersHandler {
 			@DefaultValue("") @QueryParam("tags") String tagsString) {
 		log.trace("Get resources");
 		Long[] tags = parseTags(tagsString);
-		List<Resource> resources = UpdateNotifierBackend.getDatabaseService()
+		List<Resource> resources = getDatabaseService()
 				.getResourcesByIdAndTags(userId, tags);
 		if (resources == null) {
 			log.debug("Database get request failed. Get resources bad request");
@@ -72,7 +72,7 @@ public class UsersHandler {
 			@DefaultValue("") @QueryParam("tags") String tagsString) {
 		log.trace("Delete resources");
 		Long[] tags = parseTags(tagsString);
-		if(!UpdateNotifierBackend.getDatabaseService().deleteResourcesByIdAndTags(
+		if(!getDatabaseService().deleteResourcesByIdAndTags(
 				userId, tags)) {
 			log.debug("Database delete request failed. Delete resources bnot found");
 			throw (new NotFoundException());
@@ -85,9 +85,8 @@ public class UsersHandler {
 	public void addUserResource(@PathParam("id") long userId,
 			String resourceJson) {
 		log.trace("Add resource");
-		Resource res = parseResource(resourceJson);
-		UpdateNotifierBackend.getResourcesChangesListener().onAddResource(res);
-		if(!UpdateNotifierBackend.getDatabaseService().addResource(userId, res)) {
+		Resource resource = parseResource(resourceJson);
+		if(!getDatabaseService().addResource(userId, resource)) {
 			log.debug("Database add request failed. Add resources bad request");
 			throw (new BadRequestException("Incorrect params"));
 		}
@@ -99,21 +98,10 @@ public class UsersHandler {
 	public void editUserResource(@PathParam("id") long userId,
 			String resourceJson) {
 		log.trace("Edit resource");
-		Resource res = parseResource(resourceJson);
-		Resource savedResource = UpdateNotifierBackend.getDatabaseService()
-				.getResource(userId, res.getId());
-		if (savedResource == null) {
-			log.debug("Database get request failed. Edit resources not found");
-			throw (new NotFoundException("Resource not exist"));
-		}
+		Resource resource = parseResource(resourceJson);
 
-		if (savedResource.getUrl() != res.getUrl()) {
-			UpdateNotifierBackend.getResourcesChangesListener()
-					.onEditResourceUrl(res);
-		}
-
-		if(!UpdateNotifierBackend.getDatabaseService().editResource(userId,
-				 res)) {
+		if(!getDatabaseService().editResource(userId,
+				 resource)) {
 			log.debug("Database edit request failed. Edit resources bad request");
 			throw (new BadRequestException());
 		}
@@ -126,7 +114,7 @@ public class UsersHandler {
 	public String getUserResource(@PathParam("id") long userId,
 			@PathParam("resourceId") long resourceId) {
 		log.trace("Get resource");
-		Resource res = UpdateNotifierBackend.getDatabaseService().getResource(userId, resourceId);
+		Resource res = getDatabaseService().getResource(userId, resourceId);
 		if(res == null) {
 			log.debug("Database get request failed. Get resource not found");
 			throw (new NotFoundException("Resource not exist"));
@@ -139,7 +127,7 @@ public class UsersHandler {
 	@Produces({ "application/json" })
 	public String getUserTags(@PathParam("id") long userId) {
 		log.trace("Get tags");
-		Set<Tag> tags = UpdateNotifierBackend.getDatabaseService().getTags(userId);
+		Set<Tag> tags = getDatabaseService().getTags(userId);
 		if(tags == null) {
 			log.debug("Database get request failed. Get tags not found");
 			throw (new NotFoundException());
@@ -152,7 +140,7 @@ public class UsersHandler {
 	public void addTag(@PathParam("id") long userId,
 			String tagName) {
 		log.trace("Add tag");
-		if(!UpdateNotifierBackend.getDatabaseService().addTag(userId, tagName)) {
+		if(!getDatabaseService().addTag(userId, tagName)) {
 			log.debug("Database add request failed. Edit resources bad request");
 			throw (new BadRequestException());
 		}
@@ -163,7 +151,7 @@ public class UsersHandler {
 	public void editTag(@PathParam("id") long userId, @PathParam("tagId") long tagId,
 			String tagName) {
 		log.trace("Edit tag");
-		if(!UpdateNotifierBackend.getDatabaseService().editTag(userId, tagId, tagName)) {
+		if(!getDatabaseService().editTag(userId, tagId, tagName)) {
 			log.debug("Database add request failed. Edit resources bad request");
 			throw (new BadRequestException());
 		}
