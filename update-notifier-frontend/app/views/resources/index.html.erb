@@ -29,9 +29,9 @@
     <% @resources.each_with_index do |resource, count| %>
       <tr>
         <td><%= count+1 %></td>
-        <td><%= link_to resource.name, resource.url %></td>
+        <td><%= link_to resource[:name] || 'empty name', resource[:url] %></td>
         <td>
-          <% resource.tags.each do |tag| %>
+          <% resource[:tags].each do |tag| %>
             <div class="label"><%= tag %></div>
           <% end %>
         </td>

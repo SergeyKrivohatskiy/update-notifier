@@ -15,7 +15,7 @@ module HTTPartyWrapper
     else
       full_args="?#{args.to_s}"
     end
-    "http://#{@address}:#{@port}/#{command}#{full_args}"
+    "http://#{@address}:#{@port}/users/#{command}#{full_args}"
   end
 
   def self.get(command, url_args=nil)

@@ -5,23 +5,23 @@ insert into users value
 	(null, 'another_mail@post.com');
 	
 insert into resources values
-	(null, 1, 'http://ya.ru', 			0, '', null, 0),	#1
-	(null, 1, 'http://rambler.ru', 		0, '', null, 0),	#2
-	(null, 1, 'http://thumbtack.ru', 	0, '', null, 0),	#3
-	(null, 1, 'http://issart.com', 		0, '', null, 0),	#4
-	(null, 1, 'http://mail.ru', 		0, '', null, 0),	#5
-	(null, 1, 'http://mail.google.com', 0, '', null, 0),	#6
-	(null, 1, 'http://vk.com', 			0, '', null, 0),	#7
-	(null, 1, 'http://odnoklassniki.ru', 0, '', null, 0),	#8
-	(null, 1, 'http://habrahabr.com', 	0,'', null, 0),		#9
+	(null, 1, 'http://ya.ru', 			0, '', null, 0, null),	#1
+	(null, 1, 'http://rambler.ru', 		0, '', null, 0, null),	#2
+	(null, 1, 'http://thumbtack.ru', 	0, '', null, 0, null),	#3
+	(null, 1, 'http://issart.com', 		0, '', null, 0, null),	#4
+	(null, 1, 'http://mail.ru', 		0, '', null, 0, null),	#5
+	(null, 1, 'http://mail.google.com', 0, '', null, 0, null),	#6
+	(null, 1, 'http://vk.com', 			0, '', null, 0, null),	#7
+	(null, 1, 'http://odnoklassniki.ru', 0, '', null, 0, null),	#8
+	(null, 1, 'http://habrahabr.com', 	0, '', null, 0, null),	#9
 
-	(null, 2, 'http://rambler.ru', 		0, '', null, 0),	#10
-	(null, 2, 'http://habrahabr.com', 	0, '', null, 0),	#11
-	(null, 2, 'http://rutracker.org', 	0, '', null, 0),	#12
-	(null, 2, 'http://nnm-club.ru', 	0, '', null, 0),	#13
-	(null, 2, 'http://google.com', 		0, '', null, 0),	#14
-	(null, 2, 'http://vk.com', 			0, '', null, 0),	#15
-	(null, 2, 'http://plus.google.com', 0, '', null, 0);	#16
+	(null, 2, 'http://rambler.ru', 		0, '', null, 0, null),	#10
+	(null, 2, 'http://habrahabr.com', 	0, '', null, 0, null),	#11
+	(null, 2, 'http://rutracker.org', 	0, '', null, 0, null),	#12
+	(null, 2, 'http://nnm-club.ru', 	0, '', null, 0, null),	#13
+	(null, 2, 'http://google.com', 		0, '', null, 0, null),	#14
+	(null, 2, 'http://vk.com', 			0, '', null, 0, null),	#15
+	(null, 2, 'http://plus.google.com', 0, '', null, 0, null);	#16
 
 insert into tags values 
 	(null, 1, 'search'), 
