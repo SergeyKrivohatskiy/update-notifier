@@ -20,11 +20,12 @@ public interface ResourceMapper {
 	String GET_BY_ID = "SELECT * FROM resources WHERE id=#{id}";
 	String GET_BY_USER_ID_AND_TAGS = "SELECT DISTINCT * FROM resources WHERE NOT EXISTS (SELECT id FROM tags WHERE tags.id IN (${tagIds}) AND NOT EXISTS (SELECT * FROM resource_tag WHERE resource_id=resources.id AND tag_id = tags.id))";
 	String GET_BY_SHEDULE_CODE = "SELECT * FROM resources WHERE shedule_code=#{sheduleCode}";
-	String DEL_ALL = "DELETE FROM resources WHERE id=#{id}";
+	String DEL_ALL_USER_RESOURCES = "DELETE FROM resources WHERE id=#{id}";
 	String DEL_BY_TAGS = "DELETE FROM resources WHERE NOT EXISTS (SELECT id FROM tags WHERE tags.id IN (${tagIds}) AND NOT EXISTS (SELECT * FROM resource_tag WHERE resource_id=resources.id AND tag_id = tags.id))";
 	String UPD_RESOURCE = "UPDATE resources SET user_id=#{userId}, url=#{url}, dom_path=#{dom_path}, filter=#{filter}, shedule_code=#{sheduleCode} WHERE id=#{id}";
 	String UPD_AFTER_UPD = "UPDATE resources SET hash=#{hash}, last_update=NOW() WHERE id=#{id}";
 	String LAST_ID = "SELECT LAST_INSERT_ID()";
+	String DEL_ALL_RESOURCES = "DELETE FROM resources";
 
 	@Insert(INS_RESOURCE)
 	@Options(useGeneratedKeys = true)
@@ -43,8 +44,9 @@ public interface ResourceMapper {
 	@Select(GET_BY_SHEDULE_CODE)
 	Set<Resource> getBySheduleCode(byte sheduleCode);
 
-	@Delete(DEL_ALL)
+	@Delete(DEL_ALL_USER_RESOURCES)
 	int deleteAll(long id);
+	
 
 	@Delete(DEL_BY_TAGS)
 	int deleteByTags(@Param(value = "tagIds") String tagIds);
@@ -62,4 +64,6 @@ public interface ResourceMapper {
 	@Select(GET_BY_ID)
 	Resource get(Long id);
 
+//	@Delete(DEL_ALL_RESOURCES)
+//	int deleteAll();
 }

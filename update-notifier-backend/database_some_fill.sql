@@ -1,9 +1,11 @@
 use update_notifier;
 
 insert into users value 
-	(null, 'mail@post.com'), #Assume, that user id equals 1
-	(null, 'another_mail@post.com');
+	(null, 'cthutq66a@yandex.ru');
 	
+insert into resources values	
+	(null, 1, 'https://www.roi.ru/poll/petition/biznes/otmenit-zakon-o-proizvolnyh-blokirovkah-internet-resursov-ot-02072013-187-fz-zakon-protiv-interneta', 0, '/0/1/1/1/0/2/0/1/0', null, 0);	#1
+
 insert into resources values
 	(null, 1, 'http://ya.ru', 			0, '', null, 0, null),	#1
 	(null, 1, 'http://rambler.ru', 		0, '', null, 0, null),	#2
@@ -24,25 +26,7 @@ insert into resources values
 	(null, 2, 'http://plus.google.com', 0, '', null, 0, null);	#16
 
 insert into tags values 
-	(null, 1, 'search'), 
-	(null, 1, 'mail'), 
-	(null, 1, 'it'),
-	(null, 1, 'social'),
-	(null, 1, 'favorites'),
-	(null, 1, 'job'),
-
-	(null, 2, 'search'), 
-	(null, 2, 'torrent'), 
-	(null, 2, 'net');
+	(null, 1, 'roi');
 
 insert into resource_tag values 
-	(1,1), (2,1), 
-	(3,3), (4,3), 
-	(5,2), (6,2), 
-	(7,4), (8,4),
-	(3,5), (7,5),
-	(3,6), (4,6),
-
-	(10,7), (14,7), 
-	(12,8), (13,8), 
-	(15,9), (16,9);
+	(1, 1);

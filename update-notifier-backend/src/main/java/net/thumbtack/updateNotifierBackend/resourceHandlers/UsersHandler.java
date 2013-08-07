@@ -160,7 +160,13 @@ public class UsersHandler {
 
 	private static Resource parseResource(String resourceJson) {
 		try {
-			return GSON.fromJson(resourceJson, Resource.class);
+			Resource res = GSON.fromJson(resourceJson, Resource.class);
+			if(res.getDomPath() == null || res.getSheduleCode() < 0 || res.getSheduleCode() > 4 ||
+					res.getUrl() == null) {
+				log.debug("Resource parsing error");
+				throw (new BadRequestException("Json parsing error"));
+			}
+			return res;
 		} catch (JsonSyntaxException ex) {
 			log.debug("Resource parsing error");
 			throw (new BadRequestException("Json parsing error"));

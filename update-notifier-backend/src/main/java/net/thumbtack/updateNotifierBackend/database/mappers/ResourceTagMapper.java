@@ -10,11 +10,12 @@ public interface ResourceTagMapper {
 
 	String ADD = "INSERT INTO resource_tag VALUE (#{id},#{tagId})";
 	String GET_TAG_IDS_FOR_RESOURCE = "SELECT tag_id FROM resource_tag WHERE resource_id = #{id}";
+	String DEL_ALL = "DELETE FROM resource_tag";
 	
 	@Insert(ADD)
-	public void add(@Param(value = "id") Long id, @Param(value = "tagId") Long tagId);
+	void add(@Param(value = "id") Long id, @Param(value = "tagId") Long tagId);
 
 	@Select(GET_TAG_IDS_FOR_RESOURCE)
 	List<Long> getForResource(Long id);
-
+	
 }

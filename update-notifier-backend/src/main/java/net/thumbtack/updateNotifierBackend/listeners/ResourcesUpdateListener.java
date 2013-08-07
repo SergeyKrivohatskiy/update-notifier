@@ -47,11 +47,12 @@ public class ResourcesUpdateListener {
 
 	private boolean sendEmail(Resource resource) {
         String to = UpdateNotifierBackend.getDatabaseService().
-				getUserEmailById(resource.getId());
+				getUserEmailById(resource.getUserId());
         if(to == null) {
+            log.error("Get email failed");
         	return false;
         }
-        
+        log.debug("Email to " + to);
         Session session = Session.getInstance(PROPS, new SMTPAuthenticator());
  
         try {

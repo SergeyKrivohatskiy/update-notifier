@@ -22,14 +22,14 @@ public class UpdateChecker {
 	private static final long TIME_TO_STOP = 10000;
 	
 	private Timer timer = new Timer(true);
-	private static final int THREADS_COUNT = 2;
+	private static final int THREADS_COUNT = 32;
 	private Executor executor = Executors.newFixedThreadPool(THREADS_COUNT);
 
 	public void start() {
 		log.debug("Starting");
 		for(byte sheduleCode = 0; sheduleCode < INTERVALS.length; sheduleCode += 1) {
 			timer.schedule(new StartUpdatesChecking(sheduleCode, executor), 
-					INTERVALS[sheduleCode], INTERVALS[sheduleCode]);
+					INTERVALS[sheduleCode] / 10, INTERVALS[sheduleCode]);
 		}
 	}
 
