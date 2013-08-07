@@ -14,7 +14,7 @@ import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 
 public interface ResourceMapper {
 
-	String INS_RESOURCE = "INSERT INTO resources VALUE (null, #{userId}, #{url}, #{sheduleCode}, #{hash})";
+	String INS_RESOURCE = "INSERT INTO resources VALUE (null, #{userId}, #{url}, #{sheduleCode}, #{dom_path}, #{filter}, #{hash})";
 	String DEL_RESOURCE = "DELETE FROM resources WHERE id=#{resourceId}";
 	String GET_ALL_FOR_USER = "SELECT * FROM resources WHERE user_id=#{id}";
 	String GET_BY_ID = "SELECT * FROM resources WHERE id=#{id}";

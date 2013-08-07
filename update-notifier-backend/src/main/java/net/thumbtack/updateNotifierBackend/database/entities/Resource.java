@@ -13,6 +13,8 @@ public class Resource implements Serializable {
 	private String url;
 	private byte sheduleCode;
 	private transient int hash;
+	private String dom_path;
+	private String filter;
 	private List<Long> tagIds;
 	
 	public Resource() {
@@ -91,11 +93,11 @@ public class Resource implements Serializable {
 	}
 
 	public String getDomPath() {
-		return "/0/1/1/1/0/2/0/1/0";
+		return dom_path;
 	}
 	
 	public String getFilter() {
-		return null;
+		return filter;
 	}
 
 }

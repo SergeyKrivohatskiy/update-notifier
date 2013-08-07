@@ -11,7 +11,7 @@ module HTTPartyWrapper
       full_args = args.inject('?') do |addr, pair|
         addr+"&#{pair.first}=#{pair.last}"
       end
-      full_args[0]=''
+      full_args[1]=''
     else
       full_args="?#{args.to_s}"
     end
