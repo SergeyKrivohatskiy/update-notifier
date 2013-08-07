@@ -68,11 +68,11 @@ public class CheckForUpdate implements Runnable {
 			}
 			String[] domPath = domPathString.split("/");
 			Element targetElement = document.body();
-			
-			for(int i = 0; i < domPath.length; i += 1) {
-				targetElement = targetElement.child(Integer.parseInt(domPath[i]));
+			if(!domPathString.equals("")) {
+				for(int i = 0; i < domPath.length; i += 1) {
+					targetElement = targetElement.child(Integer.parseInt(domPath[i]));
+				}
 			}
-			
 			return applyFilter(targetElement, filter).hashCode();
 		} catch (Throwable e) {
 			// May be NullPtrEx, NumberFormatException, IndexOutOfBoundsException,

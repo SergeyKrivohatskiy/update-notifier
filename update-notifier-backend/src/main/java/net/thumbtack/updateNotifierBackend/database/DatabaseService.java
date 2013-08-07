@@ -83,13 +83,12 @@ public class DatabaseService {
 			resources = ResourceDAO.getByUserIdAndTags(
 					session.getMapper(ResourceMapper.class), userId, tagIds);
 			if (resources == null) {
-				resources = Collections.emptyList();
-			} else {
-				for (Resource resource : resources) {
-					resource.setTagIds(ResourceTagDAO.getForResource(
-							session.getMapper(ResourceTagMapper.class),
-							resource.getId()));
-				}
+				return null;
+			}
+			for (Resource resource : resources) {
+				resource.setTagIds(ResourceTagDAO.getForResource(
+						session.getMapper(ResourceTagMapper.class),
+						resource.getId()));
 			}
 			return resources;
 		} finally {
@@ -289,7 +288,13 @@ public class DatabaseService {
 	}
 
 	public void deleteAllData() {
-		
+		SqlSession session = sqlSessionFactory.openSession();
+		try {
+			session.getMapper(UserMapper.class).deleteAll();
+			session.commit();
+		} finally {
+			session.close();
+		}
 	}
 
 }

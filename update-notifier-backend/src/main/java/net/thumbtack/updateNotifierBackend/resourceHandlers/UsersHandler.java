@@ -86,6 +86,7 @@ public class UsersHandler {
 			String resourceJson) {
 		log.trace("Add resource");
 		Resource res = parseResource(resourceJson);
+		res.setUserId(userId);
 		UpdateNotifierBackend.getResourcesChangesListener().onAddResource(res);
 		if(!UpdateNotifierBackend.getDatabaseService().addResource(userId, res)) {
 			log.debug("Database add request failed. Add resources bad request");

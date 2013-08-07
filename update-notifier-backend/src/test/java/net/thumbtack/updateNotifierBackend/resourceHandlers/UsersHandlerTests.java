@@ -48,10 +48,11 @@ public class UsersHandlerTests {
 		Resource newResource = new Resource();
 		newResource.setUrl("http://google.com");
 		newResource.setUserId(userId);
+		newResource.setDomPath("/");
 		handler.addUserResource(userId, new Gson().toJson(newResource));
 		Resource[] resources = new Gson().fromJson(handler.getUserResources(userId, ""), Resource[].class);
 	
-		Assert.assertTrue(resources.length >= 1);
+		Assert.assertEquals(resources.length, 1);
 	}
 	
 	@Test
@@ -63,9 +64,10 @@ public class UsersHandlerTests {
 		handler.addTag(userId, "New tag name1");
 		handler.addTag(userId, "New tag name2");
 		handler.addTag(userId, "New tag name3");
+		
 		Tag[] tags = new Gson().fromJson(handler.getUserTags(userId), Tag[].class);
 
-		Assert.assertTrue(tags.length >= 3);
+		Assert.assertEquals(tags.length, 3);
 	}
 	
 	@Test
@@ -74,6 +76,29 @@ public class UsersHandlerTests {
 		Long userId = handler.signIn(EXAMPLE_USER_EMAIL);
 		try {
 			handler.addUserResource(userId, "{'incorrect':'resource', 'j':'son'}");
+			Assert.fail();
+		} catch(BadRequestException e) {
+			// ignore
+		}
+	}
+
+	@Test
+	public void editResourceBadRequest() {
+		UsersHandler handler = new UsersHandler();
+		Long userId = handler.signIn(EXAMPLE_USER_EMAIL);
+		try {
+			handler.editUserResource(userId, "{'incorrect':'resource', 'j':'son'}");
+			Assert.fail();
+		} catch(BadRequestException e) {
+			// ignore
+		}
+	}
+	
+	@Test
+	public void getResourceBadRequest() {
+		UsersHandler handler = new UsersHandler();
+		try {
+			handler.getUserResources(handler.signIn(EXAMPLE_USER_EMAIL), "sad");
 			Assert.fail();
 		} catch(BadRequestException e) {
 			// ignore

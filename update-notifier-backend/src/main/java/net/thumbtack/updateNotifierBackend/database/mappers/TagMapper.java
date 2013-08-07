@@ -14,7 +14,7 @@ public interface TagMapper {
 	String ADD_TAG = "INSERT IGNORE INTO tags VALUE (null, #{userId}, #{name})";
 	String GET_FOR_RESOURCE = "SELECT id FROM tags JOIN resource_tag ON tags.id = resource_tag.tag_id WHERE resource_id=#{id}";
 	String UPD_TAG = "UPDATE tags SET name=#{name} WHERE id=#{id}";
-
+	
 	@Select(GET_TAGS)
 	List<Map<String, Object>> getTags(long userId);
 

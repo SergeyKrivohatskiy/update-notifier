@@ -95,6 +95,10 @@ public class Resource implements Serializable {
 	public String getDomPath() {
 		return dom_path;
 	}
+
+	public void setDomPath(String domPath) {
+		dom_path = domPath;
+	}
 	
 	public String getFilter() {
 		return filter;
