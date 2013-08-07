@@ -1,6 +1,7 @@
 package net.thumbtack.updateNotifierBackend.database.entities;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 
 public class Resource implements Serializable {
@@ -15,7 +16,7 @@ public class Resource implements Serializable {
 	private transient int hash;
 	private String dom_path;
 	private String filter;
-	private List<Long> tagIds;
+	private List<Long> tagIds = Collections.emptyList();
 	
 	public Resource() {
 	}

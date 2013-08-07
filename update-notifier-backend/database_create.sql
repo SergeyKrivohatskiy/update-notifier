@@ -16,6 +16,7 @@ create table resources (
 	dom_path varchar(255) not null,
 	filter varchar(255),
 	hash int not null,
+	last_update timestamp,
 	primary key (id),
 	foreign key (user_id) references users(id) on delete cascade
 );

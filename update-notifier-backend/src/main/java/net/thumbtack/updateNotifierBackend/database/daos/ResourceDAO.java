@@ -66,9 +66,9 @@ public class ResourceDAO {
 		return mapper.update(resource) > 0;
 	}
 
-	public static boolean updateHash(ResourceMapper mapper, Long id,
+	public static boolean updateAfterCheck(ResourceMapper mapper, Long id,
 			Integer hash) {
-		return mapper.updateHash(id, hash) > 0;
+		return mapper.updateAfterUpdate(id, hash) > 0;
 	}
 
 	public static Resource get(ResourceMapper mapper, long resourceId) {
