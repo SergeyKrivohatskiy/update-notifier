@@ -14,6 +14,7 @@ public interface TagMapper {
 	String ADD_TAG = "INSERT IGNORE INTO tags VALUE (null, #{userId}, #{name})";
 	String GET_FOR_RESOURCE = "SELECT id FROM tags JOIN resource_tag ON tags.id = resource_tag.tag_id WHERE resource_id=#{id}";
 	String UPD_TAG = "UPDATE tags SET name=#{name} WHERE id=#{id}";
+	String LAST_ID = "SELECT LAST_INSERT_ID()";
 	
 	@Select(GET_TAGS)
 	List<Map<String, Object>> getTags(long userId);
@@ -23,6 +24,9 @@ public interface TagMapper {
 	int addTag(@Param(value = "userId") long userId,
 			@Param(value = "name") String name);
 
+	@Select(LAST_ID)
+	Long getLastId();
+	
 	@Update(UPD_TAG)
 	int editTag(@Param(value = "id") long id, @Param(value = "name") String name);
 

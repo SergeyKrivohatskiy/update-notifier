@@ -1,6 +1,7 @@
 package net.thumbtack.updateNotifierBackend.resourceHandlers;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 
 import javax.ws.rs.BadRequestException;
 
@@ -9,7 +10,7 @@ import net.thumbtack.updateNotifierBackend.UpdateNotifierBackend;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
 
-import org.junit.Assert;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,58 +26,90 @@ public class UsersHandlerTests {
 	
 	@Test
 	public void signInTest() {
-		final int EMAIL_COUNT = 100;
-		Long[] usersId = new Long[EMAIL_COUNT];
+		final int EMAILS_COUNT = 100;
+		
+		Long[] usersId = new Long[EMAILS_COUNT];
 		UsersHandler handler = new UsersHandler();
 		final String EMAIL_PATTERN = "email{0,number}@post.com";
 
-		for(Integer i = 0; i < EMAIL_COUNT; i += 1) {
+		for(Integer i = 0; i < EMAILS_COUNT; i += 1) {
 			usersId[i] = handler.signIn(MessageFormat.format(EMAIL_PATTERN, i));
-			Assert.assertTrue(usersId[i] != null);
+			assertTrue(usersId[i] != null);
 		}
 		
-		for(Integer i = 0; i < EMAIL_COUNT; i += 1) {
-			Assert.assertEquals(usersId[i].longValue(), 
+		for(Integer i = 0; i < EMAILS_COUNT; i += 1) {
+			assertEquals(usersId[i].longValue(), 
 					handler.signIn(MessageFormat.format(EMAIL_PATTERN, i)));
 		}
 	}
 	
 	@Test
-	public void getAddResourcesTest() {
+	public void addGetResourcesTest() {
 		UsersHandler handler = new UsersHandler();
 		Long userId = handler.signIn(EXAMPLE_USER_EMAIL);
-		Resource newResource = new Resource();
-		newResource.setUrl("http://google.com");
-		newResource.setUserId(userId);
-		newResource.setDomPath("/");
-		handler.addUserResource(userId, new Gson().toJson(newResource));
+		
+		int count = addResources(handler, userId);
+		
 		Resource[] resources = new Gson().fromJson(handler.getUserResources(userId, ""), Resource[].class);
-	
-		Assert.assertEquals(resources.length, 1);
+		assertEquals(resources.length, count);
+		
+		for(int i = 0; i < resources.length; i += 1) {
+			String resJson = handler.getUserResource(userId, resources[i].getId());
+			assertTrue(new Gson().fromJson(resJson, Resource.class).equals(resources[i]));
+		}
 	}
 	
 	@Test
-	public void addGetTagsTest() {
+	public void addGetEditTagsTest() {
 		UsersHandler handler = new UsersHandler();
 		
 		Long userId = handler.signIn(EXAMPLE_USER_EMAIL);
 		
-		handler.addTag(userId, "New tag name1");
-		handler.addTag(userId, "New tag name2");
-		handler.addTag(userId, "New tag name3");
+		int count = addTags(handler, userId);
 		
 		Tag[] tags = new Gson().fromJson(handler.getUserTags(userId), Tag[].class);
 
-		Assert.assertEquals(tags.length, 3);
+		assertEquals(tags.length, count);
+		
+		for(int i = 0; i < count; i += 1) {
+			handler.editTag(userId, tags[i].getId(), Long.toString(tags[i].getId()));
+		}
+
+		Tag[] editedTags = new Gson().fromJson(handler.getUserTags(userId), Tag[].class);
+		for(int i = 0; i < count; i += 1) {
+			editedTags[i].getId().equals(Long.getLong(editedTags[i].getName()));
+		}
 	}
 	
+	@Test
+	public void addGetResourcesWithTags() {
+		UsersHandler handler = new UsersHandler();
+		Long userId = handler.signIn(EXAMPLE_USER_EMAIL);
+		
+		addTags(handler, userId);
+		Tag[] tags = new Gson().fromJson(handler.getUserTags(userId), Tag[].class);
+		int resCount = addResourcesWithTags(handler, userId, tags);
+		Resource[] resources = new Gson().fromJson(handler.getUserResources(userId, ""), Resource[].class);
+
+		assertEquals(resources.length, resCount);
+		
+		ArrayList<Long> tagsList = new ArrayList<Long>();
+		for(int i = 0; i < tags.length; i += 1) {
+			tagsList.add(tags[i].getId());
+			String resJson = handler.getUserResource(userId, resources[i].getId());
+			Resource res = new Gson().fromJson(resJson, Resource.class);
+			assertTrue(res.getTagIds().containsAll(tagsList));
+			assertTrue(res.getUrl().equals(Integer.toString(tagsList.size())));
+		}
+	}
+
 	@Test
 	public void addResourceBadRequest() {
 		UsersHandler handler = new UsersHandler();
 		Long userId = handler.signIn(EXAMPLE_USER_EMAIL);
 		try {
 			handler.addUserResource(userId, "{'incorrect':'resource', 'j':'son'}");
-			Assert.fail();
+			fail();
 		} catch(BadRequestException e) {
 			// ignore
 		}
@@ -88,7 +121,7 @@ public class UsersHandlerTests {
 		Long userId = handler.signIn(EXAMPLE_USER_EMAIL);
 		try {
 			handler.editUserResource(userId, "{'incorrect':'resource', 'j':'son'}");
-			Assert.fail();
+			fail();
 		} catch(BadRequestException e) {
 			// ignore
 		}
@@ -98,10 +131,58 @@ public class UsersHandlerTests {
 	public void getResourceBadRequest() {
 		UsersHandler handler = new UsersHandler();
 		try {
-			handler.getUserResources(handler.signIn(EXAMPLE_USER_EMAIL), "sad");
-			Assert.fail();
+			handler.getUserResources(handler.signIn(EXAMPLE_USER_EMAIL), "incorrect tag string");
+			fail();
 		} catch(BadRequestException e) {
 			// ignore
 		}
+	}
+	
+	/**
+	 * 
+	 * @param handler
+	 * @param userId
+	 * @return number of resources were added
+	 */
+	private int addResources(UsersHandler handler, Long userId) {
+		Resource newResource = new Resource();
+		newResource.setUrl("http://google.com");
+		newResource.setDomPath("/");
+		handler.addUserResource(userId, new Gson().toJson(newResource));
+		newResource.setUrl("http://yandex.ru");
+		newResource.setDomPath("/0");
+		handler.addUserResource(userId, new Gson().toJson(newResource));
+		newResource.setUrl("http://habrahabr.ru");
+		newResource.setDomPath("/1/0");
+		handler.addUserResource(userId, new Gson().toJson(newResource));
+		return 3;
+	}
+
+	/**
+	 * 
+	 * @param handler
+	 * @param userId
+	 * @return number of tags were added
+	 */
+	private int addTags(UsersHandler handler, Long userId) {
+		handler.addTag(userId, "New tag name1");
+		handler.addTag(userId, "New tag name2");
+		handler.addTag(userId, "New tag name3");
+		return 3;
+	}
+	
+	private int addResourcesWithTags(UsersHandler handler, Long userId,
+			Tag[] tags) {
+		ArrayList<Long> tagsList = new ArrayList<Long>();
+		
+		for(int i = 0; i < tags.length; i += 1) {
+			tagsList.add(tags[i].getId());
+			Resource newResource = new Resource();
+			newResource.setDomPath("/");
+			newResource.setTagIds(new ArrayList<Long>(tagsList));
+			newResource.setUrl(Integer.toString(tagsList.size()));
+			handler.addUserResource(userId, new Gson().toJson(newResource));
+		}
+		return tags.length;
 	}
 }

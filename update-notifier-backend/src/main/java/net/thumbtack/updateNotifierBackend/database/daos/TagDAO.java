@@ -28,7 +28,7 @@ public class TagDAO {
 	 *            name of the new tag
 	 * @return <code>true</code>, if success; <code>false</code> otherwise
 	 */
-	public static boolean addTag(TagMapper mapper, long userId, String name) {
+	public static Long addTag(TagMapper mapper, long userId, String name) {
 		boolean result = false;
 		try {
 			result = mapper.addTag(userId, name) >= 0;
@@ -36,7 +36,7 @@ public class TagDAO {
 			// TODO exceptions?
 			e.printStackTrace();
 		}
-		return result;
+		return result ? mapper.getLastId() : null;
 	}
 
 	/**

@@ -21,7 +21,7 @@ public class UpdateNotifierBackend extends ResourceConfig {
 	public UpdateNotifierBackend() {
 		log.debug("Starting");
 		packages("net.thumbtack.updateNotifierBackend.resourceHandlers");
-//		updateChecker.start();
+		updateChecker.start();
 	}
 
 	/**

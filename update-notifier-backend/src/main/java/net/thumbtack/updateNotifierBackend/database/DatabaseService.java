@@ -105,7 +105,11 @@ public class DatabaseService {
 		boolean result = false;
 		try {
 			resource.setUserId(userId);
-			resource.setHash(getNewHashCode(resource));
+			Integer hash = getNewHashCode(resource);
+			if(hash == null) {
+				hash = 0;
+			}
+			resource.setHash(hash);
 			Long id = ResourceDAO.add(session.getMapper(ResourceMapper.class),
 					resource);
 			if (id != 0) {
@@ -168,9 +172,13 @@ public class DatabaseService {
 			}
 
 			if (savedResource.getUrl() != resource.getUrl()) {
+				Integer hash = getNewHashCode(resource);
+				if(hash == null) {
+					hash = 0;
+				}
 				ResourceDAO.updateAfterCheck(
 						session.getMapper(ResourceMapper.class),
-						resource.getId(), getNewHashCode(resource));
+						resource.getId(), hash);
 			}
 			resource.setUserId(userId);
 			result = ResourceDAO.edit(session.getMapper(ResourceMapper.class),
@@ -269,13 +277,13 @@ public class DatabaseService {
 	 * @param tagName
 	 * @return true, if success, false otherwise
 	 */
-	public boolean addTag(long userId, String tagName) {
+	public Long addTag(long userId, String tagName) {
 		SqlSession session = sqlSessionFactory.openSession();
-		boolean result = false;
+		Long result = null;
 		try {
 			result = TagDAO.addTag(session.getMapper(TagMapper.class), userId,
 					tagName);
-			if (result) {
+			if (result != null) {
 				session.commit();
 			}
 		} finally {

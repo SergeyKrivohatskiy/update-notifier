@@ -17,7 +17,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 
+import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +34,7 @@ import net.thumbtack.updateNotifierBackend.database.entities.Tag;
 @Path("/users")
 @Singleton
 public class UsersHandler {
-
+	
 	private static final Gson GSON = new GsonBuilder().setDateFormat(
 			"yyyy-MM-dd hh:mm:ss.S").create();
 	private static final Logger log = LoggerFactory
@@ -85,7 +87,7 @@ public class UsersHandler {
 	@Path("/{id}/resources")
 	@POST
 	@Consumes({ "application/json" })
-	public void addUserResource(@PathParam("id") long userId,
+	public Response addUserResource(@PathParam("id") long userId,
 			String resourceJson) {
 		log.trace("Add resource");
 		Resource resource = parseResource(resourceJson);
@@ -93,6 +95,9 @@ public class UsersHandler {
 			log.debug("Database add request failed. Add resources bad request");
 			throw (new BadRequestException("Incorrect params"));
 		}
+		
+		return Response.status(HttpStatus.CREATED_201).entity(resource.getId().toString())
+				.build();
 	}
 
 	@Path("/{id}/resources")
@@ -139,12 +144,15 @@ public class UsersHandler {
 
 	@Path("/{id}/tags")
 	@POST
-	public void addTag(@PathParam("id") long userId, String tagName) {
+	public Response addTag(@PathParam("id") long userId, String tagName) {
 		log.trace("Add tag");
-		if (!getDatabaseService().addTag(userId, tagName)) {
+		Long id = getDatabaseService().addTag(userId, tagName);
+		if (id == null) {
 			log.debug("Database add request failed. Edit resources bad request");
 			throw (new BadRequestException());
 		}
+		return Response.status(HttpStatus.CREATED_201).entity(id.toString())
+				.build();
 	}
 
 	@Path("/{id}/tags/{tagId}")
