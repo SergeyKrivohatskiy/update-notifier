@@ -31,8 +31,8 @@ module DatabaseHelper
     #   }
     # ]
     #
-    response = HTTPartyWrapper::get("#{user_id}/resources", nil)
-    return replace_this_method(symbolize(response.parsed_response))
+    response = HTTPartyWrapper::get("#{user_id}/resources")
+    replace_this_method(symbolize(response.parsed_response))
     #return @resources
   end
 
@@ -61,6 +61,16 @@ module DatabaseHelper
     # TODO It' stub. Return boolean ?
     #response = HTTPartyWrapper::delete('resource', resource_id)
     rand(0..1) == 0
+  end
+
+  def self.tags(user_id)
+    response = HTTPartyWrapper::get("#{user_id}/tags")
+    symbolize response
+  end
+
+  def self.add_tag(user_id, name)
+    response = HTTPartyWrapper::post("#{user_id}/tags", nil, name)
+    response.parsed_response
   end
 
   private
