@@ -44,7 +44,7 @@ public class UsersHandlerTests {
 	}
 	
 	@Test
-	public void addGetResourcesTest() {
+	public void addGetDeleteResourcesTest() {
 		UsersHandler handler = new UsersHandler();
 		Long userId = handler.signIn(EXAMPLE_USER_EMAIL);
 		
@@ -56,7 +56,9 @@ public class UsersHandlerTests {
 		for(int i = 0; i < resources.length; i += 1) {
 			String resJson = handler.getUserResource(userId, resources[i].getId());
 			assertTrue(new Gson().fromJson(resJson, Resource.class).equals(resources[i]));
+			handler.deleteUserResource(userId, resources[i].getId());
 		}
+		assertEquals(new Gson().fromJson(handler.getUserResources(userId, ""), Resource[].class).length, 0);
 	}
 	
 	@Test

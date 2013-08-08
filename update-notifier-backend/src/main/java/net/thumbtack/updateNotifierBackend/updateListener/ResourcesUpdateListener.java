@@ -1,4 +1,4 @@
-package net.thumbtack.updateNotifierBackend.listeners;
+package net.thumbtack.updateNotifierBackend.updateListener;
 
 import java.util.Date;
 import java.util.Properties;

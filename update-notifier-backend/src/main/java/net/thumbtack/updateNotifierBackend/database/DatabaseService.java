@@ -226,16 +226,16 @@ public class DatabaseService {
 	}
 
 	/**
-	 * Get from database resources with specified <code>sheduleCode</code>
+	 * Get from database resources with specified <code>scheduleCode</code>
 	 * 
-	 * @param sheduleCode
+	 * @param scheduleCode
 	 * @return
 	 */
-	public Set<Resource> getResourcesBySheduleCode(byte sheduleCode) {
+	public Set<Resource> getResourcesByScheduleCode(byte scheduleCode) {
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
-			Set<Resource> resources = ResourceDAO.getBySheduleCode(
-					session.getMapper(ResourceMapper.class), sheduleCode);
+			Set<Resource> resources = ResourceDAO.getByscheduleCode(
+					session.getMapper(ResourceMapper.class), scheduleCode);
 			if (resources == null) {
 				return Collections.emptySet();
 			}

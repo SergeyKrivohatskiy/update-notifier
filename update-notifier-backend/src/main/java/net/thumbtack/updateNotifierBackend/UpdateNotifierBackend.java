@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.thumbtack.updateNotifierBackend.database.DatabaseService;
-import net.thumbtack.updateNotifierBackend.listeners.ResourcesUpdateListener;
 import net.thumbtack.updateNotifierBackend.updateChecker.UpdateChecker;
+import net.thumbtack.updateNotifierBackend.updateListener.ResourcesUpdateListener;
 
 @ApplicationPath("/")
 public class UpdateNotifierBackend extends ResourceConfig {

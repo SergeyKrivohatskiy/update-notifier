@@ -12,7 +12,7 @@ public class Resource implements Serializable {
 	private transient Long userId;
 
 	private String url;
-	private byte sheduleCode;
+	private byte scheduleCode;
 	private transient int hash;
 	private String dom_path;
 	private String filter;
@@ -30,7 +30,7 @@ public class Resource implements Serializable {
 	}
 
 	public byte getSheduleCode() {
-		return sheduleCode;
+		return scheduleCode;
 	}
 
 	public Long getId() {

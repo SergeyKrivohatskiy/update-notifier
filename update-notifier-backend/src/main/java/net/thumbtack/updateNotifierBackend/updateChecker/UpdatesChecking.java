@@ -10,18 +10,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.thumbtack.updateNotifierBackend.UpdateNotifierBackend;
-
+/**
+ * @author Sergey Krivohatskiy
+ * 
+ * This class checks all resources with specified 
+ * schedule code for update using specified executor.
+ */
 public class UpdatesChecking implements Runnable {
 
 	private static final Logger log = LoggerFactory.getLogger(UpdatesChecking.class);
-	private byte sheduleCode;
+	private byte scheduleCode;
 	private Executor executor;
 	private Set<Resource> resources;
 	private Semaphore canBeRunned;
 	private boolean isTerminated;
 	
-	public UpdatesChecking(byte sheduleCode, Executor executor) {
-		this.sheduleCode = sheduleCode;
+	/**
+	 * 
+	 * @param scheduleCode Schedule code of resources to check
+	 * @param executor Executor that will execute checks
+	 */
+	public UpdatesChecking(byte scheduleCode, Executor executor) {
+		this.scheduleCode = scheduleCode;
 		this.executor = executor;
 		canBeRunned = new Semaphore(0);
 		isTerminated = true;
@@ -40,6 +50,9 @@ public class UpdatesChecking implements Runnable {
 		}
 	}
 
+	/**
+	 * Start update checking if last one has terminated
+	 */
 	public void startIfTerminated() {
 		if(isTerminated()) {
 			start();
@@ -55,7 +68,7 @@ public class UpdatesChecking implements Runnable {
 		return canBeRunned.availablePermits() == 0 && isTerminated;
 	}
 
-	public void doUpdateChecking() {
+	private void doUpdateChecking() {
 		resources = loadResources();
 		if(resources == null) {
 			log.error("Load resources failed. UpdatesChecking failed.");
@@ -68,7 +81,7 @@ public class UpdatesChecking implements Runnable {
 
 	private Set<Resource> loadResources() {
 		return UpdateNotifierBackend.getDatabaseService().
-				getResourcesBySheduleCode(sheduleCode);
+				getResourcesByScheduleCode(scheduleCode);
 	}
 
 }

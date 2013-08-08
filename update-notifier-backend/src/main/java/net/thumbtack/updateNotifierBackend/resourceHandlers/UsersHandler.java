@@ -35,6 +35,7 @@ import net.thumbtack.updateNotifierBackend.database.entities.Tag;
 @Singleton
 public class UsersHandler {
 	
+	// TODO Why do not I use this and create new gSon object every time?
 	private static final Gson GSON = new GsonBuilder().setDateFormat(
 			"yyyy-MM-dd hh:mm:ss.S").create();
 	private static final Logger log = LoggerFactory
@@ -127,6 +128,20 @@ public class UsersHandler {
 			throw (new NotFoundException("Resource not exist"));
 		}
 		return GSON.toJson(res);
+	}
+
+
+	@Path("/{id}/resources/{resourceId}")
+	@DELETE
+	@Produces({ "application/json" })
+	public void deleteUserResource(@PathParam("id") long userId,
+			@PathParam("resourceId") long resourceId) {
+		log.trace("Get resource");
+		
+		if (!getDatabaseService().deleteResource(resourceId)) {
+			log.debug("Database delete request failed. Delete resource not found");
+			throw (new NotFoundException("Resource not exist"));
+		}
 	}
 
 	@Path("/{id}/tags")

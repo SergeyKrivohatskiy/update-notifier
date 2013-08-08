@@ -7,7 +7,11 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * @author Sergey Krivohatskiy
+ * 
+ * This class checks all resources for update
+ */
 public class UpdateChecker {
 
 	private static final Logger log = LoggerFactory.getLogger(UpdateChecker.class);
@@ -27,9 +31,9 @@ public class UpdateChecker {
 
 	public void start() {
 		log.debug("Starting");
-		for(byte sheduleCode = 0; sheduleCode < INTERVALS.length; sheduleCode += 1) {
-			timer.schedule(new StartUpdatesChecking(sheduleCode, executor), 
-					INTERVALS[sheduleCode] / 10, INTERVALS[sheduleCode]);
+		for(byte scheduleCode = 0; scheduleCode < INTERVALS.length; scheduleCode += 1) {
+			timer.schedule(new StartUpdatesChecking(scheduleCode, executor), 
+					INTERVALS[scheduleCode] / 10, INTERVALS[scheduleCode]);
 		}
 	}
 
