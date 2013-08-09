@@ -10,7 +10,7 @@ public class UserDAO {
 	 * @param email user email
 	 * @return existing or new user id
 	 */
-	public static Long getUserIdOrAdd(UserMapper mapper, String email) {
+	public static Long getIdOrAdd(UserMapper mapper, String email) {
 		Long userId = mapper.getId(email);
 		if (userId == null) {
 			mapper.addUser(email);

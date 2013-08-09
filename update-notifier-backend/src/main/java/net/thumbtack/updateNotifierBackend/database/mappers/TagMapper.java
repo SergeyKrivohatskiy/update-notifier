@@ -11,7 +11,7 @@ import org.apache.ibatis.annotations.Update;
 public interface TagMapper {
 
 	String GET_TAGS = "SELECT id, name FROM tags WHERE user_id=#{userId}";
-	String ADD_TAG = "INSERT IGNORE INTO tags VALUE (null, #{userId}, #{name})";
+	String ADD_TAG = "INSERT INTO tags VALUE (null, #{userId}, #{name})";
 	String GET_FOR_RESOURCE = "SELECT id FROM tags JOIN resource_tag ON tags.id = resource_tag.tag_id WHERE resource_id=#{id}";
 	String UPD_TAG = "UPDATE tags SET name=#{name} WHERE id=#{id}";
 	String LAST_ID = "SELECT LAST_INSERT_ID()";

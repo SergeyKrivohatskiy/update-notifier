@@ -50,13 +50,16 @@ public class DatabaseService {
 	public DatabaseService() {
 	}
 
-	public Long getUserIdByEmailOrAdd(String email) {
+	public Long getUserIdByEmailOrAdd(String email) throws DatabaseException {
 		SqlSession session = sqlSessionFactory.openSession();
 		try {
-			Long userId = UserDAO.getUserIdOrAdd(
+			Long userId = UserDAO.getIdOrAdd(
 					session.getMapper(UserMapper.class), email);
 			if (userId != null) {
 				session.commit();
+			} else {
+				// TODO log.debug
+				throw new DatabaseException();
 			}
 			return userId;
 		} finally {
@@ -90,7 +93,7 @@ public class DatabaseService {
 				return null;
 			}
 			for (Resource resource : resources) {
-				resource.setTagIds(ResourceTagDAO.getForResource(
+				resource.setTags(ResourceTagDAO.getForResource(
 						session.getMapper(ResourceTagMapper.class),
 						resource.getId()));
 			}
@@ -113,8 +116,8 @@ public class DatabaseService {
 			Long id = ResourceDAO.add(session.getMapper(ResourceMapper.class),
 					resource);
 			if (id != 0) {
-				if (resource.getTagIds() != null) {
-					for (Long tagId : resource.getTagIds()) {
+				if (resource.getTags() != null) {
+					for (Long tagId : resource.getTags()) {
 						ResourceTagDAO.addRelation(
 								session.getMapper(ResourceTagMapper.class), id,
 								tagId);
@@ -202,7 +205,7 @@ public class DatabaseService {
 				List<Long> tagIds = ResourceTagDAO.getForResource(
 						session.getMapper(ResourceTagMapper.class),
 						result.getId());
-				result.setTagIds(tagIds);
+				result.setTags(tagIds);
 			}
 		} finally {
 			session.close();

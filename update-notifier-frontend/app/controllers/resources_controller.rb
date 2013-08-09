@@ -10,12 +10,12 @@ class ResourcesController < ApplicationController
     new_tags = resource_info[:tags] - tags.values
 
     hash = {}
-    new_tags.each({}) do |tag|
+    new_tags.each do |tag|
       tag_id = DatabaseHelper.add_tag(session[:user_id], tag)
-      hash["id#{tag_id}".to_sym] = tag
+      hash[tag_id] = tag
     end
 
-    resource_info[:tags] = hash.keys
+    resource_info[:tags] = hash.keys.map { |key_string| key_string.to_i }
 
     resource = Resource.new(resource_info)
     resource.user_id = session[:user_id]

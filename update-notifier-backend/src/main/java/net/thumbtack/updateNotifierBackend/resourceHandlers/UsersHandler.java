@@ -28,13 +28,14 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
 import static net.thumbtack.updateNotifierBackend.UpdateNotifierBackend.getDatabaseService;
+import net.thumbtack.updateNotifierBackend.database.DatabaseException;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
 
 @Path("/users")
 @Singleton
 public class UsersHandler {
-	
+
 	private static final Gson GSON = new GsonBuilder().setDateFormat(
 			"yyyy-MM-dd hh:mm:ss.S").create();
 	private static final Logger log = LoggerFactory
@@ -48,9 +49,15 @@ public class UsersHandler {
 			throw new BadRequestException(
 					"Missing 'email' parameter in the url");
 		}
-		Long userId = getDatabaseService().getUserIdByEmailOrAdd(userEmail);
+		Long userId = null;
+		try {
+			userId = getDatabaseService().getUserIdByEmailOrAdd(userEmail);
+		} catch (DatabaseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		if (userId == null) {
-			log.error("Database request failed.Sign in failed");
+			log.error("Database request failed. Sign in failed");
 			throw (new WebApplicationException("Database get account error"));
 		}
 		return userId;
@@ -65,6 +72,7 @@ public class UsersHandler {
 		Long[] tags = parseTags(tagsString);
 		List<Resource> resources = getDatabaseService()
 				.getResourcesByIdAndTags(userId, tags);
+		// TODO check res_id for user_id
 		if (resources == null) {
 			log.debug("Database get request failed. Get resources bad request");
 			throw (new BadRequestException("Incorrect userId"));
@@ -78,6 +86,7 @@ public class UsersHandler {
 			@DefaultValue("") @QueryParam("tags") String tagsString) {
 		log.trace("Delete resources");
 		Long[] tags = parseTags(tagsString);
+		// TODO check res_id for user_id
 		if (!getDatabaseService().deleteResourcesByIdAndTags(userId, tags)) {
 			log.debug("Database delete request failed. Delete resources bnot found");
 			throw (new NotFoundException());
@@ -91,13 +100,18 @@ public class UsersHandler {
 			String resourceJson) {
 		log.trace("Add resource");
 		Resource resource = parseResource(resourceJson);
+		if (resource == null) {
+			log.debug("Database add request failed: resource expected in request body");
+			throw new BadRequestException(
+					"Database add request failed: resource expected in request body");
+		}
 		if (!getDatabaseService().addResource(userId, resource)) {
 			log.debug("Database add request failed. Add resources bad request");
 			throw (new BadRequestException("Incorrect params"));
 		}
-		
-		return Response.status(HttpStatus.CREATED_201).entity(resource.getId().toString())
-				.build();
+
+		return Response.status(HttpStatus.CREATED_201)
+				.entity(resource.getId().toString()).build();
 	}
 
 	@Path("/{id}/resources")
@@ -144,8 +158,15 @@ public class UsersHandler {
 
 	@Path("/{id}/tags")
 	@POST
-	public Response addTag(@PathParam("id") long userId, String tagName) {
+	@Consumes({ "application/json" })
+	public Response addTag(@PathParam("id") long userId, String tagNameJson) {
 		log.trace("Add tag");
+		String tagName = GSON.fromJson(tagNameJson, String.class);
+		if (tagName == null) {
+			log.debug("Database post request failed. Tag name can't be null.");
+			throw new BadRequestException(
+					"Database post request failed. Tag name can't be null.");
+		}
 		Long id = getDatabaseService().addTag(userId, tagName);
 		if (id == null) {
 			log.debug("Database add request failed. Edit resources bad request");
@@ -169,9 +190,12 @@ public class UsersHandler {
 	private static Resource parseResource(String resourceJson) {
 		try {
 			Resource res = GSON.fromJson(resourceJson, Resource.class);
-			if(res.getDomPath() == null || res.getSheduleCode() < 0 || res.getSheduleCode() > 4 ||
-					res.getUrl() == null) {
-				log.debug("Resource parsing error");
+			if (res == null) {
+				log.debug("Resource parsing error: nothing to parse (bad json)");
+			}
+			if (res.getDomPath() == null || res.getSheduleCode() < 0
+					|| res.getSheduleCode() > 4 || res.getUrl() == null) {
+				log.debug("Resource parsing error: bad or expecting params");
 				throw (new BadRequestException("Json parsing error"));
 			}
 			return res;

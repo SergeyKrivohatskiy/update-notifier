@@ -98,7 +98,7 @@ public class UsersHandlerTests {
 			tagsList.add(tags[i].getId());
 			String resJson = handler.getUserResource(userId, resources[i].getId());
 			Resource res = new Gson().fromJson(resJson, Resource.class);
-			assertTrue(res.getTagIds().containsAll(tagsList));
+			assertTrue(res.getTags().containsAll(tagsList));
 			assertTrue(res.getUrl().equals(Integer.toString(tagsList.size())));
 		}
 	}
@@ -179,7 +179,7 @@ public class UsersHandlerTests {
 			tagsList.add(tags[i].getId());
 			Resource newResource = new Resource();
 			newResource.setDomPath("/");
-			newResource.setTagIds(new ArrayList<Long>(tagsList));
+			newResource.setTags(new ArrayList<Long>(tagsList));
 			newResource.setUrl(Integer.toString(tagsList.size()));
 			handler.addUserResource(userId, new Gson().toJson(newResource));
 		}

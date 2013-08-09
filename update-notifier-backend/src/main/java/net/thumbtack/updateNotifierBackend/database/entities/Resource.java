@@ -16,7 +16,7 @@ public class Resource implements Serializable {
 	private transient int hash;
 	private String dom_path;
 	private String filter;
-	private List<Long> tagIds = Collections.emptyList();
+	private List<Long> tags = Collections.emptyList();
 	
 	public Resource() {
 	}
@@ -45,13 +45,13 @@ public class Resource implements Serializable {
 		this.userId = userId;
 	}
 
-	public List<Long> getTagIds() {
-		return tagIds;
+	public List<Long> getTags() {
+		return tags;
 	}
 
 
-	public void setTagIds(List<Long> list) {
-		this.tagIds = list;
+	public void setTags(List<Long> list) {
+		this.tags = list;
 	}
 
 	public int getHash() {

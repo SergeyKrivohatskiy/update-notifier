@@ -9,30 +9,14 @@ module DatabaseHelper
   #              Resource.new(name: 'ИСС Арт', url: 'http://issart.ru', tags: %w[it development])]
 
   def self.sign_in(email)
-    response = HTTPartyWrapper::get('users/signin', { email: email })
+    response = HTTPartyWrapper::get('signin', { email: email })
     response.parsed_response
     #2
   end
 
   def self.resources(user_id)
-    # TODO It's stub. It receive json with resources and parse it to collection (Hash ?)
-    # Structure of response:
-    # [
-    #   {
-    #     name: %resource_1_name%,
-    #     url: %resource_1_url%,
-    #     tags: [ tag_1, tag_2, tag_3]
-    #   },
-    #   ...
-    #   {
-    #     name: %resource_N_name%,
-    #     url: %resource_N_url%,
-    #     tags: [ tag_1, tag_2, tag_3]
-    #   }
-    # ]
-    #
     response = HTTPartyWrapper::get("#{user_id}/resources")
-    replace_this_method(symbolize(response.parsed_response))
+    symbolize(response.parsed_response)
     #return @resources
   end
 
@@ -65,7 +49,7 @@ module DatabaseHelper
 
   def self.tags(user_id)
     response = HTTPartyWrapper::get("#{user_id}/tags")
-    symbolize response
+    hashize(response.parsed_response)
   end
 
   def self.add_tag(user_id, name)
@@ -79,11 +63,20 @@ module DatabaseHelper
       hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
     end
   end
-  def self.replace_this_method(array_of_hash)
-    array_of_hash.map do |hash|
-      hash[:tags], hash[:tagIds] = hash[:tagIds], nil
-      hash
+  #def self.replace_this_method(array_of_hash)
+  #  array_of_hash.map do |hash|
+  #    hash[:tags], hash[:tagIds] = hash[:tagIds], nil
+  #    hash
+  #  end
+  #end
+  def self.hashize(array_of_hash)
+    hash = {}
+    array_of_hash.each do |item|
+      key = item.shift[1]
+      value = item.shift[1]
+      hash[key] = value
     end
+    hash
   end
 
 end
