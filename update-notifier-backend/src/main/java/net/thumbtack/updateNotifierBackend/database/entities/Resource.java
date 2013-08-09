@@ -105,4 +105,11 @@ public class Resource implements Serializable {
 		return filter;
 	}
 
+	@Override
+	public String toString() {
+		return "Resource [id=" + id + ", userId=" + userId + ", url=" + url
+				+ ", scheduleCode=" + scheduleCode + ", dom_path=" + dom_path
+				+ ", filter=" + filter + ", tags=" + tags + "]";
+	}
+
 }

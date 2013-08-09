@@ -13,7 +13,7 @@ public interface ResourceTagMapper {
 	String DEL_ALL = "DELETE FROM resource_tag";
 	
 	@Insert(ADD)
-	void add(@Param(value = "id") Long id, @Param(value = "tagId") Long tagId);
+	int add(@Param(value = "id") Long id, @Param(value = "tagId") Long tagId);
 
 	@Select(GET_TAG_IDS_FOR_RESOURCE)
 	List<Long> getForResource(Long id);

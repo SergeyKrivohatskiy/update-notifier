@@ -55,44 +55,10 @@ public class UsersHandler {
 		try {
 			userId = getDatabaseService().getUserIdByEmailOrAdd(userEmail);
 		} catch (DatabaseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		if (userId == null) {
 			log.error("Database request failed. Sign in failed");
 			throw (new WebApplicationException("Database get account error"));
 		}
 		return userId;
-	}
-
-	@Path("/{id}/resources")
-	@GET
-	@Produces({ "application/json" })
-	public String getUserResources(@PathParam("id") long userId,
-			@DefaultValue("") @QueryParam("tags") String tagsString) {
-		log.trace("Get resources");
-		Long[] tags = parseTags(tagsString);
-		List<Resource> resources = getDatabaseService()
-				.getResourcesByIdAndTags(userId, tags);
-		// TODO check res_id for user_id
-		if (resources == null) {
-			log.debug("Database get request failed. Get resources bad request");
-			throw (new BadRequestException("Incorrect userId"));
-		}
-		return GSON.toJson(resources);
-	}
-
-	@Path("/{id}/resources")
-	@DELETE
-	public void deleteUserResources(@PathParam("id") long userId,
-			@DefaultValue("") @QueryParam("tags") String tagsString) {
-		log.trace("Delete resources");
-		Long[] tags = parseTags(tagsString);
-		// TODO check res_id for user_id
-		if (!getDatabaseService().deleteResourcesByIdAndTags(userId, tags)) {
-			log.debug("Database delete request failed. Delete resources bnot found");
-			throw (new NotFoundException());
-		}
 	}
 
 	@Path("/{id}/resources")
@@ -107,7 +73,9 @@ public class UsersHandler {
 			throw new BadRequestException(
 					"Database add request failed: resource expected in request body");
 		}
-		if (!getDatabaseService().addResource(userId, resource)) {
+		try {
+			getDatabaseService().addResource(userId, resource);
+		} catch (DatabaseException e) {
 			log.debug("Database add request failed. Add resources bad request");
 			throw (new BadRequestException("Incorrect params"));
 		}
@@ -117,18 +85,21 @@ public class UsersHandler {
 	}
 
 	@Path("/{id}/resources")
-	@PUT
-	@Consumes({ "application/json" })
-	public void editUserResource(@PathParam("id") long userId,
-			String resourceJson) {
-		log.trace("Edit resource");
-		Resource resource = parseResource(resourceJson);
-
-		if (!getDatabaseService().editResource(userId, resource)) {
-			log.debug("Database edit request failed. Edit resources bad request");
-			throw (new BadRequestException());
+	@GET
+	@Produces({ "application/json" })
+	public String getUserResources(@PathParam("id") long userId,
+			@DefaultValue("") @QueryParam("tags") String tagsString) {
+		log.trace("Get resources");
+		Long[] tags = parseTags(tagsString);
+		List<Resource> resources = null;
+		try {
+			resources = getDatabaseService().getResourcesByIdAndTags(userId,
+					tags);
+		} catch (DatabaseException e) {
+			log.debug("Database get request failed. Get resources bad request");
+			throw (new BadRequestException("Incorrect userId"));
 		}
-
+		return GSON.toJson(resources);
 	}
 
 	@Path("/{id}/resources/{resourceId}")
@@ -144,7 +115,24 @@ public class UsersHandler {
 		}
 		return GSON.toJson(res);
 	}
-
+	
+	@Path("/{id}/resources")
+	@DELETE
+	public void deleteUserResources(@PathParam("id") long userId,
+			@DefaultValue("") @QueryParam("tags") String tagsString) {
+		log.trace("Delete resources");
+		Long[] tags = parseTags(tagsString);
+		try {
+			if (!getDatabaseService().deleteResourcesByIdAndTags(userId, tags)) {
+				log.debug("Database delete request failed. Delete resources bnot found");
+				throw (new NotFoundException());
+			}
+			//TODO make it beautiful
+		} catch (DatabaseException e) {
+			log.debug("Database delete request failed. Delete resources bnot found");
+			throw (new NotFoundException());
+		}
+	}
 
 	@Path("/{id}/resources/{resourceId}")
 	@DELETE
@@ -152,11 +140,38 @@ public class UsersHandler {
 	public void deleteUserResource(@PathParam("id") long userId,
 			@PathParam("resourceId") long resourceId) {
 		log.trace("Get resource");
-		
-		if (!getDatabaseService().deleteResource(resourceId)) {
+
+		try {
+			if (!getDatabaseService().deleteResource(userId, resourceId)) {
+				log.debug("Database delete request failed. Delete resource not found");
+				throw (new NotFoundException("Resource not exist"));
+			}
+			//TODO Make it beautiful
+		} catch (DatabaseException e) {
 			log.debug("Database delete request failed. Delete resource not found");
 			throw (new NotFoundException("Resource not exist"));
 		}
+	}
+
+	@Path("/{id}/resources")
+	@PUT
+	@Consumes({ "application/json" })
+	public void editUserResource(@PathParam("id") long userId,
+			String resourceJson) {
+		log.trace("Edit resource");
+		Resource resource = parseResource(resourceJson);
+
+		try {
+			if (!getDatabaseService().editResource(userId, resource)) {
+				log.debug("Database edit request failed. Edit resources bad request");
+				throw (new BadRequestException());
+			}
+			// TODO make it beautiful
+		} catch (DatabaseException e) {
+			log.debug("Database edit request failed. Edit resources bad request");
+			throw (new BadRequestException());
+		}
+
 	}
 
 	@Path("/{id}/tags")
@@ -177,7 +192,12 @@ public class UsersHandler {
 	@Consumes({ "application/json" })
 	public Response addTag(@PathParam("id") long userId, String tagNameJson) {
 		log.trace("Add tag");
-		String tagName = GSON.fromJson(tagNameJson, String.class);
+		String tagName = null;
+		try {
+			tagName = GSON.fromJson(tagNameJson, String.class);
+		} catch (JsonSyntaxException e) {
+			throw new BadRequestException("Invalid json param: tag name");
+		}
 		if (tagName == null) {
 			log.debug("Database post request failed. Tag name can't be null.");
 			throw new BadRequestException(
@@ -194,9 +214,21 @@ public class UsersHandler {
 
 	@Path("/{id}/tags/{tagId}")
 	@PUT
+	@Consumes({ "application/json" })
 	public void editTag(@PathParam("id") long userId,
-			@PathParam("tagId") long tagId, String tagName) {
+			@PathParam("tagId") long tagId, String tagNameJson) {
 		log.trace("Edit tag");
+		String tagName = null;
+		try {
+			tagName = GSON.fromJson(tagNameJson, String.class);
+		} catch (JsonSyntaxException e) {
+			throw new BadRequestException("Invalid json param: tag name");
+		}
+		if (tagName == null) {
+			log.debug("Database put request failed. Tag name can't be null.");
+			throw new BadRequestException(
+					"Database put request failed. Tag name can't be null.");
+		}
 		if (!getDatabaseService().editTag(userId, tagId, tagName)) {
 			log.debug("Database add request failed. Edit resources bad request");
 			throw (new BadRequestException());
@@ -208,9 +240,12 @@ public class UsersHandler {
 			Resource res = GSON.fromJson(resourceJson, Resource.class);
 			if (res == null) {
 				log.debug("Resource parsing error: nothing to parse (bad json)");
+				throw new BadRequestException(
+						"Resource parsing error: nothing to parse (bad json)");
 			}
 			if (res.getDomPath() == null || res.getSheduleCode() < 0
-					|| res.getSheduleCode() > UpdateChecker.MAGIC_NUMBER || res.getUrl() == null) {
+					|| res.getSheduleCode() > UpdateChecker.MAGIC_NUMBER
+					|| res.getUrl() == null) {
 				log.debug("Resource parsing error: bad or expecting params");
 				throw (new BadRequestException("Json parsing error"));
 			}
