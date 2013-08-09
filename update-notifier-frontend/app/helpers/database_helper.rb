@@ -9,7 +9,7 @@ module DatabaseHelper
   #              Resource.new(name: 'ИСС Арт', url: 'http://issart.ru', tags: %w[it development])]
 
   def self.sign_in(email)
-    response = HTTPartyWrapper::get('users/signin', { email: email })
+    response = HTTPartyWrapper::get('signin', { email: email })
     response.parsed_response
     #2
   end

@@ -112,9 +112,25 @@ public class UsersHandlerTests {
 		try {
 			handler.addUserResource(userId, "{'incorrect':'resource', 'j':'son'}");
 			fail();
-		} catch(BadRequestException e) {
-			// ignore
-		}
+		} catch(BadRequestException e) {} // Ignore
+		try {
+			handler.addUserResource(userId, "{'url':'http:/ya.ru', " +
+					"'dom_path:'/', 'scheduleCode' : -1}");
+			fail();
+		} catch(BadRequestException e) {} // Ignore
+		try {
+			handler.addUserResource(userId, "");
+			fail();
+		} catch(BadRequestException e) {} // Ignore
+		try {
+			handler.addUserResource(userId, "{}");
+			fail();
+		} catch(BadRequestException e) {} // Ignore
+		try {
+			handler.addUserResource(-1, "{'url':'http:/ya.ru', " +
+					"'dom_path':'/', 'scheduleCode' : 1}");
+			fail();
+		} catch(BadRequestException e) {} // Ignore
 	}
 
 	@Test
@@ -124,9 +140,7 @@ public class UsersHandlerTests {
 		try {
 			handler.editUserResource(userId, "{'incorrect':'resource', 'j':'son'}");
 			fail();
-		} catch(BadRequestException e) {
-			// ignore
-		}
+		} catch(BadRequestException e) {} // Ignore
 	}
 	
 	@Test

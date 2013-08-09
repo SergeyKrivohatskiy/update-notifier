@@ -6,7 +6,7 @@ class StaticPagesController < ApplicationController
 
   def signin
     #session[:email] = session[:email] || params[:email]
-    params[:email] = 'example@mail.com'
+    params[:email] = 'cthutq66a@yandex.ru'
     session[:user_id] = DatabaseHelper.sign_in(params[:email])
     redirect_to resources_path
   end
