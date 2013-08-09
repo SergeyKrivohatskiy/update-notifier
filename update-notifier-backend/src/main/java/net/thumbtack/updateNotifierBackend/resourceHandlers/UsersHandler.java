@@ -31,11 +31,13 @@ import static net.thumbtack.updateNotifierBackend.UpdateNotifierBackend.getDatab
 import net.thumbtack.updateNotifierBackend.database.DatabaseException;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
+import net.thumbtack.updateNotifierBackend.updateChecker.UpdateChecker;
 
 @Path("/users")
 @Singleton
 public class UsersHandler {
 
+	// TODO Why do not I use this and create new gSon object every time?
 	private static final Gson GSON = new GsonBuilder().setDateFormat(
 			"yyyy-MM-dd hh:mm:ss.S").create();
 	private static final Logger log = LoggerFactory
@@ -143,6 +145,20 @@ public class UsersHandler {
 		return GSON.toJson(res);
 	}
 
+
+	@Path("/{id}/resources/{resourceId}")
+	@DELETE
+	@Produces({ "application/json" })
+	public void deleteUserResource(@PathParam("id") long userId,
+			@PathParam("resourceId") long resourceId) {
+		log.trace("Get resource");
+		
+		if (!getDatabaseService().deleteResource(resourceId)) {
+			log.debug("Database delete request failed. Delete resource not found");
+			throw (new NotFoundException("Resource not exist"));
+		}
+	}
+
 	@Path("/{id}/tags")
 	@GET
 	@Produces({ "application/json" })
@@ -194,7 +210,7 @@ public class UsersHandler {
 				log.debug("Resource parsing error: nothing to parse (bad json)");
 			}
 			if (res.getDomPath() == null || res.getSheduleCode() < 0
-					|| res.getSheduleCode() > 4 || res.getUrl() == null) {
+					|| res.getSheduleCode() > UpdateChecker.MAGIC_NUMBER || res.getUrl() == null) {
 				log.debug("Resource parsing error: bad or expecting params");
 				throw (new BadRequestException("Json parsing error"));
 			}

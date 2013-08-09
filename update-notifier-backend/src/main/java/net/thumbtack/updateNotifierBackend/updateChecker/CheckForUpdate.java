@@ -11,7 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.thumbtack.updateNotifierBackend.UpdateNotifierBackend;
-
+/**
+ * @author Sergey Krivohatskiy
+ * 
+ * This class checks specified resource for update.
+ */
 public class CheckForUpdate implements Runnable {
 
 	private static final Logger log = LoggerFactory
@@ -48,9 +52,9 @@ public class CheckForUpdate implements Runnable {
 	}
 
 	/**
-	 * @param resource
-	 * @return Hash code of specified HTML element. Or null if Jsoup.connect
-	 *         failed or checkingParam is incorrect.
+	 * @param resource Resource to check
+	 * @return Hash code of specified HTML element with specified filter.
+	 *  Or null if Jsoup.connect failed or checking parameters is incorrect.
 	 */
 	public static Integer getNewHashCode(Resource resource) {
 		try {

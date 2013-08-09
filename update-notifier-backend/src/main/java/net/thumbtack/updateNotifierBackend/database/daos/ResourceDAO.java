@@ -44,10 +44,10 @@ public class ResourceDAO {
 		return list;
 	}
 
-	public static Set<Resource> getBySheduleCode(ResourceMapper mapper,
-			byte sheduleCode) {
+	public static Set<Resource> getByscheduleCode(ResourceMapper mapper,
+			byte scheduleCode) {
 		// TODO Does it return collection of resources?
-		return mapper.getBySheduleCode(sheduleCode);
+		return mapper.getByscheduleCode(scheduleCode);
 	}
 
 	public static boolean deleteByTags(ResourceMapper mapper, long userId,

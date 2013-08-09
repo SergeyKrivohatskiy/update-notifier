@@ -44,7 +44,7 @@ public class UsersHandlerTests {
 	}
 	
 	@Test
-	public void addGetResourcesTest() {
+	public void addGetDeleteResourcesTest() {
 		UsersHandler handler = new UsersHandler();
 		Long userId = handler.signIn(EXAMPLE_USER_EMAIL);
 		
@@ -56,7 +56,9 @@ public class UsersHandlerTests {
 		for(int i = 0; i < resources.length; i += 1) {
 			String resJson = handler.getUserResource(userId, resources[i].getId());
 			assertTrue(new Gson().fromJson(resJson, Resource.class).equals(resources[i]));
+			handler.deleteUserResource(userId, resources[i].getId());
 		}
+		assertEquals(new Gson().fromJson(handler.getUserResources(userId, ""), Resource[].class).length, 0);
 	}
 	
 	@Test
@@ -110,9 +112,25 @@ public class UsersHandlerTests {
 		try {
 			handler.addUserResource(userId, "{'incorrect':'resource', 'j':'son'}");
 			fail();
-		} catch(BadRequestException e) {
-			// ignore
-		}
+		} catch(BadRequestException e) {} // Ignore
+		try {
+			handler.addUserResource(userId, "{'url':'http:/ya.ru', " +
+					"'dom_path:'/', 'scheduleCode' : -1}");
+			fail();
+		} catch(BadRequestException e) {} // Ignore
+		try {
+			handler.addUserResource(userId, "");
+			fail();
+		} catch(BadRequestException e) {} // Ignore
+		try {
+			handler.addUserResource(userId, "{}");
+			fail();
+		} catch(BadRequestException e) {} // Ignore
+		try {
+			handler.addUserResource(-1, "{'url':'http:/ya.ru', " +
+					"'dom_path':'/', 'scheduleCode' : 1}");
+			fail();
+		} catch(BadRequestException e) {} // Ignore
 	}
 
 	@Test
@@ -122,9 +140,7 @@ public class UsersHandlerTests {
 		try {
 			handler.editUserResource(userId, "{'incorrect':'resource', 'j':'son'}");
 			fail();
-		} catch(BadRequestException e) {
-			// ignore
-		}
+		} catch(BadRequestException e) {} // Ignore
 	}
 	
 	@Test
