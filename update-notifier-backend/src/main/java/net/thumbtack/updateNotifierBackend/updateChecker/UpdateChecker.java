@@ -22,6 +22,7 @@ public class UpdateChecker {
 	private static final long VERY_RARELY = 86400000;
 	private final static long INTERVALS[] = 
 		{VERY_OFTEN, OFTEN, REGULAR, RARELY, VERY_RARELY};
+	public final static int MAGIC_NUMBER = INTERVALS.length-1;
 
 	private static final long TIME_TO_STOP = 10000;
 	
