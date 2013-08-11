@@ -4,7 +4,7 @@ insert into users value
 	(null, 'cthutq66a@yandex.ru');
 	
 insert into resources values	
-	(null, 1, 'https://www.roi.ru/poll/petition/biznes/otmenit-zakon-o-proizvolnyh-blokirovkah-internet-resursov-ot-02072013-187-fz-zakon-protiv-interneta', 0, '/0/1/1/1/0/2/0/1/0', null, 0);	#1
+	(null, 1, 'https://www.roi.ru/poll/petition/biznes/otmenit-zakon-o-proizvolnyh-blokirovkah-internet-resursov-ot-02072013-187-fz-zakon-protiv-interneta', 0, '/0/1/1/1/0/2/0/1/0', null, 0, null);	#1
 
 insert into resources values
 	(null, 1, 'http://ya.ru', 			0, '', null, 0, null),	#1

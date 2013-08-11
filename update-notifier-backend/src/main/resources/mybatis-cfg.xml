@@ -14,14 +14,6 @@
 	<settings>
 		<setting name="mapUnderscoreToCamelCase" value="true" />
 	</settings>
-	<typeAliases>
-		<typeAlias alias="User"
-			type="net.thumbtack.updateNotifierBackend.database.entities.User" />
-		<typeAlias alias="Tag"
-			type="net.thumbtack.updateNotifierBackend.database.entities.Tag" />
-		<typeAlias alias="Resource"
-			type="net.thumbtack.updateNotifierBackend.database.entities.Resource" />
-	</typeAliases>
 
 	<environments default="development">
 		<environment id="development">

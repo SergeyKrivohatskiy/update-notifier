@@ -2,6 +2,7 @@
 require 'httparty_wrapper'
 
 module DatabaseHelper
+  SUCCESS = 201
 
   #@resources = [Resource.new(name: 'Гогле', url: 'http://google.ru', tags: %w[search, favorite, GDG]),
   #              Resource.new(name: 'Яndex', url: 'http://yandex.ru', tags: %w[search]),
@@ -21,20 +22,20 @@ module DatabaseHelper
   end
 
   def self.add_resource(resource)
-    # TODO It's stub. It, I think, should return boolean value - result of updating. Maybe error code
     if resource.valid?
       response = HTTPartyWrapper::post("#{resource.user_id}/resources", nil, resource)
-      p response.parsed_response
-      #@resources.push Resource.new(name: name, url: resource.url, tags: resource.tags)
+      response.code == SUCCESS
+    else
+      resource.errors.full_messages
     end
-    resource.errors.full_messages
+
   end
 
   def self.edit_resource(user_id, resource_id, name, url, tags)
     # TODO It's stub. It, I think, should return boolean value - result of updating. Maybe error code
     resource = Resource.new(name: name, url: url, tags: tags)
     if resource.valid?
-      #response = HTTPartyWrapper::post('resource', user_id, id: resource_id, name: name, url: url,
+      #response = HTTPartyWrapper::post('resource', user_id, user_id: resource_id, name: name, url: url,
       #                tags: tags)
       @resources.push Resource.new(name: name, url: url, tags: tags)
     end
@@ -59,21 +60,23 @@ module DatabaseHelper
 
   private
   def self.symbolize(array_of_hash)
+    return [] if array_of_hash.nil?
     array_of_hash.map do |hash|
       hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
     end
   end
-  #def self.replace_this_method(array_of_hash)
-  #  array_of_hash.map do |hash|
-  #    hash[:tags], hash[:tagIds] = hash[:tagIds], nil
-  #    hash
-  #  end
-  #end
   def self.hashize(array_of_hash)
+    return {} if array_of_hash.nil?
     hash = {}
-    array_of_hash.each do |item|
-      key = item.shift[1]
-      value = item.shift[1]
+    array_of_hash.each do |hash|
+      # hash is:
+      # {
+      #   'id': 1
+      #   'name': 'some_name'
+      # }
+      # hash.shift is ['id', 1]
+      key = hash.shift.first
+      value = hash.shift.first
       hash[key] = value
     end
     hash
