@@ -55,7 +55,21 @@ public class TagDAO {
 		return tags;
 	}
 
-	public static boolean editTag(TagMapper mapper, long tagId, String tagName) {
-		return mapper.editTag(tagId, tagName) > 0;
+	public static boolean editTag(TagMapper mapper, long userId, long tagId, String tagName) {
+		return mapper.editTag(userId, tagId, tagName) > 0;
+	}
+
+	public static boolean exists(TagMapper mapper, Long[] tagIds) {
+		return mapper.check(makeString(tagIds)) == tagIds.length;
+	}
+	
+	private static <T> String makeString(T[] array) {
+		StringBuilder stringBuilder = new StringBuilder("");
+		for (T item : array) {
+			stringBuilder.append(item);
+			stringBuilder.append(",");
+		}
+		stringBuilder.deleteCharAt(stringBuilder.length()-1);
+		return stringBuilder.toString();
 	}
 }

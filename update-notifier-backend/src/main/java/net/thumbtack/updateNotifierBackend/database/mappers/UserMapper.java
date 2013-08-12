@@ -10,6 +10,7 @@ public interface UserMapper {
 	String ADD_USER = "INSERT INTO users VALUE (null, #{email})";
 	String GET_EMAIL = "SELECT email FROM users WHERE id=#{id}";
 	String DEL_ALL = "DELETE FROM users";
+	String CHECK_EXISTENCE = "SELECT id FROM users WHERE id=#{id}";
 	
 	@Select(GET_ID)
 	Long getId(String email);
@@ -22,4 +23,7 @@ public interface UserMapper {
 
 	@Delete(DEL_ALL)
 	int deleteAll();
+
+	@Select(CHECK_EXISTENCE)
+	Long check(Long id);
 }

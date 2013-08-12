@@ -15,13 +15,13 @@ import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 public interface ResourceMapper {
 
 	String INS_RESOURCE = "INSERT INTO resources VALUE (null, #{userId}, #{url}, #{scheduleCode}, #{dom_path}, #{filter}, #{hash}, NOW())";
-	String DEL_RESOURCE = "DELETE FROM resources WHERE id=#{resourceId}";
+	String DEL_RESOURCE = "DELETE FROM resources WHERE id=#{id} AND user_id=#{userId}";
 	String GET_ALL_FOR_USER = "SELECT * FROM resources WHERE user_id=#{id}";
-	String GET_BY_ID = "SELECT * FROM resources WHERE id=#{id}";
+	String GET_BY_IDS = "SELECT * FROM resources WHERE id=#{id} AND user_id=#{userId}";
 	String GET_BY_USER_ID_AND_TAGS = "SELECT DISTINCT * FROM resources WHERE NOT EXISTS (SELECT id FROM tags WHERE tags.id IN (${tagIds}) AND NOT EXISTS (SELECT * FROM resource_tag WHERE resource_id=resources.id AND tag_id = tags.id))";
 	String GET_BY_SHEDULE_CODE = "SELECT * FROM resources WHERE shedule_code=#{scheduleCode}";
 	String DEL_ALL_USER_RESOURCES = "DELETE FROM resources WHERE id=#{id}";
-	String DEL_BY_TAGS = "DELETE FROM resources WHERE NOT EXISTS (SELECT id FROM tags WHERE tags.id IN (${tagIds}) AND NOT EXISTS (SELECT * FROM resource_tag WHERE resource_id=resources.id AND tag_id = tags.id))";
+	String DEL_BY_TAGS = "DELETE FROM resources WHERE user_id=#{userId} AND NOT EXISTS (SELECT id FROM tags WHERE tags.id IN (${tagIds}) AND NOT EXISTS (SELECT * FROM resource_tag WHERE resource_id=resources.id AND tag_id = tags.id))";
 	String UPD_RESOURCE = "UPDATE resources SET user_id=#{userId}, url=#{url}, dom_path=#{dom_path}, filter=#{filter}, shedule_code=#{scheduleCode} WHERE id=#{id}";
 	String UPD_AFTER_UPD = "UPDATE resources SET hash=#{hash}, last_update=NOW() WHERE id=#{id}";
 	String LAST_ID = "SELECT LAST_INSERT_ID()";
@@ -33,7 +33,8 @@ public interface ResourceMapper {
 	void add(Resource resource);
 
 	@Delete(DEL_RESOURCE)
-	int delete(long resourceId);
+	int delete(@Param(value = "userId") long userId,
+			@Param(value = "id") long resourceId);
 
 	@Select(GET_ALL_FOR_USER)
 	List<Resource> getAllForUser(Long id);
@@ -46,10 +47,10 @@ public interface ResourceMapper {
 
 	@Delete(DEL_ALL_USER_RESOURCES)
 	int deleteAll(long id);
-	
 
 	@Delete(DEL_BY_TAGS)
-	int deleteByTags(@Param(value = "tagIds") String tagIds);
+	int deleteByTags(@Param(value = "userId") long userId,
+			@Param(value = "tagIds") String tagIds);
 
 	@Update(UPD_RESOURCE)
 	int update(Resource resource);
@@ -61,9 +62,8 @@ public interface ResourceMapper {
 	@Select(LAST_ID)
 	Long getLastId();
 
-	@Select(GET_BY_ID)
-	Resource get(Long id);
+	@Select(GET_BY_IDS)
+	Resource get(@Param(value = "userId") Long userId,
+			@Param(value = "id") Long id);
 
-//	@Delete(DEL_ALL_RESOURCES)
-//	int deleteAll();
 }

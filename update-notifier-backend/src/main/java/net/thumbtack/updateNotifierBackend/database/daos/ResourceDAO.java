@@ -11,12 +11,11 @@ public class ResourceDAO {
 	public static Long add(ResourceMapper mapper,
 			Resource resource) {
 		mapper.add(resource);
-		Long id = mapper.getLastId();
-		return id == null ? 0 : id;
+		return mapper.getLastId();
 	}
 
-	public static boolean delete(ResourceMapper mapper, long resourceId) {
-		return mapper.delete(resourceId) > 0;
+	public static boolean delete(ResourceMapper mapper, long userId, long resourceId) {
+		return mapper.delete(userId, resourceId) > 0;
 	}
 
 	/**
@@ -56,7 +55,7 @@ public class ResourceDAO {
 		if (tagsId == null) {
 			result = mapper.deleteAll(userId) > 0;
 		} else {
-			result = mapper.deleteByTags(makeString(tagsId)) > 0;
+			result = mapper.deleteByTags(userId, makeString(tagsId)) > 0;
 		}
 		return result;
 	}
@@ -71,8 +70,8 @@ public class ResourceDAO {
 		return mapper.updateAfterUpdate(id, hash) > 0;
 	}
 
-	public static Resource get(ResourceMapper mapper, long resourceId) {
-		return mapper.get(resourceId);
+	public static Resource get(ResourceMapper mapper, long userId, long resourceId) {
+		return mapper.get(userId, resourceId);
 	}
 	
 	private static <T> String makeString(T[] array) {

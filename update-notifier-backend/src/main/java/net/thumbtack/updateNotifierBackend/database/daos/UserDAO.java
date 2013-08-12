@@ -23,5 +23,9 @@ public class UserDAO {
 	public static String getUserEmail(UserMapper mapper, Long id) {
 		return mapper.getEmail(id);
 	}
+
+	public static boolean exists(UserMapper mapper, Long id) {
+		return (mapper.check(id) != null);
+	}
 	
 }

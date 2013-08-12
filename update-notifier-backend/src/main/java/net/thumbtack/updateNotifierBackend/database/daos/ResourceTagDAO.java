@@ -6,8 +6,8 @@ import net.thumbtack.updateNotifierBackend.database.mappers.ResourceTagMapper;
 
 public class ResourceTagDAO {
 
-	public static void addRelation(ResourceTagMapper mapper, Long id, Long tagId) {
-		mapper.add(id, tagId);
+	public static boolean addRelation(ResourceTagMapper mapper, Long id, Long tagId) {
+		return mapper.add(id, tagId) > 0;
 	}
 	
 	public static List<Long> getForResource(ResourceTagMapper mapper, Long id) {
