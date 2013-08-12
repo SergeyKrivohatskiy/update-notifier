@@ -22,7 +22,11 @@ class ResourcesController < ApplicationController
     resource.shedule_code = 0
     resource.dom_path = '/'
 
-    @errors_array = DatabaseHelper.add_resource(resource)
+    if resource.valid?
+      DatabaseHelper.add_resource(resource)
+    else
+      @errors_array = resource.errors.full_messages
+    end
     redirect_to :back, flash: { errors: @errors_array }
 
   end
@@ -46,8 +50,7 @@ class ResourcesController < ApplicationController
   def update
     resource = params[:resource]
     resource[:tags] = clean_tags(resource[:tags])
-    DatabaseHelper.edit_resource(session[:user_id], nil, resource[:name],
-                                 resource[:url], resource[:tags])
+    DatabaseHelper.edit_resource()
     redirect_to action: :index
   end
 

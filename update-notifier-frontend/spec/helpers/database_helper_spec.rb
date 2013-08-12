@@ -7,8 +7,8 @@ describe DatabaseHelper do
   describe 'symbolize' do
     it 'should return array of hashes, as origin, but with symbol keys instead string' do
       array_of_hash = [
-          { 'id1' => 'value 1', 'url1' => 'http://some.url' },
-          { 'id2' => 'value 1', 'url2' => 'http://another.url' }
+          {'id1' => 'value 1', 'url1' => 'http://some.url'},
+          {'id2' => 'value 1', 'url2' => 'http://another.url'}
       ]
       result = DatabaseHelper.send(:symbolize, array_of_hash)
       array_of_hash.each_with_index do |hash, index|
@@ -38,7 +38,7 @@ describe DatabaseHelper do
 
     it 'should work rightly' do
       array_of_hashes = [
-          { "id1" => 12, "name" => "name3" },
+          {"id1" => 12, "name" => "name3"},
           {"id2" => 34, "name" => "name4"},
       ]
       result = DatabaseHelper.send(:hashize, array_of_hashes)
@@ -62,16 +62,52 @@ describe DatabaseHelper do
   describe 'resource addition' do
     before { @user_id = DatabaseHelper.sign_in('mail@post.com') }
     it 'will be success if adds resource' do
-      resource = Resource.new( name: 'test resource', url: 'http://localhost:8080', user_id: @user_id, dom_path: '/')
-      DatabaseHelper.add_resource(resource).should be_true
+      resource = Resource.new(name: 'test resource',
+                              url: 'http://localhost:8080',
+                              user_id: @user_id,
+                              dom_path: '/')
+      @id = DatabaseHelper.add_resource(resource).should be_true
+    end
+    after do
+      pending "resource hasn't been deleted" unless
+          DatabaseHelper.delete_resource(@user_id, @id)
     end
   end
 
-  pending 'resource deletion not tested' do
-    #before { @user_id = DatabaseHelper.sign_in('mail@post.com') }
+  describe 'resource deletion' do
+    before do
+      @user_id = DatabaseHelper.sign_in('mail@post.com')
+      @resource = Resource.new(name: 'test',
+                              url: 'http://localhost:8080',
+                              user_id: @user_id,
+                              dom_path: '/')
+      pending "doesn't work: resource not added" unless
+          DatabaseHelper.add_resource(@resource)
+    end
+    it 'will be success if deletes resource' do
+      DatabaseHelper.delete_resource(@resource.user_id, @resource.id).
+          should be_true
+    end
   end
 
-  pending "resource editing not tested " do
+  describe 'resource editing' do
+    before do
+      @user_id = DatabaseHelper.sign_in('mail@post.com')
+      @resource = Resource.new(name: 'test',
+                              url: 'http://localhost:8080',
+                              user_id: @user_id,
+                              dom_path: '/')
+      pending "doesn't work: resource not added" unless
+          DatabaseHelper.add_resource(@resource)
+    end
+    it 'will be success if resource will be edited' do
+      @resource.url, @resource.name = 'http://127.0.0.1', 'edit test'
+      DatabaseHelper.edit_resource(@resource)
+    end
+    after do
+      DatabaseHelper.delete_resource(resource.user_id, resource.id).
+          should be_true
+    end
   end
 
   pending 'tags adding not tested' do

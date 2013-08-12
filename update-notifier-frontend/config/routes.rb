@@ -1,7 +1,6 @@
 UpdateNotifierFrontend::Application.routes.draw do
 
   resources :resources
-  get "resources/update"
 
   # TODO learn about 'resource'
   #get "resources/create"
