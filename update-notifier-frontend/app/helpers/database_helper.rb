@@ -66,15 +66,15 @@ module DatabaseHelper
   def self.hashize(array_of_hash)
     return {} if array_of_hash.nil?
     hash = {}
-    array_of_hash.each do |hash|
+    array_of_hash.each do |hash_item|
       # hash is:
       # {
       #   'id': 1
       #   'name': 'some_name'
       # }
       # hash.shift is ['id', 1]
-      key = hash.shift.first
-      value = hash.shift.first
+      key = hash_item.shift.last
+      value = hash_item.shift.last
       hash[key] = value
     end
     hash

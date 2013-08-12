@@ -37,9 +37,7 @@ class ResourcesController < ApplicationController
     @id = session[:user_id]
     session[:tags] = @tags = DatabaseHelper.tags(@id)
     @resources = DatabaseHelper.resources(@id)
-    p @resources
     @resources
-
   end
 
   def show
@@ -53,7 +51,7 @@ class ResourcesController < ApplicationController
   end
 
   def destroy
-    DatabaseHelper.delete_resource(session[:user_id], params[:id])
+    result = DatabaseHelper.delete_resource(session[:user_id], params[:id])
     redirect_to action: :index
   end
 end
