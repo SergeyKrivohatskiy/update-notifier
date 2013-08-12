@@ -1,5 +1,6 @@
 # encoding: UTF-8
 require 'httparty_wrapper'
+require 'webrick/httpstatus'
 
 module DatabaseHelper
 
@@ -41,10 +42,9 @@ module DatabaseHelper
     resource.errors.full_messages
   end
 
-  def self.delete_resource(resource_id)
-    # TODO It' stub. Return boolean ?
-    #response = HTTPartyWrapper::delete('resource', resource_id)
-    rand(0..1) == 0
+  def self.delete_resource(user_id, resource_id)
+    response = HTTPartyWrapper::delete("#{user_id}/resources/#{resource_id}", nil)
+    WEBrick::HTTPStatus[response.code].kind_of? Succes
   end
 
   def self.tags(user_id)
@@ -63,12 +63,7 @@ module DatabaseHelper
       hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
     end
   end
-  #def self.replace_this_method(array_of_hash)
-  #  array_of_hash.map do |hash|
-  #    hash[:tags], hash[:tagIds] = hash[:tagIds], nil
-  #    hash
-  #  end
-  #end
+
   def self.hashize(array_of_hash)
     hash = {}
     array_of_hash.each do |item|

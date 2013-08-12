@@ -181,9 +181,9 @@ public class UsersHandlerTests {
 	 * @return number of tags were added
 	 */
 	private int addTags(UsersHandler handler, Long userId) {
-		handler.addTag(userId, "New tag name1");
-		handler.addTag(userId, "New tag name2");
-		handler.addTag(userId, "New tag name3");
+		handler.addTag(userId, "\"New tag name1\"");
+		handler.addTag(userId, "\"New tag name2\"");
+		handler.addTag(userId, "\"New tag name3\"");
 		return 3;
 	}
 	
