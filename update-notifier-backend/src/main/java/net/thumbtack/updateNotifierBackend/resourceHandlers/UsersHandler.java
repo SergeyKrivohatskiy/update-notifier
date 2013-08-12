@@ -138,7 +138,7 @@ public class UsersHandler {
 	@Path("/{id}/resources/{resourceId}")
 	@DELETE
 	@Produces({ "application/json" })
-	public void deleteUserResource(@PathParam("id") long userId,
+	public Response deleteUserResource(@PathParam("id") long userId,
 			@PathParam("resourceId") long resourceId) {
 		log.trace("Get resource");
 
@@ -152,6 +152,7 @@ public class UsersHandler {
 			log.debug("Database delete request failed. Delete resource not found");
 			throw (new NotFoundException("Resource not exist"));
 		}
+		return Response.status(HttpStatus.NO_CONTENT_204).build();
 	}
 
 	@Path("/{id}/resources")
@@ -202,6 +203,8 @@ public class UsersHandler {
 		return Response.status(HttpStatus.CREATED_201).entity(id.toString())
 				.build();
 	}
+	
+	
 	@Path("/{id}/tags/{tagId}")
 	@PUT
 	@Consumes({ "application/json" })
