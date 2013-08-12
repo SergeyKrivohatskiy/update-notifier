@@ -27,6 +27,12 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+//REVU: You should use interfaces.
+// Create dao interfaces and make current Dao's classes as implementation of them.
+// All daos without implementation of base dao interface.
+// BaseDao should be with sqlSessionFactory and All daos should implement BaseDao interface.
+// And you don't have to send mapper to dao class, they will use sqlSessionFactory.
 public class DatabaseService {
 
 	private static final Logger log = LoggerFactory
@@ -36,8 +42,10 @@ public class DatabaseService {
 	public static SqlSessionFactory getSqlsessionfactory() {
 		return sqlSessionFactory;
 	}
-
+	
+	//REVU: Better to use static method instead  of 'magic initialization'
 	static {
+		//REVU: use static final constant for config file.
 		String resource = "mybatis-cfg.xml";
 		InputStream inputStream = null;
 		try {
@@ -52,7 +60,7 @@ public class DatabaseService {
 
 	public DatabaseService() {
 	}
-
+	
 	public Long getUserIdByEmailOrAdd(String email) throws DatabaseException {
 		log.trace("Get user email by id; email: {}", email);
 		SqlSession session = sqlSessionFactory.openSession();
