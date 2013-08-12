@@ -36,7 +36,10 @@
           <% end %>
         </td>
         <td style="text-align: center">
-          <%= link_to 'Edit', { action: 'update' }, class: 'btn' %>
+          <%= link_to 'Edit', edit_resource_url(resource[:id]), :class => 'btn'%>
+        </td>
+        <td style="text-align: center">
+          <%= link_to 'Delete', resource_url(resource[:id]),  :method => :delete, :confirm => "Are you sure?", :class => 'btn'%>
         </td>
       </tr>
     <% end %>

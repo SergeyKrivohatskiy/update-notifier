@@ -47,16 +47,13 @@ class ResourcesController < ApplicationController
     # GET	/resources/:tag_id
   end
 
-  def update
-    resource = params[:resource]
-    resource[:tags] = clean_tags(resource[:tags])
-    DatabaseHelper.edit_resource()
+  def edit
+    id = params[:id]
     redirect_to action: :index
   end
 
   def destroy
-    # Delete resource_info
-    # DELETE	/resources/:tag_id
+    DatabaseHelper.delete_resource(session[:user_id], params[:id])
     redirect_to action: :index
   end
 end
