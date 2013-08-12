@@ -4,11 +4,6 @@ require 'webrick/httpstatus'
 
 module DatabaseHelper
 
-  #@resources = [Resource.new(name: 'Гогле', url: 'http://google.ru', tags: %w[search, favorite, GDG]),
-  #              Resource.new(name: 'Яndex', url: 'http://yandex.ru', tags: %w[search]),
-  #              Resource.new(name: 'Thumbtack', url: 'http://thumbtack.net', tags: %w[favorite it development]),
-  #              Resource.new(name: 'ИСС Арт', url: 'http://issart.ru', tags: %w[it development])]
-
   def self.sign_in(email)
     response = HTTPartyWrapper::get('signin', { email: email })
     if WEBrick::HTTPStatus[response.code].new.
@@ -22,7 +17,6 @@ module DatabaseHelper
   def self.resources(user_id)
     response = HTTPartyWrapper::get("#{user_id}/resources")
     symbolize(response.parsed_response)
-    #return @resources
   end
 
   def self.add_resource(resource)

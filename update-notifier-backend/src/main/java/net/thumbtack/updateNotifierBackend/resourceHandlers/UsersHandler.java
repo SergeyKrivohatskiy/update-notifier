@@ -118,7 +118,7 @@ public class UsersHandler {
 	
 	@Path("/{id}/resources")
 	@DELETE
-	public void deleteUserResources(@PathParam("id") long userId,
+	public Response deleteUserResources(@PathParam("id") long userId,
 			@DefaultValue("") @QueryParam("tags") String tagsString) {
 		log.trace("Delete resources");
 		Long[] tags = parseTags(tagsString);
@@ -132,6 +132,7 @@ public class UsersHandler {
 			log.debug("Database delete request failed. Delete resources bnot found");
 			throw (new NotFoundException());
 		}
+		return Response.status(HttpStatus.NO_CONTENT_204).build();
 	}
 
 	@Path("/{id}/resources/{resourceId}")
