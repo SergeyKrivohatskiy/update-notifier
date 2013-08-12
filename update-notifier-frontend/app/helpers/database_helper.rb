@@ -47,9 +47,8 @@ module DatabaseHelper
   end
 
   def self.delete_resource(user_id, resource_id)
-    # TODO It' stub. Return boolean !
-    #response = HTTPartyWrapper::delete('resource', resource_id)
-    rand(0..1) == 0
+    response = HTTPartyWrapper::delete("#{user_id}/resources/#{resource_id}", nil)
+    WEBrick::HTTPStatus[response.code].new.kind_of? WEBrick::HTTPStatus::Success
   end
 
   def self.tags(user_id)
@@ -69,6 +68,7 @@ module DatabaseHelper
       hash.inject({}){|memo,(k,v)| memo[k.to_sym] = v; memo}
     end
   end
+
   def self.hashize(array_of_hash)
     return {} if array_of_hash.nil?
     hash = {}

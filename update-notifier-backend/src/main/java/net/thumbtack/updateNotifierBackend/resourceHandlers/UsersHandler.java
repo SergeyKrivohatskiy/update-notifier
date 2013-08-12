@@ -192,17 +192,7 @@ public class UsersHandler {
 	@Consumes({ "application/json" })
 	public Response addTag(@PathParam("id") long userId, String tagNameJson) {
 		log.trace("Add tag");
-		String tagName = null;
-		try {
-			tagName = GSON.fromJson(tagNameJson, String.class);
-		} catch (JsonSyntaxException e) {
-			throw new BadRequestException("Invalid json param: tag name");
-		}
-		if (tagName == null) {
-			log.debug("Database post request failed. Tag name can't be null.");
-			throw new BadRequestException(
-					"Database post request failed. Tag name can't be null.");
-		}
+		String tagName = parseTagName(tagNameJson);
 		Long id = getDatabaseService().addTag(userId, tagName);
 		if (id == null) {
 			log.debug("Database add request failed. Edit resources bad request");
@@ -211,7 +201,6 @@ public class UsersHandler {
 		return Response.status(HttpStatus.CREATED_201).entity(id.toString())
 				.build();
 	}
-
 	@Path("/{id}/tags/{tagId}")
 	@PUT
 	@Consumes({ "application/json" })
@@ -238,12 +227,7 @@ public class UsersHandler {
 	private static Resource parseResource(String resourceJson) {
 		try {
 			Resource res = GSON.fromJson(resourceJson, Resource.class);
-			if (res == null) {
-				log.debug("Resource parsing error: nothing to parse (bad json)");
-				throw new BadRequestException(
-						"Resource parsing error: nothing to parse (bad json)");
-			}
-			if (res.getDomPath() == null || res.getSheduleCode() < 0
+			if (res == null || res.getDomPath() == null || res.getSheduleCode() < 0
 					|| res.getSheduleCode() > UpdateChecker.MAGIC_NUMBER
 					|| res.getUrl() == null) {
 				log.debug("Resource parsing error: bad or expecting params");
@@ -253,6 +237,22 @@ public class UsersHandler {
 		} catch (JsonSyntaxException ex) {
 			log.debug("Resource parsing error");
 			throw (new BadRequestException("Json parsing error"));
+		}
+	}
+
+
+	private String parseTagName(String tagNameJson) {
+		try{
+			String tagName = GSON.fromJson(tagNameJson, String.class);
+			if (tagName == null) {
+				log.debug("Database post request failed. Tag name can't be null.");
+				throw new BadRequestException(
+						"Database post request failed. Tag name can't be null.");
+			}
+			return tagName;
+		} catch (JsonSyntaxException ex) {
+			log.debug("Tag name parsing error");
+			throw (new BadRequestException("Tag name parsing error"));
 		}
 	}
 
