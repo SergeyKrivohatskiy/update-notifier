@@ -31,8 +31,7 @@ import org.slf4j.LoggerFactory;
 //REVU: You should use interfaces.
 // Create dao interfaces and make current Dao's classes as implementation of them.
 // All daos without implementation of base dao interface.
-// Better to do this as BaseDao class with sqlSessionFactory. 
-// All Daos should implement BaseDao interface.
+// BaseDao should be with sqlSessionFactory and All daos should implement BaseDao interface.
 // And you don't have to send mapper to dao class, they will use sqlSessionFactory.
 public class DatabaseService {
 
