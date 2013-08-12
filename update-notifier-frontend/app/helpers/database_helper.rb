@@ -23,25 +23,24 @@ module DatabaseHelper
     response = HTTPartyWrapper::post("#{resource.user_id}/resources", nil, resource)
     if WEBrick::HTTPStatus[response.code].new.
         kind_of? WEBrick::HTTPStatus::Success
-      response.parsed_response
+      response.parsed_response.to_i
     else
-      '0'
+      0
     end
   end
 
-  def self.edit_resource()
-    # TODO It's stub. It, I think, should return boolean value - result of updating. Maybe error code
-    resource = Resource.new(name: name, url: url, tags: tags)
-    if resource.valid?
-      #response = HTTPartyWrapper::post('resource', user_id, user_id: resource_id, name: name, url: url,
-      #                tags: tags)
-      @resources.push Resource.new(name: name, url: url, tags: tags)
+  def self.edit_resource(resource)
+    response = HTTPartyWrapper::put("#{resource.user_id}/resources", nil, resource)
+    if WEBrick::HTTPStatus[response.code].new.
+        kind_of? WEBrick::HTTPStatus::Success
+      true
+    else
+      false
     end
-    resource.errors.full_messages
   end
 
   def self.delete_resource(user_id, resource_id)
-    response = HTTPartyWrapper::delete("#{user_id}/resources/#{resource_id}", nil)
+    response = HTTPartyWrapper::delete("#{user_id}/resources/#{resource_id}")
     WEBrick::HTTPStatus[response.code].new.kind_of? WEBrick::HTTPStatus::Success
   end
 
@@ -52,7 +51,17 @@ module DatabaseHelper
 
   def self.add_tag(user_id, name)
     response = HTTPartyWrapper::post("#{user_id}/tags", nil, name)
-    response.parsed_response
+    if WEBrick::HTTPStatus[response.code].new.
+        kind_of? WEBrick::HTTPStatus::Success
+      response.parsed_response.to_i
+    else
+      0
+    end
+  end
+
+  def self.delete_tag(user_id, tag_id)
+    response = HTTPartyWrapper::delete("#{user_id}/tags/#{tag_id}")
+    WEBrick::HTTPStatus[response.code].new.kind_of? WEBrick::HTTPStatus::Success
   end
 
   private

@@ -3,6 +3,7 @@ package net.thumbtack.updateNotifierBackend.database.mappers;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -15,6 +16,7 @@ public interface TagMapper {
 	String ADD_TAG = "INSERT INTO tags VALUE (null, #{userId}, #{name})";
 	String GET_FOR_RESOURCE = "SELECT id FROM tags JOIN resource_tag ON tags.id = resource_tag.tag_id WHERE resource_id=#{id}";
 	String UPD_TAG = "UPDATE tags SET name=#{name} WHERE id=#{id} AND user_id=#{userId}";
+	String DEL_TAG = "DELETE FROM tags WHERE id=#{tagId} AND user_id = #{userId}";
 	String LAST_ID = "SELECT LAST_INSERT_ID()";
 	String CHECK_EXISTANCE = "UPDATE tags SET id=id WHERE id IN (${tags})";
 
@@ -35,5 +37,9 @@ public interface TagMapper {
 
 	@Update(CHECK_EXISTANCE)
 	int check(String tags);
+
+	@Delete(DEL_TAG)
+	int deleteTag(@Param(value = "userId") long userId,
+			@Param(value = "tagId") long tagId);
 
 }
