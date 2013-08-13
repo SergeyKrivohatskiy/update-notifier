@@ -18,7 +18,7 @@ public interface TagMapper {
 	String UPD_TAG = "UPDATE tags SET name=#{name} WHERE id=#{id} AND user_id=#{userId}";
 	String DEL_TAG = "DELETE FROM tags WHERE id=#{tagId} AND user_id = #{userId}";
 	String LAST_ID = "SELECT LAST_INSERT_ID()";
-	String CHECK_EXISTANCE = "UPDATE tags SET id=id WHERE id IN (${tags})";
+	String CHECK_EXISTANCE = "UPDATE tags SET id=id WHERE user_id = #{userId} AND id IN (${tags})";
 
 	@Select(GET_TAGS)
 	List<Map<String, Object>> getTags(long userId);
@@ -36,7 +36,8 @@ public interface TagMapper {
 			@Param(value = "id") long id, @Param(value = "name") String name);
 
 	@Update(CHECK_EXISTANCE)
-	int check(String tags);
+	int check(@Param(value = "userId") long userId,
+			@Param(value = "tags") String tags);
 
 	@Delete(DEL_TAG)
 	int deleteTag(@Param(value = "userId") long userId,

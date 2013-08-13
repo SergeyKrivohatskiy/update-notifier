@@ -2,6 +2,7 @@
 require 'httparty_wrapper'
 require 'webrick/httpstatus'
 
+
 module DatabaseHelper
 
   def self.sign_in(email)
@@ -30,13 +31,20 @@ module DatabaseHelper
   end
 
   def self.edit_resource(resource)
-    response = HTTPartyWrapper::put("#{resource.user_id}/resources", nil, resource)
-    if WEBrick::HTTPStatus[response.code].new.
+    if resource.valid?
+      response = HTTPartyWrapper::put("#{resource.user_id}/resources/#{resource.id}", nil, resource)
+      if WEBrick::HTTPStatus[response.code].new.
         kind_of? WEBrick::HTTPStatus::Success
-      true
-    else
-      false
+        true
+      else
+        false
+      end
     end
+  end
+
+  def self.get_resource(user_id, resource_id)
+    response = HTTPartyWrapper::get("#{user_id}/resources/#{resource_id}", nil)
+    Resource.new(response.parsed_response)
   end
 
   def self.delete_resource(user_id, resource_id)
@@ -98,5 +106,4 @@ module DatabaseHelper
     end
     hash
   end
-
 end

@@ -152,7 +152,7 @@ public class DatabaseService {
 			}
 			if (tagIds != null
 					&& !TagDAO.exists(session.getMapper(TagMapper.class),
-							tagIds)) {
+							userId, tagIds)) {
 				log.debug("Database exception: can't get resources for nonexistent tags");
 				throw new DatabaseException(
 						"Database exception: can't get resources for nonexistent tags");
@@ -252,7 +252,7 @@ public class DatabaseService {
 			}
 			if (tagIds != null
 					&& !TagDAO.exists(session.getMapper(TagMapper.class),
-							tagIds)) {
+							userId, tagIds)) {
 				log.debug("Database exception: can't get resources for nonexistent tags");
 				throw new DatabaseException(
 						"Database exception: can't get resources for nonexistent tags");
@@ -286,7 +286,7 @@ public class DatabaseService {
 						"Database exception: not found resource for edit"));
 			}
 
-			if (savedResource.getUrl() != resource.getUrl()) {
+			if (!savedResource.getUrl().equals(resource.getUrl())) {
 				Integer hash = getNewHashCode(resource);
 				if (hash == null) {
 					hash = 0;
@@ -296,8 +296,26 @@ public class DatabaseService {
 						resource.getId(), hash);
 			}
 			resource.setUserId(userId);
+			if (!TagDAO.exists(session.getMapper(TagMapper.class), userId,
+					resource.getTags().toArray(new Long[] {}))) {
+				log.debug("Database exception: can't assign nonexistant tags to resource");
+				throw new DatabaseException(
+						"Database exception: can't assign nonexistant tags to resource");
+			}
 			result = ResourceDAO.edit(session.getMapper(ResourceMapper.class),
 					resource);
+			if (result) {
+				ResourceTagDAO.deleteRelations(
+						session.getMapper(ResourceTagMapper.class),
+						resource.getId());
+				if (resource.getTags() != null) {
+					for (Long tagId : resource.getTags()) {
+						ResourceTagDAO.addRelation(
+								session.getMapper(ResourceTagMapper.class),
+								resource.getId(), tagId);
+					}
+				}
+			}
 			if (result) {
 				session.commit();
 			}
@@ -396,8 +414,8 @@ public class DatabaseService {
 				throw new DatabaseException(
 						"Database exception. Can't delete tag of nonexistent user");
 			}
-			result = TagDAO.deleteTag(session.getMapper(TagMapper.class), userId,
-					tagId);
+			result = TagDAO.deleteTag(session.getMapper(TagMapper.class),
+					userId, tagId);
 
 			if (result) {
 				session.commit();
