@@ -35,15 +35,17 @@ module DatabaseHelper
     end
   end
 
-  def self.edit_resource()
+  def self.edit_resource(resource)
     # TODO It's stub. It, I think, should return boolean value - result of updating. Maybe error code
-    resource = Resource.new(name: name, url: url, tags: tags)
     if resource.valid?
-      #response = HTTPartyWrapper::post('resource', user_id, user_id: resource_id, name: name, url: url,
-      #                tags: tags)
-      @resources.push Resource.new(name: name, url: url, tags: tags)
+      response = HTTPartyWrapper::put("#{resource.user_id}/resources/#{resource.id}", nil, resource)
     end
     resource.errors.full_messages
+  end
+
+  def self.get_resource(user_id, resource_id)
+    resource_hash = HTTPartyWrapper::get("#{user_id}/resources/#{resource_id}", nil).parsed_response
+    hashToResource(resource_hash)
   end
 
   def self.delete_resource(user_id, resource_id)
@@ -86,4 +88,11 @@ module DatabaseHelper
     hash
   end
 
+  def self.hashToResource(hash)
+    mappings = {'url' => 'url', 'id' => 'id', 'scheduleCode' => 'schedule_code',
+                'tags' => 'tags', 'userId' => 'user_id', 'domPath' => 'dom_path',
+                'filter' => 'filter'}
+
+    Resource.new(Hash[hash.map {|k, v| [mappings[k], v] }])
+  end
 end

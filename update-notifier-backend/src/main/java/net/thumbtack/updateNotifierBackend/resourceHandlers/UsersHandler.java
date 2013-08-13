@@ -153,14 +153,14 @@ public class UsersHandler {
 		}
 	}
 
-	@Path("/{id}/resources")
+	@Path("/{id}/resources/{resourceId}")
 	@PUT
 	@Consumes({ "application/json" })
-	public void editUserResource(@PathParam("id") long userId,
-			String resourceJson) {
+	public void editUserResource(@PathParam("id") long userId, 
+			@PathParam("resourceId") long resourceId, String resourceJson) {
 		log.trace("Edit resource");
 		Resource resource = parseResource(resourceJson);
-
+		resource.setId(resourceId);
 		try {
 			if (!getDatabaseService().editResource(userId, resource)) {
 				log.debug("Database edit request failed. Edit resources bad request");

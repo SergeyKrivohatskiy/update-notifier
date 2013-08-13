@@ -5,7 +5,7 @@ class Resource
 
   #before_validation { url[0] = 'http://' unless url.start_with?('http://') }
 
-  attr_accessor :name, :id, :user_id, :url, :tags, :dom_path, :filter, :shedule_code
+  attr_accessor :name, :id, :user_id, :url, :tags, :dom_path, :filter, :schedule_code
 
   validates :name, presence: true
   validates :url, url: true, length: { maximum: 255 }

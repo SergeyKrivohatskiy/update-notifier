@@ -154,7 +154,7 @@ public class UsersHandlerTests {
 		Long userId = handler.signIn(EXAMPLE_USER_EMAIL);
 		try {
 			handler.editUserResource(userId,
-					"{'incorrect':'resource', 'j':'son'}");
+					0, "{'incorrect':'resource', 'j':'son'}");
 			fail();
 		} catch (BadRequestException e) {
 		} // Ignore

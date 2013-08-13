@@ -1,0 +1,14 @@
+<% provide(:title, 'Edit resource') %>
+
+<div id="dialog-form">
+  <%= form_for @resource, :as => :resource, :url => resource_url(@resource.id),
+               :method => :put, :html => { :class => 'form-horizontal'} do |f| %>
+      Edit resource "<%= @resource.url %>"
+      <% %w[name url tags].each do |item| %>
+          <div class="control-group">
+            <%= f.text_field item.to_sym, placeholder: item.titleize %>
+          </div>
+      <% end %>
+      <%= f.submit 'Edit', class: 'btn' %>
+  <% end %>
+</div>

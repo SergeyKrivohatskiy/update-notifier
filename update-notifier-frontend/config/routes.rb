@@ -2,11 +2,6 @@ UpdateNotifierFrontend::Application.routes.draw do
 
   resources :resources
 
-
-  # TODO learn about 'resource'
-  #get "resources/create"
-  #get "resources/delete"
-
   root to: 'static_pages#home'
 
   post '/signin', to: 'static_pages#signin'
