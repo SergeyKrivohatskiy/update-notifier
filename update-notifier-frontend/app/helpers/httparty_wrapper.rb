@@ -32,7 +32,7 @@ module HTTPartyWrapper
                   headers: { 'Content-Type' => 'application/json; charset=UTF-8' })
   end
 
-  def self.delete(command, url_arg)
+  def self.delete(command, url_arg=nil)
     HTTParty.delete(address(command, url_arg))
   end
 end

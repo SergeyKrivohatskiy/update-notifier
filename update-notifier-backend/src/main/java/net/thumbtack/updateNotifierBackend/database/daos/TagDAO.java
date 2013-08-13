@@ -72,4 +72,8 @@ public class TagDAO {
 		stringBuilder.deleteCharAt(stringBuilder.length()-1);
 		return stringBuilder.toString();
 	}
+
+	public static boolean deleteTag(TagMapper mapper, long userId, long tagId) {
+		return mapper.deleteTag(userId, tagId) > 0;
+	}
 }

@@ -27,7 +27,6 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 //REVU: You should use interfaces.
 // Create dao interfaces and make current Dao's classes as implementation of them.
 // All daos without implementation of base dao interface.
@@ -42,10 +41,10 @@ public class DatabaseService {
 	public static SqlSessionFactory getSqlsessionfactory() {
 		return sqlSessionFactory;
 	}
-	
-	//REVU: Better to use static method instead  of 'magic initialization'
+
+	// REVU: Better to use static method instead of 'magic initialization'
 	static {
-		//REVU: use static final constant for config file.
+		// REVU: use static final constant for config file.
 		String resource = "mybatis-cfg.xml";
 		InputStream inputStream = null;
 		try {
@@ -60,7 +59,7 @@ public class DatabaseService {
 
 	public DatabaseService() {
 	}
-	
+
 	public Long getUserIdByEmailOrAdd(String email) throws DatabaseException {
 		log.trace("Get user email by id; email: {}", email);
 		SqlSession session = sqlSessionFactory.openSession();
@@ -141,7 +140,7 @@ public class DatabaseService {
 	public List<Resource> getResourcesByIdAndTags(Long userId, Long[] tagIds)
 			throws DatabaseException {
 		if (log.isTraceEnabled()) {
-			log.trace("Get resources by id and tags; id: {}, tag ids: {}",
+			log.trace("Get resources by id and tags; user id: {}, tag ids: {}",
 					userId, tagIds == null ? null : tagIds.toString());
 		}
 		SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH);
@@ -240,8 +239,8 @@ public class DatabaseService {
 	public boolean deleteResourcesByIdAndTags(long userId, Long[] tagIds)
 			throws DatabaseException {
 		if (log.isTraceEnabled()) {
-			log.trace("Delete resource; user id: {}, resource id: {}", userId,
-					tagIds.toString());
+			log.trace("Delete resource; user id: {}, tag ids: {}", userId,
+					tagIds == null ? "null" : tagIds.toString());
 		}
 		SqlSession session = sqlSessionFactory.openSession();
 		boolean result = false;
@@ -360,17 +359,17 @@ public class DatabaseService {
 	 */
 	public Long addTag(long userId, String tagName) {
 		SqlSession session = sqlSessionFactory.openSession();
-		Long result = null;
+		Long tagId = null;
 		try {
-			result = TagDAO.addTag(session.getMapper(TagMapper.class), userId,
+			tagId = TagDAO.addTag(session.getMapper(TagMapper.class), userId,
 					tagName);
-			if (result != null) {
+			if (tagId != null) {
 				session.commit();
 			}
 		} finally {
 			session.close();
 		}
-		return result;
+		return tagId;
 	}
 
 	public boolean editTag(long userId, long tagId, String tagName) {
@@ -387,6 +386,25 @@ public class DatabaseService {
 			session.close();
 		}
 		return result;
+	}
+
+	public void deleteTag(long userId, long tagId) throws DatabaseException {
+		SqlSession session = sqlSessionFactory.openSession();
+		boolean result = false;
+		try {
+			if (!UserDAO.exists(session.getMapper(UserMapper.class), userId)) {
+				throw new DatabaseException(
+						"Database exception. Can't delete tag of nonexistent user");
+			}
+			result = TagDAO.deleteTag(session.getMapper(TagMapper.class), userId,
+					tagId);
+
+			if (result) {
+				session.commit();
+			}
+		} finally {
+			session.close();
+		}
 	}
 
 	public void deleteAllData() {

@@ -1,5 +1,5 @@
 class StaticPagesController < ApplicationController
-  skip_before_filter :require_login, only: [:home, :signin]
+  skip_before_filter :require_login, only: [:home, :signin, :signin_error]
 
   def home
   end
@@ -12,8 +12,11 @@ class StaticPagesController < ApplicationController
       session[:user_id] = id
       redirect_to resources_path
     else
-      render :home
+      redirect_to action: :signin_error
     end
+  end
+
+  def signin_error
   end
 
   def about
