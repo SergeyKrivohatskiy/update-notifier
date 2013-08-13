@@ -59,6 +59,16 @@ module DatabaseHelper
     end
   end
 
+  def self.edit_tag(user_id, name)
+    response = HTTPartyWrapper::put("#{user_id}/tags", nil, name)
+    if WEBrick::HTTPStatus[response.code].new.
+        kind_of? WEBrick::HTTPStatus::Success
+      response.parsed_response.to_i
+    else
+      0
+    end
+  end
+
   def self.delete_tag(user_id, tag_id)
     response = HTTPartyWrapper::delete("#{user_id}/tags/#{tag_id}")
     WEBrick::HTTPStatus[response.code].new.kind_of? WEBrick::HTTPStatus::Success

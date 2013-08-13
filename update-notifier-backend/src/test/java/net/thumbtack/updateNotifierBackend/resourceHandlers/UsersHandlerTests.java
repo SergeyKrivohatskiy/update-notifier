@@ -13,10 +13,16 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class UsersHandlerTests {
 	private static final String EXAMPLE_USER_EMAIL = "email@post.com";
+	private static final Gson GSON = new GsonBuilder()
+			.setDateFormat("yyyy-MM-dd hh:mm:ss.S")
+			.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+			.create();
 
 	@Before
 	public void beforeTest() {
@@ -182,13 +188,13 @@ public class UsersHandlerTests {
 		Resource newResource = new Resource();
 		newResource.setUrl("http://google.com");
 		newResource.setDomPath("/");
-		handler.addUserResource(userId, new Gson().toJson(newResource));
+		handler.addUserResource(userId, GSON.toJson(newResource));
 		newResource.setUrl("http://yandex.ru");
 		newResource.setDomPath("/0");
-		handler.addUserResource(userId, new Gson().toJson(newResource));
+		handler.addUserResource(userId, GSON.toJson(newResource));
 		newResource.setUrl("http://habrahabr.ru");
 		newResource.setDomPath("/1/0");
-		handler.addUserResource(userId, new Gson().toJson(newResource));
+		handler.addUserResource(userId, GSON.toJson(newResource));
 		return 3;
 	}
 
@@ -215,7 +221,7 @@ public class UsersHandlerTests {
 			newResource.setDomPath("/");
 			newResource.setTags(new ArrayList<Long>(tagsList));
 			newResource.setUrl(Integer.toString(tagsList.size()));
-			handler.addUserResource(userId, new Gson().toJson(newResource));
+			handler.addUserResource(userId, GSON.toJson(newResource));
 		}
 		return tags.length;
 	}

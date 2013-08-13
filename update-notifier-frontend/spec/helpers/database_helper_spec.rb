@@ -1,7 +1,6 @@
 require 'spec_helper'
 
 describe DatabaseHelper do
-
   MAIL = 'mail@post.com'
 
   before(:all) { @user_id = 0 }
@@ -61,65 +60,85 @@ describe DatabaseHelper do
 
   end
 
-  describe 'resource addition' do
+  describe 'database operations (without signin); ' do
     before { @user_id = DatabaseHelper.sign_in(MAIL) }
-    it 'will be success if adds resource' do
-      resource = Resource.new(name: 'test resource',
-                              url: 'http://localhost:8080',
-                              user_id: @user_id,
-                              dom_path: '/')
-      @id = DatabaseHelper.add_resource(resource)
-      @id.should_not == 0
-    end
-    after do
-      DatabaseHelper.delete_resource(@user_id, @id)
-    end
-  end
 
-  describe 'resource deletion' do
-    before do
-      @user_id = DatabaseHelper.sign_in(MAIL)
-      @resource = Resource.new(name: 'test',
-                              url: 'http://localhost:8080',
-                              user_id: @user_id,
-                              dom_path: '/')
-      @resource.id = DatabaseHelper.add_resource(@resource)
+    describe 'resource addition' do
+      it 'will be success if adds resource' do
+        resource = Resource.new(name: 'test resource',
+                                url: 'http://localhost:8080',
+                                user_id: @user_id,
+                                dom_path: '/')
+        @id = DatabaseHelper.add_resource(resource)
+        @id.should_not == 0
+      end
+      after do
+        DatabaseHelper.delete_resource(@user_id, @id)
+      end
     end
-    it 'will be success if deletes resource' do
-      @resource.id.should_not == 0
-      DatabaseHelper.delete_resource(@resource.user_id, @resource.id).
-          should be_true
-    end
-  end
 
-  describe 'resource edition' do
-    before do
-      @user_id = DatabaseHelper.sign_in(MAIL)
-      @resource = Resource.new(name: 'test',
-                              url: 'http://localhost:8080',
-                              user_id: @user_id,
-                              dom_path: '/')
-      @resource.id = DatabaseHelper.add_resource(@resource)
+    describe 'resource deletion' do
+      before do
+        @resource = Resource.new(name: 'test',
+                                url: 'http://localhost:8080',
+                                user_id: @user_id,
+                                dom_path: '/')
+        @resource.id = DatabaseHelper.add_resource(@resource)
+      end
+      it 'will be success if deletes resource' do
+        @resource.id.should_not == 0
+        DatabaseHelper.delete_resource(@resource.user_id, @resource.id).
+            should be_true
+      end
     end
-    it 'will be success if resource will be edited' do
-      @resource.url, @resource.name = 'http://127.0.0.1', 'edit test'
-      @resource.id.should_not == 0
-      DatabaseHelper.edit_resource(@resource).should be_true
-    end
-    after do
-      DatabaseHelper.delete_resource(@resource.user_id, @resource.id)
-    end
-  end
 
-  describe 'tags adding' do
-    before { @user_id = DatabaseHelper.sign_in(MAIL) }
-    it 'will be success if tags will be added' do
-      @id = DatabaseHelper.add_tag(@user_id, 'tag name')
-      @id.should_not == 0
+    describe 'resource edition' do
+      before do
+        @resource = Resource.new(name: 'test',
+                                url: 'http://localhost:8080',
+                                user_id: @user_id,
+                                dom_path: '/')
+        @resource.id = DatabaseHelper.add_resource(@resource)
+      end
+      it 'will be success if resource will be edited' do
+        @resource.url, @resource.name = 'http://127.0.0.1', 'edit test'
+        @resource.id.should_not == 0
+        DatabaseHelper.edit_resource(@resource).should be_true
+      end
+      after do
+        DatabaseHelper.delete_resource(@resource.user_id, @resource.id)
+      end
     end
-    after { DatabaseHelper.delete_tag(@user_id, @id) if (@id > 0) }
-  end
 
-  pending 'other operations?' do
+    describe 'tags addition' do
+      it 'will be success if tags will be added' do
+        @id = DatabaseHelper.add_tag(@user_id, 'tag name')
+        @id.should_not == 0
+      end
+      after { DatabaseHelper.delete_tag(@user_id, @id) if (@id > 0) }
+    end
+
+    describe 'tags deletion' do
+      before do
+        @id = DatabaseHelper.add_tag(@user_id, 'tag name')
+      end
+      it 'will be success if tags will be added' do
+        @id.should_not == 0
+        DatabaseHelper.delete_tag(@user_id, @id).should be_true
+      end
+    end
+
+    describe 'tag edition' do
+      before do
+        @id = DatabaseHelper.add_tag(@user_id, 'tag name')
+      end
+      it 'will be success if tag will be edited' do
+        @id.should_not == 0
+        DatabaseHelper.edit_tag(@user_id,'another name').should be_true
+      end
+      after do
+        DatabaseHelper.delete_tag(@user_id, @id)
+      end
+    end
   end
 end

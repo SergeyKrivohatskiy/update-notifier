@@ -14,7 +14,7 @@ public class Resource implements Serializable {
 	private String url;
 	private byte scheduleCode;
 	private transient int hash;
-	private String dom_path;
+	private String domPath;
 	private String filter;
 	private List<Long> tags = Collections.emptyList();
 	
@@ -94,11 +94,11 @@ public class Resource implements Serializable {
 	}
 
 	public String getDomPath() {
-		return dom_path;
+		return domPath;
 	}
 
 	public void setDomPath(String domPath) {
-		dom_path = domPath;
+		this.domPath = domPath;
 	}
 	
 	public String getFilter() {
@@ -108,7 +108,7 @@ public class Resource implements Serializable {
 	@Override
 	public String toString() {
 		return "Resource [id=" + id + ", userId=" + userId + ", url=" + url
-				+ ", scheduleCode=" + scheduleCode + ", dom_path=" + dom_path
+				+ ", scheduleCode=" + scheduleCode + ", domPath=" + domPath
 				+ ", filter=" + filter + ", tags=" + tags + "]";
 	}
 
