@@ -1,8 +1,8 @@
-package net.thumbtack.updateNotifierBackend.database.daos;
+package net.thumbtack.updateNotifierBackend.database.daosimpl;
 
 import net.thumbtack.updateNotifierBackend.database.mappers.UserMapper;
 
-public class UserDAO {
+public class UserDAOOld {
 
 	/**
 	 * Get user id by email from base, create if user with such email is not exist.

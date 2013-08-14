@@ -1,10 +1,10 @@
-package net.thumbtack.updateNotifierBackend.database.daos;
+package net.thumbtack.updateNotifierBackend.database.daosimpl;
 
 import java.util.List;
 
 import net.thumbtack.updateNotifierBackend.database.mappers.ResourceTagMapper;
 
-public class ResourceTagDAO {
+public class ResourceTagDAOOld {
 
 	public static boolean addRelation(ResourceTagMapper mapper, Long id, Long tagId) {
 		return mapper.add(id, tagId) > 0;

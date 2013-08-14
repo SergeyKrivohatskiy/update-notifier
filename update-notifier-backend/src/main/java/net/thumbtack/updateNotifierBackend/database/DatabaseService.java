@@ -8,12 +8,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import net.thumbtack.updateNotifierBackend.database.daos.ResourceDAO;
-import net.thumbtack.updateNotifierBackend.database.daos.TagDAO;
-import net.thumbtack.updateNotifierBackend.database.daos.ResourceTagDAO;
-import net.thumbtack.updateNotifierBackend.database.daos.UserDAO;
+import javax.swing.text.html.HTMLDocument.HTMLReader.TagAction;
+
+import net.thumbtack.updateNotifierBackend.database.daos.ITagDAO;
+import net.thumbtack.updateNotifierBackend.database.daosimpl.ResourceDAOOld;
+import net.thumbtack.updateNotifierBackend.database.daosimpl.ResourceTagDAOOld;
+import net.thumbtack.updateNotifierBackend.database.daosimpl.TagDAOImpl;
+import net.thumbtack.updateNotifierBackend.database.daosimpl.UserDAOOld;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
+import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseException;
 import net.thumbtack.updateNotifierBackend.database.mappers.ResourceMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.ResourceTagMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.TagMapper;
@@ -36,64 +40,59 @@ public class DatabaseService {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(DatabaseService.class);
-	private static final SqlSessionFactory sqlSessionFactory;
+	private static DatabaseService db = null;
 
-	public static SqlSessionFactory getSqlsessionfactory() {
-		return sqlSessionFactory;
+	private SqlSession session;
+	private String RESOURCE = "mybatis-cfg.xml";
+	
+	private TagDAOImpl tagDao = null;
+
+	public static DatabaseService getInstance() {
+		if (db == null) {
+			db = new DatabaseService();
+		}
+		return db;
 	}
 
-	// REVU: Better to use static method instead of 'magic initialization'
-	static {
-		// REVU: use static final constant for config file.
-		String resource = "mybatis-cfg.xml";
+	public DatabaseService() {
 		InputStream inputStream = null;
 		try {
-			inputStream = Resources.getResourceAsStream(resource);
+			inputStream = Resources.getResourceAsStream(RESOURCE);
 		} catch (IOException e) {
 			log.error("Great crash: exception on initialize database");
 			// TODO Great crash should be here!
 			e.printStackTrace();
 		}
-		sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
-	}
-
-	public DatabaseService() {
+		SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder()
+				.build(inputStream);
+		session = sqlSessionFactory.openSession(ExecutorType.BATCH);
+		tagDao = new TagDAOImpl(session);
 	}
 
 	public Long getUserIdByEmailOrAdd(String email) throws DatabaseException {
 		log.trace("Get user email by id; email: {}", email);
-		SqlSession session = sqlSessionFactory.openSession();
-		try {
-			Long userId = UserDAO.getIdOrAdd(
-					session.getMapper(UserMapper.class), email);
-			if (userId != null) {
-				session.commit();
-			} else {
-				log.error("Database returns null - I don't know why :(");
-				throw new DatabaseException();
-			}
-			return userId;
-		} finally {
-			session.close();
+		Long userId = UserDAOOld.getIdOrAdd(session.getMapper(UserMapper.class),
+				email);
+		if (userId != null) {
+			session.commit();
+		} else {
+			log.error("Database returns null - I don't know why :(");
+			throw new DatabaseException();
 		}
+		return userId;
 	}
 
 	public String getUserEmailById(Long id) throws DatabaseException {
 		log.trace("get user email by id; id: {}", id);
-		SqlSession session = sqlSessionFactory.openSession();
-		try {
-			String email = UserDAO.getUserEmail(
-					session.getMapper(UserMapper.class), id);
-			if (email != null) {
-				session.commit();
-			} else {
-				log.error("Database exception: user email is null");
-				throw new DatabaseException("User email is null");
-			}
-			return email;
-		} finally {
-			session.close();
+		String email = UserDAOOld.getUserEmail(
+				session.getMapper(UserMapper.class), id);
+		if (email != null) {
+			session.commit();
+		} else {
+			log.error("Database exception: user email is null");
+			throw new DatabaseException("User email is null");
 		}
+		return email;
 	}
 
 	public boolean addResource(long userId, Resource resource)
@@ -102,90 +101,73 @@ public class DatabaseService {
 			log.trace("Add resource; user id: {}, resource: {}", userId,
 					resource.toString());
 		}
-		SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH);
 		boolean result = false;
-		try {
-			if (!UserDAO.exists(session.getMapper(UserMapper.class), userId)) {
-				log.error("Database exception: can't add resource to nonexist user");
-				throw new DatabaseException(
-						"Database exception: can't add resource to nonexist user");
-			}
-			resource.setUserId(userId);
+		if (!UserDAOOld.exists(session.getMapper(UserMapper.class), userId)) {
+			log.error("Database exception: can't add resource to nonexist user");
+			throw new DatabaseException(
+					"Database exception: can't add resource to nonexist user");
+		}
+		resource.setUserId(userId);
 
-			Integer hash = getNewHashCode(resource);
-			if (hash == null) {
-				hash = 0;
-			}
-			resource.setHash(hash);
+		Integer hash = getNewHashCode(resource);
+		if (hash == null) {
+			hash = 0;
+		}
+		resource.setHash(hash);
 
-			Long id = ResourceDAO.add(session.getMapper(ResourceMapper.class),
-					resource);
-			if (id != null) {
-				if (resource.getTags() != null) {
-					for (Long tagId : resource.getTags()) {
-						ResourceTagDAO.addRelation(
-								session.getMapper(ResourceTagMapper.class), id,
-								tagId);
-					}
+		Long id = ResourceDAOOld.add(session.getMapper(ResourceMapper.class),
+				resource);
+		if (id != null) {
+			if (resource.getTags() != null) {
+				for (Long tagId : resource.getTags()) {
+					ResourceTagDAOOld.addRelation(
+							session.getMapper(ResourceTagMapper.class), id,
+							tagId);
 				}
-				session.commit();
-				result = true;
 			}
-		} finally {
-			session.close();
+			session.commit();
+			result = true;
 		}
 		return result;
 	}
 
-	public List<Resource> getResourcesByIdAndTags(Long userId, Long[] tagIds)
+	public List<Resource> getResourcesByIdAndTags(Long userId, List<Long> tagIds)
 			throws DatabaseException {
 		if (log.isTraceEnabled()) {
 			log.trace("Get resources by id and tags; user id: {}, tag ids: {}",
 					userId, tagIds == null ? null : tagIds.toString());
 		}
-		SqlSession session = sqlSessionFactory.openSession(ExecutorType.BATCH);
-		try {
-			if (!UserDAO.exists(session.getMapper(UserMapper.class), userId)) {
-				log.debug("Database exception: can't get resources for nonexistent user");
-				throw new DatabaseException(
-						"Database exception: can't get resources for nonexistent user");
-			}
-			if (tagIds != null
-					&& !TagDAO.exists(session.getMapper(TagMapper.class),
-							userId, tagIds)) {
-				log.debug("Database exception: can't get resources for nonexistent tags");
-				throw new DatabaseException(
-						"Database exception: can't get resources for nonexistent tags");
-			}
-			List<Resource> resources = ResourceDAO.getByUserIdAndTags(
-					session.getMapper(ResourceMapper.class), userId, tagIds);
-			for (Resource resource : resources) {
-				resource.setTags(ResourceTagDAO.getForResource(
-						session.getMapper(ResourceTagMapper.class),
-						resource.getId()));
-			}
-			return resources;
-		} finally {
-			session.close();
+		if (!UserDAOOld.exists(session.getMapper(UserMapper.class), userId)) {
+			log.debug("Database exception: can't get resources for nonexistent user");
+			throw new DatabaseException(
+					"Database exception: can't get resources for nonexistent user");
 		}
+		if (tagIds != null
+				&& !tagDao.exists(userId, tagIds)) {
+			log.debug("Database exception: can't get resources for nonexistent tags");
+			throw new DatabaseException(
+					"Database exception: can't get resources for nonexistent tags");
+		}
+		List<Resource> resources = ResourceDAOOld.getByUserIdAndTags(
+				session.getMapper(ResourceMapper.class), userId, tagIds.toArray(new Long[]{}));
+		for (Resource resource : resources) {
+			resource.setTags(ResourceTagDAOOld.getForResource(
+					session.getMapper(ResourceTagMapper.class),
+					resource.getId()));
+		}
+		return resources;
 	}
 
 	public Resource getResource(long userId, long resourceId) {
 		log.trace("Get resource; user id = {}, resource id = {}", userId,
 				resourceId);
-		SqlSession session = sqlSessionFactory.openSession();
 		Resource result = null;
-		try {
-			result = ResourceDAO.get(session.getMapper(ResourceMapper.class),
-					userId, resourceId);
-			if (result != null) {
-				List<Long> tagIds = ResourceTagDAO.getForResource(
-						session.getMapper(ResourceTagMapper.class),
-						result.getId());
-				result.setTags(tagIds);
-			}
-		} finally {
-			session.close();
+		result = ResourceDAOOld.get(session.getMapper(ResourceMapper.class),
+				userId, resourceId);
+		if (result != null) {
+			List<Long> tagIds = ResourceTagDAOOld.getForResource(
+					session.getMapper(ResourceTagMapper.class), result.getId());
+			result.setTags(tagIds);
 		}
 		return result;
 	}
@@ -198,72 +180,55 @@ public class DatabaseService {
 	 */
 	public Set<Resource> getResourcesByScheduleCode(byte scheduleCode) {
 		log.trace("Get resources by shedule code; code: {}", scheduleCode);
-		SqlSession session = sqlSessionFactory.openSession();
-		try {
-			// TODO check schedule code
-			Set<Resource> resources = ResourceDAO.getByscheduleCode(
-					session.getMapper(ResourceMapper.class), scheduleCode);
-			if (resources == null) {
-				return Collections.emptySet();
-			}
-			return resources;
-		} finally {
-			session.close();
+		// TODO check schedule code
+		Set<Resource> resources = ResourceDAOOld.getByscheduleCode(
+				session.getMapper(ResourceMapper.class), scheduleCode);
+		if (resources == null) {
+			return Collections.emptySet();
 		}
+		return resources;
 	}
 
 	public boolean deleteResource(long userId, long resourceId)
 			throws DatabaseException {
 		log.trace("Delete resource; user id: {}, resource id: {}", userId,
 				resourceId);
-		SqlSession session = sqlSessionFactory.openSession();
 		boolean result = false;
-		try {
-			if (!UserDAO.exists(session.getMapper(UserMapper.class), userId)) {
-				log.debug("Database exception: can't delete resource for nonexistant user");
-				throw new DatabaseException(
-						"Database exception: can't delete resource for nonexistant user");
-			}
-			result = ResourceDAO
-					.delete(session.getMapper(ResourceMapper.class), userId,
-							resourceId);
-			if (result) {
-				session.commit();
-			}
-		} finally {
-			session.close();
+		if (!UserDAOOld.exists(session.getMapper(UserMapper.class), userId)) {
+			log.debug("Database exception: can't delete resource for nonexistant user");
+			throw new DatabaseException(
+					"Database exception: can't delete resource for nonexistant user");
+		}
+		result = ResourceDAOOld.delete(session.getMapper(ResourceMapper.class),
+				userId, resourceId);
+		if (result) {
+			session.commit();
 		}
 		return result;
 	}
 
-	public boolean deleteResourcesByIdAndTags(long userId, Long[] tagIds)
+	public boolean deleteResourcesByIdAndTags(long userId, List<Long> tagIds)
 			throws DatabaseException {
 		if (log.isTraceEnabled()) {
 			log.trace("Delete resource; user id: {}, tag ids: {}", userId,
 					tagIds == null ? "null" : tagIds.toString());
 		}
-		SqlSession session = sqlSessionFactory.openSession();
 		boolean result = false;
-		try {
-			if (!UserDAO.exists(session.getMapper(UserMapper.class), userId)) {
-				log.debug("Database exception: can't delete resource for nonexistant user");
-				throw new DatabaseException(
-						"Database exception: can't delete resource for nonexistant user");
-			}
-			if (tagIds != null
-					&& !TagDAO.exists(session.getMapper(TagMapper.class),
-							userId, tagIds)) {
-				log.debug("Database exception: can't get resources for nonexistent tags");
-				throw new DatabaseException(
-						"Database exception: can't get resources for nonexistent tags");
-			}
-			result = ResourceDAO.deleteByTags(
-					session.getMapper(ResourceMapper.class), userId, tagIds);
-			if (result) {
-				session.commit();
-			}
-		} finally {
-			session.close();
+		if (!UserDAOOld.exists(session.getMapper(UserMapper.class), userId)) {
+			log.debug("Database exception: can't delete resource for nonexistant user");
+			throw new DatabaseException(
+					"Database exception: can't delete resource for nonexistant user");
+		}
+		if (tagIds != null
+				&& !tagDao.exists(userId, tagIds)) {
+			log.debug("Database exception: can't get resources for nonexistent tags");
+			throw new DatabaseException(
+					"Database exception: can't get resources for nonexistent tags");
+		}
+		result = ResourceDAOOld.deleteByTags(
+				session.getMapper(ResourceMapper.class), userId, tagIds.toArray(new Long[]{}));
+		if (result) {
+			session.commit();
 		}
 		return result;
 	}
@@ -274,53 +239,48 @@ public class DatabaseService {
 			log.trace("Edit resource; user id = {}, resource = {}", userId,
 					resource.toString());
 		}
-		SqlSession session = sqlSessionFactory.openSession();
 		boolean result = false;
-		try {
-			Resource savedResource = ResourceDAO.get(
-					session.getMapper(ResourceMapper.class), userId,
-					resource.getId());
-			if (savedResource == null) {
-				log.debug("Database exception: not found resource for edit");
-				throw (new DatabaseException(
-						"Database exception: not found resource for edit"));
-			}
+		Resource savedResource = ResourceDAOOld.get(
+				session.getMapper(ResourceMapper.class), userId,
+				resource.getId());
+		if (savedResource == null) {
+			log.debug("Database exception: not found resource for edit");
+			throw (new DatabaseException(
+					"Database exception: not found resource for edit"));
+		}
 
-			if (!savedResource.getUrl().equals(resource.getUrl())) {
-				Integer hash = getNewHashCode(resource);
-				if (hash == null) {
-					hash = 0;
+		if (!savedResource.getUrl().equals(resource.getUrl())) {
+			Integer hash = getNewHashCode(resource);
+			if (hash == null) {
+				hash = 0;
+			}
+			ResourceDAOOld.updateAfterCheck(
+					session.getMapper(ResourceMapper.class), resource.getId(),
+					hash);
+		}
+		resource.setUserId(userId);
+		if (!tagDao.exists(userId, resource
+				.getTags())) {
+			log.debug("Database exception: can't assign nonexistant tags to resource");
+			throw new DatabaseException(
+					"Database exception: can't assign nonexistant tags to resource");
+		}
+		result = ResourceDAOOld.edit(session.getMapper(ResourceMapper.class),
+				resource);
+		if (result) {
+			ResourceTagDAOOld.deleteRelations(
+					session.getMapper(ResourceTagMapper.class),
+					resource.getId());
+			if (resource.getTags() != null) {
+				for (Long tagId : resource.getTags()) {
+					ResourceTagDAOOld.addRelation(
+							session.getMapper(ResourceTagMapper.class),
+							resource.getId(), tagId);
 				}
-				ResourceDAO.updateAfterCheck(
-						session.getMapper(ResourceMapper.class),
-						resource.getId(), hash);
 			}
-			resource.setUserId(userId);
-			if (!TagDAO.exists(session.getMapper(TagMapper.class), userId,
-					resource.getTags().toArray(new Long[] {}))) {
-				log.debug("Database exception: can't assign nonexistant tags to resource");
-				throw new DatabaseException(
-						"Database exception: can't assign nonexistant tags to resource");
-			}
-			result = ResourceDAO.edit(session.getMapper(ResourceMapper.class),
-					resource);
-			if (result) {
-				ResourceTagDAO.deleteRelations(
-						session.getMapper(ResourceTagMapper.class),
-						resource.getId());
-				if (resource.getTags() != null) {
-					for (Long tagId : resource.getTags()) {
-						ResourceTagDAO.addRelation(
-								session.getMapper(ResourceTagMapper.class),
-								resource.getId(), tagId);
-					}
-				}
-			}
-			if (result) {
-				session.commit();
-			}
-		} finally {
-			session.close();
+		}
+		if (result) {
+			session.commit();
 		}
 		return result;
 	}
@@ -333,12 +293,7 @@ public class DatabaseService {
 	 */
 	public Set<Tag> getTags(long userId) {
 		log.trace("Get tags for user with user id: {}", userId);
-		SqlSession session = sqlSessionFactory.openSession();
-		try {
-			return TagDAO.getTags(session.getMapper(TagMapper.class), userId);
-		} finally {
-			session.close();
-		}
+		return tagDao.get(userId);
 	}
 
 	/**
@@ -352,18 +307,12 @@ public class DatabaseService {
 	public boolean updateResourceHash(Long resourceId, Integer newHash) {
 		log.trace("Update resource hash; resource id: {}, new hash: {}",
 				resourceId, newHash);
-		SqlSession session = sqlSessionFactory.openSession();
 		boolean result = false;
-		try {
-			// Don't forget - hash will be update only with 'true' result
-			result = ResourceDAO.updateAfterCheck(
-					session.getMapper(ResourceMapper.class), resourceId,
-					newHash);
-			if (result) {
-				session.commit();
-			}
-		} finally {
-			session.close();
+		// Don't forget - hash will be update only with 'true' result
+		result = ResourceDAOOld.updateAfterCheck(
+				session.getMapper(ResourceMapper.class), resourceId, newHash);
+		if (result) {
+			session.commit();
 		}
 		return result;
 	}
@@ -375,64 +324,39 @@ public class DatabaseService {
 	 * @param tagName
 	 * @return true, if success, false otherwise
 	 */
-	public Long addTag(long userId, String tagName) {
-		SqlSession session = sqlSessionFactory.openSession();
-		Long tagId = null;
-		try {
-			tagId = TagDAO.addTag(session.getMapper(TagMapper.class), userId,
-					tagName);
-			if (tagId != null) {
-				session.commit();
-			}
-		} finally {
-			session.close();
+	public void addTag(Tag tag) {
+		tagDao.add(tag);
+		if (tag.getId() != null) {
+			session.commit();
 		}
-		return tagId;
 	}
 
 	public boolean editTag(long userId, long tagId, String tagName) {
-		SqlSession session = sqlSessionFactory.openSession();
 		boolean result = false;
 
-		try {
-			result = TagDAO.editTag(session.getMapper(TagMapper.class), userId,
-					tagId, tagName);
-			if (result) {
-				session.commit();
-			}
-		} finally {
-			session.close();
+		result = tagDao.edit(new Tag(tagId, userId, tagName));
+		if (result) {
+			session.commit();
 		}
 		return result;
 	}
 
 	public void deleteTag(long userId, long tagId) throws DatabaseException {
-		SqlSession session = sqlSessionFactory.openSession();
 		boolean result = false;
-		try {
-			if (!UserDAO.exists(session.getMapper(UserMapper.class), userId)) {
-				throw new DatabaseException(
-						"Database exception. Can't delete tag of nonexistent user");
-			}
-			result = TagDAO.deleteTag(session.getMapper(TagMapper.class),
-					userId, tagId);
+		if (!UserDAOOld.exists(session.getMapper(UserMapper.class), userId)) {
+			throw new DatabaseException(
+					"Database exception. Can't delete tag of nonexistent user");
+		}
+		result = tagDao.delete(new Tag(tagId, userId, null));
 
-			if (result) {
-				session.commit();
-			}
-		} finally {
-			session.close();
+		if (result) {
+			session.commit();
 		}
 	}
 
 	public void deleteAllData() {
-		SqlSession session = sqlSessionFactory.openSession();
-		try {
-			session.getMapper(UserMapper.class).deleteAll();
-			session.commit();
-		} finally {
-			session.close();
-		}
+		session.getMapper(UserMapper.class).deleteAll();
+		session.commit();
 	}
 
 }

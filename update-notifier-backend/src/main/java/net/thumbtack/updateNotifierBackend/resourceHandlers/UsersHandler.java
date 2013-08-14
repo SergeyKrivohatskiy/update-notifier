@@ -1,5 +1,6 @@
 package net.thumbtack.updateNotifierBackend.resourceHandlers;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -29,9 +30,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
 import static net.thumbtack.updateNotifierBackend.UpdateNotifierBackend.getDatabaseService;
-import net.thumbtack.updateNotifierBackend.database.DatabaseException;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
+import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseException;
 import net.thumbtack.updateNotifierBackend.updateChecker.UpdateChecker;
 
 @Path("/users")
@@ -93,7 +94,7 @@ public class UsersHandler {
 	public String getUserResources(@PathParam("id") long userId,
 			@DefaultValue("") @QueryParam("tags") String tagsString) {
 		log.trace("Get resources");
-		Long[] tags = parseTags(tagsString);
+		List<Long> tags = parseTags(tagsString);
 		List<Resource> resources = null;
 		try {
 			resources = getDatabaseService().getResourcesByIdAndTags(userId,
@@ -124,7 +125,7 @@ public class UsersHandler {
 	public Response deleteUserResources(@PathParam("id") long userId,
 			@DefaultValue("") @QueryParam("tags") String tagsString) {
 		log.trace("Delete resources");
-		Long[] tags = parseTags(tagsString);
+		List<Long> tags = parseTags(tagsString);
 		try {
 			if (!getDatabaseService().deleteResourcesByIdAndTags(userId, tags)) {
 				log.debug("Database delete request failed. Delete resources bnot found");
@@ -198,7 +199,9 @@ public class UsersHandler {
 	public Response addTag(@PathParam("id") long userId, String tagNameJson) {
 		log.trace("Add tag");
 		String tagName = parseTagName(tagNameJson);
-		Long id = getDatabaseService().addTag(userId, tagName);
+		Tag tag = new Tag(null, userId, tagName);
+		getDatabaseService().addTag(tag);
+		Long id = tag.getId();
 		if (id == null) {
 			log.debug("Database add request failed. Edit resources bad request");
 			throw (new BadRequestException());
@@ -282,16 +285,16 @@ public class UsersHandler {
 		}
 	}
 
-	private static Long[] parseTags(String tagsString) {
-		Long[] tags;
+	private static List<Long> parseTags(String tagsString) {
+		List<Long> tags;
 		if ("".equals(tagsString) || tagsString == null) {
 			tags = null;
 		} else {
 			String[] tagsStrings = tagsString.split(",");
-			tags = new Long[tagsStrings.length];
+			tags = new LinkedList<Long>();
 			try {
 				for (int i = 0; i < tagsStrings.length; i += 1) {
-					tags[i] = Long.parseLong(tagsStrings[i]);
+					tags.add(Long.parseLong(tagsStrings[i]));
 				}
 			} catch (NumberFormatException ex) {
 				log.debug("Tags id parsing error");

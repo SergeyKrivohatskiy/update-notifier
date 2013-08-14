@@ -14,14 +14,14 @@ import net.thumbtack.updateNotifierBackend.updateListener.ResourcesUpdateListene
 public class UpdateNotifierBackend extends ResourceConfig {
 
 	private static final Logger log = LoggerFactory.getLogger(UpdateNotifierBackend.class);
-	private static DatabaseService databaseService = new DatabaseService();
+	private static DatabaseService databaseService = DatabaseService.getInstance();
 	private static UpdateChecker updateChecker = new UpdateChecker();
 	private static ResourcesUpdateListener resUpdateListener = new ResourcesUpdateListener();
 	
 	public UpdateNotifierBackend() {
 		log.debug("Starting");
 		packages("net.thumbtack.updateNotifierBackend.resourceHandlers");
-		updateChecker.start();
+//		updateChecker.start();
 	}
 
 	/**

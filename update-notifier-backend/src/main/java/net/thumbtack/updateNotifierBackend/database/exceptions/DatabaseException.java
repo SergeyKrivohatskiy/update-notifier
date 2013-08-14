@@ -1,4 +1,4 @@
-package net.thumbtack.updateNotifierBackend.database;
+package net.thumbtack.updateNotifierBackend.database.exceptions;
 
 public class DatabaseException extends Exception {
 
@@ -9,12 +9,6 @@ public class DatabaseException extends Exception {
 
 	public DatabaseException() {
 		super();
-		// TODO Auto-generated constructor stub
-	}
-
-	public DatabaseException(String arg0, Throwable arg1, boolean arg2,
-			boolean arg3) {
-		super(arg0, arg1, arg2, arg3);
 		// TODO Auto-generated constructor stub
 	}
 
