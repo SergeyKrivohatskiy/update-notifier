@@ -14,15 +14,15 @@ public class ResourceTagDAOImpl implements ResourceTagDAO {
 	public ResourceTagDAOImpl(SqlSession session) {
 		mapper = session.getMapper(ResourceTagMapper.class);
 	}
-	public boolean add(Long id, Long tagId) {
+	public boolean add(long id, long tagId) {
 		return mapper.add(id, tagId) > 0;
 	}
 	
-	public List<Long> get(Long resourceId) {
+	public List<Long> get(long resourceId) {
 		return mapper.get(resourceId);
 	}
 
-	public boolean delete(Long resourceId) {
+	public boolean delete(long resourceId) {
 		return mapper.delete(resourceId) > 0;
 	}
 }

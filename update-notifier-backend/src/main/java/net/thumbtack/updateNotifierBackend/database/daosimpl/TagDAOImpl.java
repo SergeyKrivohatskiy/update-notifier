@@ -1,9 +1,6 @@
 package net.thumbtack.updateNotifierBackend.database.daosimpl;
 
-import java.math.BigInteger;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
@@ -43,7 +40,7 @@ public class TagDAOImpl implements TagDAO {
 		return mapper.edit(tag) > 0;
 	}
 
-	public boolean exists(Long userId, List<Long> tagIds) {
+	public boolean exists(long userId, List<Long> tagIds) {
 		return tagIds.isEmpty() ? true : mapper.check(userId,
 				makeString(tagIds)) == tagIds.size();
 	}
@@ -56,15 +53,15 @@ public class TagDAOImpl implements TagDAO {
 		return mapper.delete(tag) > 0;
 	}
 	
-	private Set<Tag> tagsMaker(List<Map<String, Object>> list) {
-		Set<Tag> tags = new HashSet<Tag>();
-		for (Map<String, Object> map : list) {
-			// TODO What do you think about BigInteger -> long convertation?
-			tags.add(new Tag(((BigInteger) map.get("id")).longValue(),
-					(String) map.get("name")));
-		}
-		return tags;
-	}
+//	private Set<Tag> tagsMaker(List<Map<String, Object>> list) {
+//		Set<Tag> tags = new HashSet<Tag>();
+//		for (Map<String, Object> map : list) {
+//			// TODO What do you think about BigInteger -> long convertation?
+//			tags.add(new Tag(((BigInteger) map.get("id")).longValue(),
+//					(String) map.get("name")));
+//		}
+//		return tags;
+//	}
 
 	private <T> String makeString(List<T> array) {
 		StringBuilder stringBuilder = new StringBuilder("");

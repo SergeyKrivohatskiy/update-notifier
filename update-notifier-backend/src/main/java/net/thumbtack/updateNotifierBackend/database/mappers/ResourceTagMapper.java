@@ -14,12 +14,12 @@ public interface ResourceTagMapper {
 	String DEL = "DELETE FROM resource_tag WHERE resource_id = #{id}";
 	
 	@Insert(ADD)
-	int add(@Param(value = "id") Long id, @Param(value = "tagId") Long tagId);
+	int add(@Param(value = "id") long id, @Param(value = "tagId") long tagId);
 
 	@Select(GET_TAG_IDS_FOR_RESOURCE)
-	List<Long> get(Long id);
+	List<Long> get(long id);
 
 	@Delete(DEL)
-	int delete(Long resourceId);
+	int delete(long resourceId);
 	
 }

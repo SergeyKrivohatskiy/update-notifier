@@ -8,20 +8,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.text.html.HTMLDocument.HTMLReader.TagAction;
-
-import net.thumbtack.updateNotifierBackend.database.daosimpl.ResourceDAOOld;
+import net.thumbtack.updateNotifierBackend.database.daosimpl.ResourceDAOImpl;
 import net.thumbtack.updateNotifierBackend.database.daosimpl.ResourceTagDAOImpl;
 import net.thumbtack.updateNotifierBackend.database.daosimpl.TagDAOImpl;
 import net.thumbtack.updateNotifierBackend.database.daosimpl.UserDAOImpl;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
 import net.thumbtack.updateNotifierBackend.database.entities.User;
-import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseException;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseSeriousException;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseTinyException;
-import net.thumbtack.updateNotifierBackend.database.mappers.ResourceMapper;
-import net.thumbtack.updateNotifierBackend.database.mappers.ResourceTagMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.UserMapper;
 
 import org.apache.ibatis.io.Resources;
@@ -48,6 +43,7 @@ public class DatabaseService {
 
 	private TagDAOImpl tagDao;
 	private UserDAOImpl userDao;
+	private ResourceDAOImpl resourceDao;
 	private ResourceTagDAOImpl resourceTagDao;
 
 	public static DatabaseService getInstance() {
@@ -71,6 +67,7 @@ public class DatabaseService {
 		session = sqlSessionFactory.openSession(ExecutorType.BATCH);
 		tagDao = new TagDAOImpl(session);
 		userDao = new UserDAOImpl(session);
+		resourceDao = new ResourceDAOImpl(session);
 		resourceTagDao = new ResourceTagDAOImpl(session);
 	}
 
@@ -88,7 +85,7 @@ public class DatabaseService {
 		return user.getId();
 	}
 
-	public User getUserEmailById(Long id) throws DatabaseSeriousException {
+	public User getUserEmailById(long id) throws DatabaseSeriousException {
 		log.trace("get user email by id; id: {}", id);
 		User user = userDao.get2(id);
 		if (user == null) {
@@ -99,71 +96,76 @@ public class DatabaseService {
 		return user;
 	}
 
-	public boolean addResource(long userId, Resource resource)
-			throws DatabaseException {
+	public void addResource(Resource resource) throws DatabaseTinyException,
+			DatabaseSeriousException {
 		if (log.isTraceEnabled()) {
-			log.trace("Add resource; user id: {}, resource: {}", userId,
-					resource.toString());
+			log.trace("Add resource; resource: {}", resource.toString());
 		}
-		boolean result = false;
-		if (!userDao.exists(userId)) {
+		if (!userDao.exists(resource.getUserId())) {
 			log.debug("Database exception: can't add resource to nonexist user");
 			throw new DatabaseTinyException(
 					"Database exception: can't add resource to nonexist user");
 		}
-		resource.setUserId(userId);
 		resource.setHash(getNewHashCode(resource));
 
-		Long id = ResourceDAOOld.add(session.getMapper(ResourceMapper.class),
-				resource);
-		if (id != null) {
-			if (resource.getTags() != null) {
-				for (Long tagId : resource.getTags()) {
-					resourceTagDao.add(id, tagId);
+		if (!resourceDao.add(resource)) {
+			throw new DatabaseSeriousException("Resource addition failed");
+		}
+		session.commit();
+		if (resource.getTags() != null) {
+			for (Long tagId : resource.getTags()) {
+				if (!resourceTagDao.add(resource.getId(), tagId)) {
+					throw new DatabaseSeriousException(
+							"Relation addition failed");
 				}
 			}
-			session.commit();
-			result = true;
 		}
-		return result;
+		session.commit();
 	}
 
-	public List<Resource> getResourcesByIdAndTags(Long userId, List<Long> tagIds)
-			throws DatabaseException {
+	public List<Resource> getResourcesByIdAndTags(long userId, List<Long> tagIds)
+			throws DatabaseTinyException {
 		if (log.isTraceEnabled()) {
 			log.trace("Get resources by id and tags; user id: {}, tag ids: {}",
 					userId, tagIds == null ? null : tagIds.toString());
 		}
 		if (!userDao.exists(userId)) {
 			log.debug("Database exception: can't get resources for nonexistent user");
-			throw new DatabaseException(
+			throw new DatabaseTinyException(
 					"Database exception: can't get resources for nonexistent user");
 		}
-		if (tagIds != null && !tagDao.exists(userId, tagIds)) {
-			log.debug("Database exception: can't get resources for nonexistent tags");
-			throw new DatabaseException(
-					"Database exception: can't get resources for nonexistent tags");
+
+		List<Resource> resources = null;
+		if (tagIds == null) {
+			resources = resourceDao.getAllForUser(userId);
+		} else {
+			if (!tagDao.exists(userId, tagIds)) {
+				log.debug("Database exception: can't get resources for nonexistent tags");
+				throw new DatabaseTinyException(
+						"Database exception: can't get resources for nonexistent tags");
+			}
+			resources = resourceDao.getByUserIdAndTags(userId, tagIds);
 		}
-		List<Resource> resources = ResourceDAOOld.getByUserIdAndTags(
-				session.getMapper(ResourceMapper.class), userId,
-				tagIds.toArray(new Long[] {}));
 		for (Resource resource : resources) {
 			resource.setTags(resourceTagDao.get(resource.getId()));
 		}
 		return resources;
 	}
 
-	public Resource getResource(long userId, long resourceId) {
+	public Resource getResource(long userId, long resourceId)
+			throws DatabaseTinyException {
 		log.trace("Get resource; user id = {}, resource id = {}", userId,
 				resourceId);
-		Resource result = null;
-		result = ResourceDAOOld.get(session.getMapper(ResourceMapper.class),
-				userId, resourceId);
-		if (result != null) {
-			List<Long> tagIds = resourceTagDao.get(result.getId());
-			result.setTags(tagIds);
+		if (!userDao.exists(userId)) {
+			throw new DatabaseTinyException(
+					"Can't get resource for nonexistent user");
 		}
-		return result;
+		Resource resource = null;
+		resource = resourceDao.get(userId, resourceId);
+		if (resource != null) {
+			resource.setTags(resourceTagDao.get(resource.getId()));
+		}
+		return resource;
 	}
 
 	/**
@@ -175,103 +177,98 @@ public class DatabaseService {
 	public Set<Resource> getResourcesByScheduleCode(byte scheduleCode) {
 		log.trace("Get resources by shedule code; code: {}", scheduleCode);
 		// TODO check schedule code
-		Set<Resource> resources = ResourceDAOOld.getByscheduleCode(
-				session.getMapper(ResourceMapper.class), scheduleCode);
+		Set<Resource> resources = resourceDao.getByscheduleCode(scheduleCode);
 		if (resources == null) {
 			return Collections.emptySet();
 		}
 		return resources;
 	}
 
-	public boolean deleteResource(long userId, long resourceId)
-			throws DatabaseException {
-		log.trace("Delete resource; user id: {}, resource id: {}", userId,
-				resourceId);
-		boolean result = false;
-		if (!userDao.exists(userId)) {
+	public void deleteResource(Resource resource)
+			throws DatabaseSeriousException, DatabaseTinyException {
+		if (log.isTraceEnabled()) {
+			log.trace("Delete resource; user id: {}, resource id: {}",
+					resource.getUserId(), resource.getId());
+		}
+		if (!userDao.exists(resource.getUserId())) {
 			log.debug("Database exception: can't delete resource for nonexistant user");
-			throw new DatabaseException(
+			throw new DatabaseTinyException(
 					"Database exception: can't delete resource for nonexistant user");
 		}
-		result = ResourceDAOOld.delete(session.getMapper(ResourceMapper.class),
-				userId, resourceId);
-		if (result) {
-			session.commit();
+		if (!resourceDao.delete(resource)) {
+			throw new DatabaseSeriousException("Resource deletion failed");
 		}
-		return result;
+		session.commit();
 	}
 
-	public boolean deleteResourcesByIdAndTags(long userId, List<Long> tagIds)
-			throws DatabaseException {
+	public void deleteResourcesByIdAndTags(long userId, List<Long> tagIds)
+			throws DatabaseTinyException, DatabaseSeriousException {
 		if (log.isTraceEnabled()) {
 			log.trace("Delete resource; user id: {}, tag ids: {}", userId,
 					tagIds == null ? "null" : tagIds.toString());
 		}
-		boolean result = false;
 		if (!userDao.exists(userId)) {
 			log.debug("Database exception: can't delete resource for nonexistant user");
-			throw new DatabaseException(
+			throw new DatabaseTinyException(
 					"Database exception: can't delete resource for nonexistant user");
 		}
-		if (tagIds != null && !tagDao.exists(userId, tagIds)) {
-			log.debug("Database exception: can't get resources for nonexistent tags");
-			throw new DatabaseException(
-					"Database exception: can't get resources for nonexistent tags");
+		boolean result = false;
+		if (tagIds == null) {
+			result = resourceDao.deleteAll(userId);
+		} else {
+			if (!tagDao.exists(userId, tagIds)) {
+				log.debug("Database exception: can't get resources for nonexistent tags");
+				throw new DatabaseTinyException(
+						"Database exception: can't get resources for nonexistent tags");
+			}
+			result = resourceDao.deleteByTags(userId, tagIds);
 		}
-		result = ResourceDAOOld.deleteByTags(
-				session.getMapper(ResourceMapper.class), userId,
-				tagIds.toArray(new Long[] {}));
-		if (result) {
-			session.commit();
+		if (!result) {
+			throw new DatabaseSeriousException("Resource delition failed");
 		}
-		return result;
+		session.commit();
 	}
 
-	public boolean editResource(long userId, Resource resource)
-			throws DatabaseException {
+	public void editResource(Resource resource) throws DatabaseTinyException,
+			DatabaseSeriousException {
 		if (log.isTraceEnabled()) {
-			log.trace("Edit resource; user id = {}, resource = {}", userId,
-					resource.toString());
+			log.trace("Edit resource; resource = {}", resource.toString());
 		}
-		boolean result = false;
-		Resource savedResource = ResourceDAOOld.get(
-				session.getMapper(ResourceMapper.class), userId,
+		if (!userDao.exists(resource.getId())) {
+			throw new DatabaseTinyException(
+					"Can't edit resource for nonexistent user");
+		}
+		Resource savedResource = resourceDao.get(resource.getUserId(),
 				resource.getId());
 		if (savedResource == null) {
 			log.debug("Database exception: not found resource for edit");
-			throw (new DatabaseException(
+			throw (new DatabaseTinyException(
 					"Database exception: not found resource for edit"));
 		}
-
 		if (!savedResource.getUrl().equals(resource.getUrl())) {
-			Integer hash = getNewHashCode(resource);
-			if (hash == null) {
-				hash = 0;
-			}
-			ResourceDAOOld.updateAfterCheck(
-					session.getMapper(ResourceMapper.class), resource.getId(),
-					hash);
+			resourceDao.updateAfterCheck(resource.getId(),
+					getNewHashCode(resource));
 		}
-		resource.setUserId(userId);
-		if (!tagDao.exists(userId, resource.getTags())) {
+		if (!tagDao.exists(resource.getId(), resource.getTags())) {
 			log.debug("Database exception: can't assign nonexistant tags to resource");
-			throw new DatabaseException(
+			throw new DatabaseTinyException(
 					"Database exception: can't assign nonexistant tags to resource");
 		}
-		result = ResourceDAOOld.edit(session.getMapper(ResourceMapper.class),
-				resource);
-		if (result) {
-			resourceTagDao.delete(resource.getId());
-			if (resource.getTags() != null) {
-				for (Long tagId : resource.getTags()) {
-					resourceTagDao.add(resource.getId(), tagId);
+		if (!resourceDao.edit(resource)) {
+			throw new DatabaseSeriousException("Resource edition failed");
+		}
+		if (!resourceTagDao.delete(resource.getId())) {
+			throw new DatabaseSeriousException("Relation delition failed");
+		}
+		if (resource.getTags() != null) {
+			for (Long tagId : resource.getTags()) {
+				if (!resourceTagDao.add(resource.getId(), tagId)) {
+					throw new DatabaseSeriousException(
+							"Relation addition failed");
 				}
 			}
 		}
-		if (result) {
-			session.commit();
-		}
-		return result;
+		session.commit();
 	}
 
 	/**
@@ -279,9 +276,14 @@ public class DatabaseService {
 	 * 
 	 * @param userId
 	 * @return all tags for user with <code>userId</code>
+	 * @throws DatabaseTinyException
 	 */
-	public Set<Tag> getTags(long userId) {
+	public Set<Tag> getTags(long userId) throws DatabaseTinyException {
 		log.trace("Get tags for user with user id: {}", userId);
+		if (!userDao.exists(userId)) {
+			throw new DatabaseTinyException(
+					"Can't get tags for nonexistent user");
+		}
 		return tagDao.get(userId);
 	}
 
@@ -292,18 +294,22 @@ public class DatabaseService {
 	 *            resource, which hash will be overridden
 	 * @param newHash
 	 *            new hash value
+	 * @throws DatabaseSeriousException
 	 */
-	public boolean updateResourceHash(Long resourceId, Integer newHash) {
+	public void updateResourceHash(long resourceId, int newHash)
+			throws DatabaseSeriousException {
 		log.trace("Update resource hash; resource id: {}, new hash: {}",
 				resourceId, newHash);
-		boolean result = false;
-		// Don't forget - hash will be update only with 'true' result
-		result = ResourceDAOOld.updateAfterCheck(
-				session.getMapper(ResourceMapper.class), resourceId, newHash);
-		if (result) {
-			session.commit();
+		if (!resourceDao.exists(resourceId)) {
+			// TODO What can i dooo?
+			throw new DatabaseSeriousException(
+					"Can't update hash for nonexistent resource");
 		}
-		return result;
+		// Don't forget - hash will be update only with 'true' result
+		if (!resourceDao.updateAfterCheck(resourceId, newHash)) {
+			throw new DatabaseSeriousException("Hash updating failed");
+		}
+		session.commit();
 	}
 
 	/**
@@ -312,35 +318,42 @@ public class DatabaseService {
 	 * @param userId
 	 * @param tagName
 	 * @return true, if success, false otherwise
+	 * @throws DatabaseTinyException
+	 * @throws DatabaseSeriousException
 	 */
-	public void addTag(Tag tag) {
-		tagDao.add(tag);
-		if (tag.getId() != null) {
-			session.commit();
+	public void addTag(Tag tag) throws DatabaseTinyException,
+			DatabaseSeriousException {
+		if (!userDao.exists(tag.getId())) {
+			throw new DatabaseTinyException("Can't add tag to nonexistent user");
 		}
+		if (!tagDao.add(tag)) {
+			throw new DatabaseSeriousException("Tag addition failed");
+		}
+		session.commit();
 	}
 
-	public boolean editTag(long userId, long tagId, String tagName) {
-		boolean result = false;
-
-		result = tagDao.edit(new Tag(tagId, userId, tagName));
-		if (result) {
-			session.commit();
+	public void editTag(Tag tag) throws DatabaseTinyException,
+			DatabaseSeriousException {
+		if (!userDao.exists(tag.getId())) {
+			throw new DatabaseTinyException(
+					"Can't edit tag of nonexistent user");
 		}
-		return result;
+		if (!tagDao.edit(tag)) {
+			throw new DatabaseSeriousException("Tag edition failed");
+		}
+		session.commit();
 	}
 
-	public void deleteTag(long userId, long tagId) throws DatabaseException {
-		boolean result = false;
-		if (!userDao.exists(userId)) {
-			throw new DatabaseException(
-					"Database exception. Can't delete tag of nonexistent user");
+	public void deleteTag(Tag tag) throws DatabaseTinyException,
+			DatabaseSeriousException {
+		if (!userDao.exists(tag.getId())) {
+			throw new DatabaseTinyException(
+					"Can't delete tag of nonexistent user");
 		}
-		result = tagDao.delete(new Tag(tagId, userId, null));
-
-		if (result) {
-			session.commit();
+		if (!tagDao.delete(tag)) {
+			throw new DatabaseSeriousException("Tag delition failed");
 		}
+		session.commit();
 	}
 
 	public void deleteAllData() {

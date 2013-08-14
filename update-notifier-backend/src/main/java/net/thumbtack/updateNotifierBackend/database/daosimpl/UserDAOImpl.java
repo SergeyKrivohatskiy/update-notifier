@@ -22,11 +22,11 @@ public class UserDAOImpl implements UserDAO {
 		return mapper.get(email);
 	}
 
-	public User get2(Long id) {
+	public User get2(long id) {
 		return mapper.get2(id);
 	}
 	
-	public boolean exists(Long id) {
+	public boolean exists(long id) {
 		return (mapper.check(id) != null);
 	}
 	
