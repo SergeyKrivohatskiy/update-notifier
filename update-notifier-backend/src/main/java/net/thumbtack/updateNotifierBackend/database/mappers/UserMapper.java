@@ -20,7 +20,7 @@ public interface UserMapper {
 	
 	@Insert(ADD_USER)
 	@Options(useGeneratedKeys = true)
-	Long add(User user);
+	int add(User user);
 
 	@Select(GET_ID)
 	Long getId(String email);

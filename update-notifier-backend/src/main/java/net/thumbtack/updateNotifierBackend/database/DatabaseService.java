@@ -64,23 +64,25 @@ public class DatabaseService {
 		}
 		SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder()
 				.build(inputStream);
-		session = sqlSessionFactory.openSession(ExecutorType.BATCH);
+		session = sqlSessionFactory.openSession();
 		tagDao = new TagDAOImpl(session);
 		userDao = new UserDAOImpl(session);
 		resourceDao = new ResourceDAOImpl(session);
 		resourceTagDao = new ResourceTagDAOImpl(session);
 	}
 
-	public Long getUserIdByEmailOrAdd(User user)
+	public long getUserIdByEmailOrAdd(User user)
 			throws DatabaseSeriousException {
 		log.trace("Get user email by id; email: {}", user.getEmail());
-		User user2 = userDao.get(user.getEmail());
-		if (user2 == null) {
+		User savedUser = userDao.get(user.getEmail());
+		if (savedUser == null) {
 			if (!userDao.add(user)) {
 				throw new DatabaseSeriousException("User can't to login");
-			} else {
-				session.commit();
+//			} else {
+//				session.commit();
 			}
+		} else {
+			user = savedUser;
 		}
 		return user.getId();
 	}
@@ -323,7 +325,7 @@ public class DatabaseService {
 	 */
 	public void addTag(Tag tag) throws DatabaseTinyException,
 			DatabaseSeriousException {
-		if (!userDao.exists(tag.getId())) {
+		if (!userDao.exists(tag.getUserId())) {
 			throw new DatabaseTinyException("Can't add tag to nonexistent user");
 		}
 		if (!tagDao.add(tag)) {
@@ -334,7 +336,7 @@ public class DatabaseService {
 
 	public void editTag(Tag tag) throws DatabaseTinyException,
 			DatabaseSeriousException {
-		if (!userDao.exists(tag.getId())) {
+		if (!userDao.exists(tag.getUserId())) {
 			throw new DatabaseTinyException(
 					"Can't edit tag of nonexistent user");
 		}
@@ -346,7 +348,7 @@ public class DatabaseService {
 
 	public void deleteTag(Tag tag) throws DatabaseTinyException,
 			DatabaseSeriousException {
-		if (!userDao.exists(tag.getId())) {
+		if (!userDao.exists(tag.getUserId())) {
 			throw new DatabaseTinyException(
 					"Can't delete tag of nonexistent user");
 		}

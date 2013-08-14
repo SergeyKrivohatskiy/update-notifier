@@ -58,7 +58,7 @@ public class UsersHandler {
 			throw new BadRequestException(
 					"Missing 'email' parameter in the url");
 		}
-		Long userId = null;
+		long userId = 0;
 		try {
 			User user = new User();
 			user.setEmail(userEmail);
