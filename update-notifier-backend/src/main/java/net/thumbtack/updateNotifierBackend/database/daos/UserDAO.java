@@ -1,5 +1,5 @@
 package net.thumbtack.updateNotifierBackend.database.daos;
 
-public interface IResourceDAO {
+public interface UserDAO {
 
 }

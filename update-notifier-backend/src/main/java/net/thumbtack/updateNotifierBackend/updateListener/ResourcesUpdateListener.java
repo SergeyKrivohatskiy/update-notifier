@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import net.thumbtack.updateNotifierBackend.UpdateNotifierBackend;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
+import net.thumbtack.updateNotifierBackend.database.entities.User;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseException;
 
 public class ResourcesUpdateListener {
@@ -50,8 +51,9 @@ public class ResourcesUpdateListener {
 	private boolean sendEmail(Resource resource) {
 		String to = null;
 		try {
-			to = UpdateNotifierBackend.getDatabaseService().getUserEmailById(
+			User user = UpdateNotifierBackend.getDatabaseService().getUserEmailById(
 					resource.getUserId());
+			to = user.getEmail();
 		} catch (DatabaseException e) {
 			log.error("Get email failed");
 			return false;

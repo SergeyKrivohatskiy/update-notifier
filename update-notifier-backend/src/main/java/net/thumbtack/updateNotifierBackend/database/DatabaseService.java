@@ -10,17 +10,18 @@ import java.util.Set;
 
 import javax.swing.text.html.HTMLDocument.HTMLReader.TagAction;
 
-import net.thumbtack.updateNotifierBackend.database.daos.ITagDAO;
 import net.thumbtack.updateNotifierBackend.database.daosimpl.ResourceDAOOld;
 import net.thumbtack.updateNotifierBackend.database.daosimpl.ResourceTagDAOOld;
 import net.thumbtack.updateNotifierBackend.database.daosimpl.TagDAOImpl;
-import net.thumbtack.updateNotifierBackend.database.daosimpl.UserDAOOld;
+import net.thumbtack.updateNotifierBackend.database.daosimpl.UserDAOImpl;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
+import net.thumbtack.updateNotifierBackend.database.entities.User;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseException;
+import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseSeriousException;
+import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseTinyException;
 import net.thumbtack.updateNotifierBackend.database.mappers.ResourceMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.ResourceTagMapper;
-import net.thumbtack.updateNotifierBackend.database.mappers.TagMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.UserMapper;
 
 import org.apache.ibatis.io.Resources;
@@ -45,7 +46,8 @@ public class DatabaseService {
 	private SqlSession session;
 	private String RESOURCE = "mybatis-cfg.xml";
 	
-	private TagDAOImpl tagDao = null;
+	private TagDAOImpl tagDao;
+	private UserDAOImpl userDao;
 
 	public static DatabaseService getInstance() {
 		if (db == null) {
@@ -67,32 +69,31 @@ public class DatabaseService {
 				.build(inputStream);
 		session = sqlSessionFactory.openSession(ExecutorType.BATCH);
 		tagDao = new TagDAOImpl(session);
+		userDao = new UserDAOImpl(session);
 	}
 
-	public Long getUserIdByEmailOrAdd(String email) throws DatabaseException {
+	public Long getUserIdByEmailOrAdd(String email) throws DatabaseSeriousException {
 		log.trace("Get user email by id; email: {}", email);
-		Long userId = UserDAOOld.getIdOrAdd(session.getMapper(UserMapper.class),
-				email);
-		if (userId != null) {
-			session.commit();
-		} else {
-			log.error("Database returns null - I don't know why :(");
-			throw new DatabaseException();
+		User user = userDao.get(email);
+		if(user == null) {
+			if(!userDao.add(user)) {
+				throw new DatabaseSeriousException("User can't to login");
+			} else {
+				session.commit();
+			}
 		}
-		return userId;
+		return user.getId();
 	}
 
-	public String getUserEmailById(Long id) throws DatabaseException {
+	public User getUserEmailById(Long id) throws DatabaseSeriousException {
 		log.trace("get user email by id; id: {}", id);
-		String email = UserDAOOld.getUserEmail(
-				session.getMapper(UserMapper.class), id);
-		if (email != null) {
-			session.commit();
-		} else {
-			log.error("Database exception: user email is null");
-			throw new DatabaseException("User email is null");
+		User user = userDao.get2(id);
+		if(user == null) {
+			// TODO user deletes his account when his resource was updationg?
+			// Serious, because i know, where this method is called
+			throw new DatabaseSeriousException("Can't get user by id");
 		}
-		return email;
+		return user;
 	}
 
 	public boolean addResource(long userId, Resource resource)
@@ -102,18 +103,13 @@ public class DatabaseService {
 					resource.toString());
 		}
 		boolean result = false;
-		if (!UserDAOOld.exists(session.getMapper(UserMapper.class), userId)) {
-			log.error("Database exception: can't add resource to nonexist user");
-			throw new DatabaseException(
+		if(!userDao.exists(userId)) {
+			log.debug("Database exception: can't add resource to nonexist user");
+			throw new DatabaseTinyException(
 					"Database exception: can't add resource to nonexist user");
 		}
 		resource.setUserId(userId);
-
-		Integer hash = getNewHashCode(resource);
-		if (hash == null) {
-			hash = 0;
-		}
-		resource.setHash(hash);
+		resource.setHash(getNewHashCode(resource));
 
 		Long id = ResourceDAOOld.add(session.getMapper(ResourceMapper.class),
 				resource);
@@ -137,7 +133,7 @@ public class DatabaseService {
 			log.trace("Get resources by id and tags; user id: {}, tag ids: {}",
 					userId, tagIds == null ? null : tagIds.toString());
 		}
-		if (!UserDAOOld.exists(session.getMapper(UserMapper.class), userId)) {
+		if (!userDao.exists(userId)) {
 			log.debug("Database exception: can't get resources for nonexistent user");
 			throw new DatabaseException(
 					"Database exception: can't get resources for nonexistent user");
@@ -194,7 +190,7 @@ public class DatabaseService {
 		log.trace("Delete resource; user id: {}, resource id: {}", userId,
 				resourceId);
 		boolean result = false;
-		if (!UserDAOOld.exists(session.getMapper(UserMapper.class), userId)) {
+		if (!userDao.exists(userId)) {
 			log.debug("Database exception: can't delete resource for nonexistant user");
 			throw new DatabaseException(
 					"Database exception: can't delete resource for nonexistant user");
@@ -214,7 +210,7 @@ public class DatabaseService {
 					tagIds == null ? "null" : tagIds.toString());
 		}
 		boolean result = false;
-		if (!UserDAOOld.exists(session.getMapper(UserMapper.class), userId)) {
+		if (!userDao.exists(userId)) {
 			log.debug("Database exception: can't delete resource for nonexistant user");
 			throw new DatabaseException(
 					"Database exception: can't delete resource for nonexistant user");
@@ -343,7 +339,7 @@ public class DatabaseService {
 
 	public void deleteTag(long userId, long tagId) throws DatabaseException {
 		boolean result = false;
-		if (!UserDAOOld.exists(session.getMapper(UserMapper.class), userId)) {
+		if (!userDao.exists(userId)) {
 			throw new DatabaseException(
 					"Database exception. Can't delete tag of nonexistent user");
 		}

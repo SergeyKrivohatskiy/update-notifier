@@ -8,11 +8,11 @@ import java.util.Set;
 
 import org.apache.ibatis.session.SqlSession;
 
-import net.thumbtack.updateNotifierBackend.database.daos.ITagDAO;
+import net.thumbtack.updateNotifierBackend.database.daos.TagDAO;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
 import net.thumbtack.updateNotifierBackend.database.mappers.TagMapper;
 
-public class TagDAOImpl implements ITagDAO {
+public class TagDAOImpl implements TagDAO {
 	
 	private final TagMapper mapper;
 	
