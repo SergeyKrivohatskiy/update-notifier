@@ -17,7 +17,7 @@ public interface ResourceTagMapper {
 	int add(@Param(value = "id") Long id, @Param(value = "tagId") Long tagId);
 
 	@Select(GET_TAG_IDS_FOR_RESOURCE)
-	List<Long> getForResource(Long id);
+	List<Long> get(Long id);
 
 	@Delete(DEL)
 	int delete(Long resourceId);
