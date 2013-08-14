@@ -9,7 +9,6 @@ update-notifier-frontend/.idea
 update-notifier-frontend/tmp
 update-notifier-frontend/log
 
-update-notifier-backend/.classpath
 update-notifier-backend/target
 
 update-notifier-backend/bin
