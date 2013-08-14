@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+CAUTION: Do not modify this file unless you know what you are doing.
+         Unexpected results may occur if the code is changed deliberately.
+-->
+<dbmodel>
+<schema name="public" protected="true" fill-color="#e1e1e1" sql-disabled="true">
+</schema>
+
+<schema name="update_notifier" fill-color="#ffff7f">
+</schema>
+
+<database name="new_database">
+</database>
+
+<table name="users" oids="false">
+	<schema name="update_notifier"/>
+	<position x="373" y="139"/>
+	<column name="id" not-null="true">
+		<type name="bigint"/>
+	</column>
+	<column name="email" not-null="true">
+		<type name="varchar" length="50"/>
+	</column>
+	<constraint name="id" type="pk-constr" factor="10" table="update_notifier.users">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+</table>
+
+<table name="resources" oids="false">
+	<schema name="update_notifier"/>
+	<position x="696" y="268"/>
+	<column name="id" not-null="true">
+		<type name="bigint"/>
+	</column>
+	<column name="user_id" not-null="true">
+		<type name="bigint"/>
+	</column>
+	<column name="url" not-null="true">
+		<type name="varchar" length="255"/>
+	</column>
+	<column name="shedule_code" not-null="true">
+		<type name="smallint"/>
+	</column>
+	<column name="dom_path" not-null="true">
+		<type name="varchar" length="255"/>
+	</column>
+	<column name="filter" not-null="true">
+		<type name="varchar" length="255"/>
+	</column>
+	<column name="hash" not-null="true">
+		<type name="int4range"/>
+	</column>
+	<column name="last_update" not-null="true">
+		<type name="timestamp"/>
+	</column>
+	<constraint name="id_2" type="pk-constr" factor="10" table="update_notifier.resources">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="fk_user_id" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="update_notifier.users" table="update_notifier.resources">
+		<columns names="user_id" ref-type="src-columns"/>
+		<columns names="id" ref-type="dst-columns"/>
+	</constraint>
+</table>
+
+<relationship name="rel_resources_users" type="relfk"
+	 src-table="update_notifier.resources"
+	 dst-table="update_notifier.users"
+	 src-required="false" dst-required="false"/>
+
+<table name="tags" oids="false">
+	<schema name="update_notifier"/>
+	<position x="115" y="304"/>
+	<column name="id" not-null="true">
+		<type name="bigint"/>
+	</column>
+	<column name="user_id" not-null="true">
+		<type name="bigint"/>
+	</column>
+	<column name="name" not-null="true">
+		<type name="varchar" length="30"/>
+	</column>
+	<constraint name="id_1" type="pk-constr" factor="10" table="update_notifier.tags">
+		<columns names="id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="no_duplicate_tags" type="uq-constr" factor="10" table="update_notifier.tags">
+		<columns names="user_id,name" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="fk_user_id" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="update_notifier.users" table="update_notifier.tags">
+		<columns names="user_id" ref-type="src-columns"/>
+		<columns names="id" ref-type="dst-columns"/>
+	</constraint>
+</table>
+
+<relationship name="rel_tags_users" type="relfk"
+	 src-table="update_notifier.tags"
+	 dst-table="update_notifier.users"
+	 src-required="false" dst-required="false"/>
+
+<table name="resource_tag" oids="false">
+	<schema name="update_notifier"/>
+	<position x="331" y="504"/>
+	<column name="resource_id">
+		<type name="bigint"/>
+	</column>
+	<column name="tag_id">
+		<type name="bigint"/>
+	</column>
+	<constraint name="pk_tag_id_res_id" type="pk-constr" factor="10" table="update_notifier.resource_tag">
+		<columns names="tag_id,resource_id" ref-type="src-columns"/>
+	</constraint>
+	<constraint name="fk_tag_id" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="update_notifier.tags" table="update_notifier.resource_tag">
+		<columns names="tag_id" ref-type="src-columns"/>
+		<columns names="id" ref-type="dst-columns"/>
+	</constraint>
+	<constraint name="fk_res_id" type="fk-constr"	 comparison-type="MATCH FULL"
+	 upd-action="NO ACTION" del-action="CASCADE" ref-table="update_notifier.resources" table="update_notifier.resource_tag">
+		<columns names="resource_id" ref-type="src-columns"/>
+		<columns names="id" ref-type="dst-columns"/>
+	</constraint>
+</table>
+
+<relationship name="rel_resource_tag_tags" type="relfk"
+	 src-table="update_notifier.resource_tag"
+	 dst-table="update_notifier.tags"
+	 src-required="false" dst-required="false"/>
+
+<relationship name="rel_resource_tag_resources" type="relfk"
+	 src-table="update_notifier.resource_tag"
+	 dst-table="update_notifier.resources"
+	 src-required="false" dst-required="false"/>
+
+</dbmodel>
