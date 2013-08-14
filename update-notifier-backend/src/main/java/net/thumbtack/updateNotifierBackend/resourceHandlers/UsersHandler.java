@@ -32,6 +32,7 @@ import com.google.gson.JsonSyntaxException;
 import static net.thumbtack.updateNotifierBackend.UpdateNotifierBackend.getDatabaseService;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
+import net.thumbtack.updateNotifierBackend.database.entities.User;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseException;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseSeriousException;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseTinyException;
@@ -59,7 +60,9 @@ public class UsersHandler {
 		}
 		Long userId = null;
 		try {
-			userId = getDatabaseService().getUserIdByEmailOrAdd(userEmail);
+			User user = new User();
+			user.setEmail(userEmail);
+			userId = getDatabaseService().getUserIdByEmailOrAdd(user);
 		} catch (DatabaseSeriousException e) {
 			log.error("Database request failed. Sign in failed");
 			throw (new WebApplicationException("Database get account error"));

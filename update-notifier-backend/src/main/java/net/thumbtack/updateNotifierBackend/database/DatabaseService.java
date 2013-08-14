@@ -71,11 +71,11 @@ public class DatabaseService {
 		resourceTagDao = new ResourceTagDAOImpl(session);
 	}
 
-	public Long getUserIdByEmailOrAdd(String email)
+	public Long getUserIdByEmailOrAdd(User user)
 			throws DatabaseSeriousException {
-		log.trace("Get user email by id; email: {}", email);
-		User user = userDao.get(email);
-		if (user == null) {
+		log.trace("Get user email by id; email: {}", user.getEmail());
+		User user2 = userDao.get(user.getEmail());
+		if (user2 == null) {
 			if (!userDao.add(user)) {
 				throw new DatabaseSeriousException("User can't to login");
 			} else {
