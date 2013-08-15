@@ -52,7 +52,7 @@ public class DatabaseService {
 		return db;
 	}
 
-	public DatabaseService() {
+	private DatabaseService() {
 		InputStream inputStream = null;
 		try {
 			inputStream = Resources.getResourceAsStream(RESOURCE);

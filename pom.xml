@@ -5,6 +5,10 @@
 	<artifactId>update-notifier-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
+	<packaging>
+		war
+	</packaging>
+	
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -79,12 +83,33 @@
 	    
 	</dependencies>
 	<build>
+        <finalName>update-notifier-backend</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
 				<version>9.0.4.v20130625</version>
 			</plugin>
+			<plugin>
+	            <groupId>org.apache.maven.plugins</groupId>
+	            <artifactId>maven-dependency-plugin</artifactId>
+	            <executions>
+	                <execution>
+	                    <phase>package</phase>
+	                    <goals><goal>copy</goal></goals>
+	                    <configuration>
+	                        <artifactItems>
+	                            <artifactItem>
+	                                <groupId>org.mortbay.jetty</groupId>
+	                                <artifactId>jetty-runner</artifactId>
+	                                <version>7.5.4.v20111024</version>
+	                                <destFileName>jetty-runner.jar</destFileName>
+	                            </artifactItem>
+	                        </artifactItems>
+	                    </configuration>
+	                </execution>
+	            </executions>
+	        </plugin>
 		</plugins>
 	</build>
 </project>
