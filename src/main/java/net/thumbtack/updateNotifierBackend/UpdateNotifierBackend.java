@@ -6,7 +6,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.thumbtack.updateNotifierBackend.database.DatabaseService;
+import net.thumbtack.updateNotifierBackend.database.DatabaseWrapper;
 import net.thumbtack.updateNotifierBackend.updateChecker.UpdateChecker;
 import net.thumbtack.updateNotifierBackend.updateListener.ResourcesUpdateListener;
 
@@ -14,14 +14,14 @@ import net.thumbtack.updateNotifierBackend.updateListener.ResourcesUpdateListene
 public class UpdateNotifierBackend extends ResourceConfig {
 
 	private static final Logger log = LoggerFactory.getLogger(UpdateNotifierBackend.class);
-	private static DatabaseService databaseService = DatabaseService.getInstance();
+	private static DatabaseWrapper databaseService = DatabaseWrapper.getInstance();
 	private static UpdateChecker updateChecker = new UpdateChecker();
 	private static ResourcesUpdateListener resUpdateListener = new ResourcesUpdateListener();
 	
 	public UpdateNotifierBackend() {
 		log.debug("Starting");
 		packages("net.thumbtack.updateNotifierBackend.resourceHandlers");
-		updateChecker.start();
+//		updateChecker.start();
 	}
 
 	/**
@@ -29,7 +29,7 @@ public class UpdateNotifierBackend extends ResourceConfig {
 	 * 
 	 * @return application database service
 	 */
-	public static DatabaseService getDatabaseService() {
+	public static DatabaseWrapper getDatabaseService() {
 		return databaseService;
 	}
 

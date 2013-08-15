@@ -11,6 +11,10 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import net.thumbtack.updateNotifierBackend.database.daos.ResourceDAO;
+import net.thumbtack.updateNotifierBackend.database.daos.ResourceTagDAO;
+import net.thumbtack.updateNotifierBackend.database.daos.TagDAO;
+import net.thumbtack.updateNotifierBackend.database.daos.UserDAO;
 import net.thumbtack.updateNotifierBackend.database.daosimpl.ResourceDAOImpl;
 import net.thumbtack.updateNotifierBackend.database.daosimpl.ResourceTagDAOImpl;
 import net.thumbtack.updateNotifierBackend.database.daosimpl.TagDAOImpl;
@@ -20,6 +24,7 @@ import net.thumbtack.updateNotifierBackend.database.entities.Tag;
 import net.thumbtack.updateNotifierBackend.database.entities.User;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseSeriousException;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseTinyException;
+import net.thumbtack.updateNotifierBackend.database.mappers.InitialMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.UserMapper;
 
 import org.apache.ibatis.io.Resources;
@@ -29,33 +34,28 @@ import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-//REVU: You should use interfaces.
-// Create dao interfaces and make current Dao's classes as implementation of them.
-// All daos without implementation of base dao interface.
-// BaseDao should be with sqlSessionFactory and All daos should implement BaseDao interface.
-// And you don't have to send mapper to dao class, they will use sqlSessionFactory.
-public class DatabaseService {
+public class DatabaseWrapper {
 
 	private static final Logger log = LoggerFactory
-			.getLogger(DatabaseService.class);
-	private static DatabaseService db = null;
+			.getLogger(DatabaseWrapper.class);
+	private static DatabaseWrapper db = null;
 
 	private SqlSession session;
 	private String RESOURCE = "mybatis-cfg.xml";
 
-	private TagDAOImpl tagDao;
-	private UserDAOImpl userDao;
-	private ResourceDAOImpl resourceDao;
-	private ResourceTagDAOImpl resourceTagDao;
+	private TagDAO tagDao;
+	private UserDAO userDao;
+	private ResourceDAO resourceDao;
+	private ResourceTagDAO resourceTagDao;
 
-	public static DatabaseService getInstance() {
+	public static DatabaseWrapper getInstance() {
 		if (db == null) {
-			db = new DatabaseService();
+			db = new DatabaseWrapper();
 		}
 		return db;
 	}
 
-	private DatabaseService() {
+	private DatabaseWrapper() {
 		Reader reader = null;
 		Properties properties = new Properties();
 		try {
@@ -75,16 +75,20 @@ public class DatabaseService {
 								+ dbUri.getPort() + dbUri.getPath());
 				sqlSessionFactory = new SqlSessionFactoryBuilder().build(
 						reader, "production", properties);
-
 			} else {
-				sqlSessionFactory = new SqlSessionFactoryBuilder().build(
-						reader);
+				sqlSessionFactory = new SqlSessionFactoryBuilder()
+						.build(reader);
 			}
 			session = sqlSessionFactory.openSession();
 			tagDao = new TagDAOImpl(session);
 			userDao = new UserDAOImpl(session);
 			resourceDao = new ResourceDAOImpl(session);
 			resourceTagDao = new ResourceTagDAOImpl(session);
+
+//			 InitialMapper mapper = session.getMapper(InitialMapper.class);
+//			 int create = mapper.createUsersInc();
+//			 session.commit();
+//			 System.err.println(create);
 		} catch (IOException e) {
 			log.error("Great crash: exception on initialize database");
 			// TODO Great crash should be here!
@@ -102,8 +106,8 @@ public class DatabaseService {
 		if (savedUser == null) {
 			if (!userDao.add(user)) {
 				throw new DatabaseSeriousException("User can't to login");
-				// } else {
-				// session.commit();
+			} else {
+				session.commit();
 			}
 		} else {
 			user = savedUser;

@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Select;
 
 public interface ResourceTagMapper {
 
-	String ADD = "INSERT INTO resource_tag VALUE (#{id},#{tagId})";
+	String ADD = "INSERT INTO resource_tag VALUES (#{id},#{tagId})";
 	String GET_TAG_IDS_FOR_RESOURCE = "SELECT tag_id FROM resource_tag WHERE resource_id = #{id}";
 	String DEL = "DELETE FROM resource_tag WHERE resource_id = #{id}";
 	

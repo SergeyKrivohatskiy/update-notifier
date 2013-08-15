@@ -14,20 +14,20 @@ import org.apache.ibatis.annotations.Update;
 public interface TagMapper {
 
 	// TODO return user id?
+	String ADD_TAG = "INSERT INTO tags (user_id, name) VALUES (#{userId}, #{name})";
 	String GET_TAGS = "SELECT * FROM tags WHERE user_id=#{userId}";
-	String ADD_TAG = "INSERT INTO tags VALUE (null, #{userId}, #{name})";
 	String GET_FOR_RESOURCE = "SELECT id FROM tags JOIN resource_tag ON tags.id = resource_tag.tag_id WHERE resource_id=#{id}";
 	String UPD_TAG = "UPDATE tags SET name=#{name} WHERE id=#{id} AND user_id=#{userId}";
 	String DEL_TAG = "DELETE FROM tags WHERE id=#{id} AND user_id = #{userId}";
 	String CHECK_EXISTANCE = "UPDATE tags SET id=id WHERE user_id = #{userId} AND id IN (${tags})";
 	String CHECK_EXISTS_ONE = "UPDATE tags SET id=id WHERE user_id = #{userId} AND id=#{id}";
 
-	@Select(GET_TAGS)
-	Set<Tag> getTags(long userId);
-
 	@Insert(ADD_TAG)
 	@Options(useGeneratedKeys = true)
 	int add(Tag tag);
+
+	@Select(GET_TAGS)
+	Set<Tag> getTags(long userId);
 
 	@Update(UPD_TAG)
 	int edit(Tag tag);
