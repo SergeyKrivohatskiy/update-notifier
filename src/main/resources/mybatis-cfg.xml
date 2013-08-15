@@ -7,12 +7,8 @@
 	<properties>
 		<property name="m_username" value="root" />
 		<property name="m_password" value="root" />
-		<property name="p_username" value="postgres" />
-		<property name="p_password" value="passw0rd" />
-		<property name="m_driver" value="com.mysql.jdbc.Driver" />
-		<property name="p_driver" value="driver must be here" />
+		<property name="driver" value="com.mysql.jdbc.Driver" />
 		<property name="m_url" value="jdbc:mysql://localhost/update_notifier" />
-		<property name="p_url" value="url or dynamic" />
 	</properties>
 
 	<settings>
@@ -23,7 +19,7 @@
 		<environment id="development">
 			<transactionManager type="JDBC" />
 			<dataSource type="POOLED">
-				<property name="driver" value="${m_driver}" />
+				<property name="driver" value="${driver}" />
 				<property name="url" value="${m_url}" />
 				<property name="username" value="${m_username}" />
 				<property name="password" value="${m_password}" />
@@ -33,7 +29,7 @@
 		<environment id="production">
 			<transactionManager type="JDBC" />
 			<dataSource type="POOLED">
-				<property name="driver" value="${p_driver}" />
+				<property name="driver" value="${driver}" />
 				<property name="url" value="${p_url}" />
 				<property name="username" value="${p_username}" />
 				<property name="password" value="${p_password}" />

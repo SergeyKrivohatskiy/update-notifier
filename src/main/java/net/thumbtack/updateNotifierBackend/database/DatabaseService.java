@@ -3,9 +3,12 @@ package net.thumbtack.updateNotifierBackend.database;
 import static net.thumbtack.updateNotifierBackend.updateChecker.CheckForUpdate.getNewHashCode;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.Reader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import net.thumbtack.updateNotifierBackend.database.daosimpl.ResourceDAOImpl;
@@ -53,21 +56,43 @@ public class DatabaseService {
 	}
 
 	private DatabaseService() {
-		InputStream inputStream = null;
+		Reader reader = null;
+		Properties properties = new Properties();
 		try {
-			inputStream = Resources.getResourceAsStream(RESOURCE);
+			reader = Resources.getResourceAsReader(RESOURCE);
+			SqlSessionFactory sqlSessionFactory = null;
+			String dbUrl = System.getenv("DATABASE_URL");
+			if (dbUrl != null) {
+				URI dbUri = new URI(dbUrl);
+
+				properties.setProperty("p_username",
+						dbUri.getUserInfo().split(":")[0]);
+				properties.setProperty("p_password",
+						dbUri.getUserInfo().split(":")[1]);
+				properties.setProperty(
+						"p_url",
+						"jdbc:postgresql://" + dbUri.getHost() + ':'
+								+ dbUri.getPort() + dbUri.getPath());
+				sqlSessionFactory = new SqlSessionFactoryBuilder().build(
+						reader, "production", properties);
+
+			} else {
+				sqlSessionFactory = new SqlSessionFactoryBuilder().build(
+						reader);
+			}
+			session = sqlSessionFactory.openSession();
+			tagDao = new TagDAOImpl(session);
+			userDao = new UserDAOImpl(session);
+			resourceDao = new ResourceDAOImpl(session);
+			resourceTagDao = new ResourceTagDAOImpl(session);
 		} catch (IOException e) {
 			log.error("Great crash: exception on initialize database");
 			// TODO Great crash should be here!
 			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			// TODO Great crash should be here!
+			e.printStackTrace();
 		}
-		SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder()
-				.build(inputStream);
-		session = sqlSessionFactory.openSession();
-		tagDao = new TagDAOImpl(session);
-		userDao = new UserDAOImpl(session);
-		resourceDao = new ResourceDAOImpl(session);
-		resourceTagDao = new ResourceTagDAOImpl(session);
 	}
 
 	public long getUserIdByEmailOrAdd(User user)
@@ -77,8 +102,8 @@ public class DatabaseService {
 		if (savedUser == null) {
 			if (!userDao.add(user)) {
 				throw new DatabaseSeriousException("User can't to login");
-//			} else {
-//				session.commit();
+				// } else {
+				// session.commit();
 			}
 		} else {
 			user = savedUser;
