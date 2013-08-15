@@ -3,6 +3,7 @@ package net.thumbtack.updateNotifierBackend.updateChecker;
 import java.net.URL;
 
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
+import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseSeriousException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -44,8 +45,13 @@ public class CheckForUpdate implements Runnable {
 		} else if (!newHashCode.equals(resource.getHash())) {
 			log.debug("New HashCode = " + newHashCode);
 			resource.setHash(newHashCode);
-			UpdateNotifierBackend.getDatabaseService().updateResourceHash(
-					resource.getId(), newHashCode);
+			try {
+				UpdateNotifierBackend.getDatabaseService().updateResourceHash(
+						resource.getId(), newHashCode);
+			} catch (DatabaseSeriousException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			result = true;
 		}
 		return result;
@@ -56,7 +62,7 @@ public class CheckForUpdate implements Runnable {
 	 * @return Hash code of specified HTML element with specified filter.
 	 *  Or null if Jsoup.connect failed or checking parameters is incorrect.
 	 */
-	public static Integer getNewHashCode(Resource resource) {
+	public static int getNewHashCode(Resource resource) {
 		try {
 			Document document;
 			
@@ -67,7 +73,7 @@ public class CheckForUpdate implements Runnable {
 				domPathString = domPathString.substring(1);
 			} else {
 				log.debug("incorrect dom path " + domPathString);
-				return null;
+				return 0;
 			}
 			String[] domPath = domPathString.split("/");
 			Element targetElement = document.body();
@@ -81,7 +87,7 @@ public class CheckForUpdate implements Runnable {
 			// May be NullPtrEx, NumberFormatException, IndexOutOfBoundsException,
 			// IOex or other Jsoup exceptions
 			log.debug(e.toString());
-			return null;
+			return 0;
 		}
 	}
 

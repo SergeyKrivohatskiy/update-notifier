@@ -26,15 +26,15 @@ public interface ResourceMapper {
 	String UPD_AFTER_UPD = "UPDATE resources SET hash=#{hash}, last_update=NOW() WHERE id=#{id}";
 	String LAST_ID = "SELECT LAST_INSERT_ID()";
 	String DEL_ALL_RESOURCES = "DELETE FROM resources";
+	String CHECK = "UPDATE resources SET id=id WHERE id=#{id}";
 
 	@Insert(INS_RESOURCE)
 	@Options(useGeneratedKeys = true)
 	// TODO check that after addition resource have not-null id
-	void add(Resource resource);
+	int add(Resource resource);
 
 	@Delete(DEL_RESOURCE)
-	int delete(@Param(value = "userId") long userId,
-			@Param(value = "id") long resourceId);
+	int delete(Resource resource);
 
 	@Select(GET_ALL_FOR_USER)
 	List<Resource> getAllForUser(Long id);
@@ -65,5 +65,8 @@ public interface ResourceMapper {
 	@Select(GET_BY_IDS)
 	Resource get(@Param(value = "userId") Long userId,
 			@Param(value = "id") Long id);
+
+	@Update(CHECK)
+	boolean check(long id);
 
 }

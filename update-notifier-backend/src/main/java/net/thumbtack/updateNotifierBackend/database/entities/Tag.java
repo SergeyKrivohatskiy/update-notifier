@@ -8,9 +8,14 @@ public class Tag {
 //	private Set<Resource> resources = new HashSet<Resource>();
 	
 	public Tag() {
-		
 	}
 	
+	public Tag(Long id, Long userId, String name) {
+		this.id = id;
+		this.userId = userId;
+		this.name = name;
+	}
+
 	public Tag(Long id, String name) {
 		this.id = id;
 		this.name = name;
@@ -22,6 +27,14 @@ public class Tag {
 	
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
 	public Long getId() {

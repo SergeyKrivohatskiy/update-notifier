@@ -1,5 +1,6 @@
 package net.thumbtack.updateNotifierBackend.resourceHandlers;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -29,9 +30,12 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
 import static net.thumbtack.updateNotifierBackend.UpdateNotifierBackend.getDatabaseService;
-import net.thumbtack.updateNotifierBackend.database.DatabaseException;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
+import net.thumbtack.updateNotifierBackend.database.entities.User;
+import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseException;
+import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseSeriousException;
+import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseTinyException;
 import net.thumbtack.updateNotifierBackend.updateChecker.UpdateChecker;
 
 @Path("/users")
@@ -54,10 +58,12 @@ public class UsersHandler {
 			throw new BadRequestException(
 					"Missing 'email' parameter in the url");
 		}
-		Long userId = null;
+		long userId = 0;
 		try {
-			userId = getDatabaseService().getUserIdByEmailOrAdd(userEmail);
-		} catch (DatabaseException e) {
+			User user = new User();
+			user.setEmail(userEmail);
+			userId = getDatabaseService().getUserIdByEmailOrAdd(user);
+		} catch (DatabaseSeriousException e) {
 			log.error("Database request failed. Sign in failed");
 			throw (new WebApplicationException("Database get account error"));
 		}
@@ -77,10 +83,14 @@ public class UsersHandler {
 					"Database add request failed: resource expected in request body");
 		}
 		try {
-			getDatabaseService().addResource(userId, resource);
-		} catch (DatabaseException e) {
+			resource.setUserId(userId);
+			getDatabaseService().addResource(resource);
+		} catch (DatabaseTinyException e) {
 			log.debug("Database add request failed. Add resources bad request");
 			throw (new BadRequestException("Incorrect params"));
+		} catch (DatabaseSeriousException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		return Response.status(HttpStatus.CREATED_201)
@@ -93,12 +103,12 @@ public class UsersHandler {
 	public String getUserResources(@PathParam("id") long userId,
 			@DefaultValue("") @QueryParam("tags") String tagsString) {
 		log.trace("Get resources");
-		Long[] tags = parseTags(tagsString);
+		List<Long> tags = parseTags(tagsString);
 		List<Resource> resources = null;
 		try {
 			resources = getDatabaseService().getResourcesByIdAndTags(userId,
 					tags);
-		} catch (DatabaseException e) {
+		} catch (DatabaseTinyException e) {
 			log.debug("Database get request failed. Get resources bad request");
 			throw (new BadRequestException("Incorrect userId"));
 		}
@@ -111,12 +121,18 @@ public class UsersHandler {
 	public String getUserResource(@PathParam("id") long userId,
 			@PathParam("resourceId") long resourceId) {
 		log.trace("Get resource");
-		Resource res = getDatabaseService().getResource(userId, resourceId);
-		if (res == null) {
+		Resource resource = null;
+		try {
+			resource = getDatabaseService().getResource(userId, resourceId);
+		} catch (DatabaseTinyException e) {
+			log.debug("Database get request failed. User not found");
+			throw (new NotFoundException("Invalid user id"));
+		}
+		if (resource == null) {
 			log.debug("Database get request failed. Get resource not found");
 			throw (new NotFoundException("Resource not exist"));
 		}
-		return GSON.toJson(res);
+		return GSON.toJson(resource);
 	}
 
 	@Path("/{id}/resources")
@@ -124,16 +140,15 @@ public class UsersHandler {
 	public Response deleteUserResources(@PathParam("id") long userId,
 			@DefaultValue("") @QueryParam("tags") String tagsString) {
 		log.trace("Delete resources");
-		Long[] tags = parseTags(tagsString);
+		List<Long> tags = parseTags(tagsString);
 		try {
-			if (!getDatabaseService().deleteResourcesByIdAndTags(userId, tags)) {
-				log.debug("Database delete request failed. Delete resources bnot found");
-				throw (new NotFoundException());
-			}
-			// TODO make it beautiful
-		} catch (DatabaseException e) {
-			log.debug("Database delete request failed. Delete resources bnot found");
-			throw (new NotFoundException());
+			getDatabaseService().deleteResourcesByIdAndTags(userId, tags);
+		} catch (DatabaseTinyException e) {
+			log.debug("Database delete request failed. Incorrect params");
+			throw (new NotFoundException("Incorrect params"));
+		} catch (DatabaseSeriousException e) {
+			log.error("Database delete request failed. Failed");
+			throw (new NotFoundException("Deletion failed"));
 		}
 		return Response.status(HttpStatus.NO_CONTENT_204).build();
 	}
@@ -146,13 +161,15 @@ public class UsersHandler {
 		log.trace("Get resource");
 
 		try {
-			if (!getDatabaseService().deleteResource(userId, resourceId)) {
-				log.debug("Database delete request failed. Delete resource not found");
-				throw (new NotFoundException("Resource not exist"));
-			}
-			// TODO Make it beautiful
-		} catch (DatabaseException e) {
+			Resource resource = new Resource();
+			resource.setId(resourceId);
+			resource.setUserId(userId);
+			getDatabaseService().deleteResource(resource);
+		} catch (DatabaseTinyException e) {
 			log.debug("Database delete request failed. Delete resource not found");
+			throw (new NotFoundException("Resource not exist"));
+		} catch (DatabaseSeriousException e) {
+			log.error("Database delete request failed. Delete resource not found");
 			throw (new NotFoundException("Resource not exist"));
 		}
 		return Response.status(HttpStatus.NO_CONTENT_204).build();
@@ -161,19 +178,18 @@ public class UsersHandler {
 	@Path("/{id}/resources/{resourceId}")
 	@PUT
 	@Consumes({ "application/json" })
-	public void editUserResource(@PathParam("id") long userId, 
+	public void editUserResource(@PathParam("id") long userId,
 			@PathParam("resourceId") long resourceId, String resourceJson) {
 		log.trace("Edit resource");
 		Resource resource = parseResource(resourceJson);
 		resource.setId(resourceId);
 		try {
-			if (!getDatabaseService().editResource(userId, resource)) {
-				log.debug("Database edit request failed. Edit resources bad request");
-				throw (new BadRequestException());
-			}
-			// TODO make it beautiful
-		} catch (DatabaseException e) {
+			getDatabaseService().editResource(resource);
+		} catch (DatabaseTinyException e) {
 			log.debug("Database edit request failed. Edit resources bad request");
+			throw (new BadRequestException());
+		} catch (DatabaseSeriousException e) {
+			log.debug("Database edit request failed. Failed");
 			throw (new BadRequestException());
 		}
 
@@ -184,7 +200,13 @@ public class UsersHandler {
 	@Produces({ "application/json" })
 	public String getUserTags(@PathParam("id") long userId) {
 		log.trace("Get tags");
-		Set<Tag> tags = getDatabaseService().getTags(userId);
+		Set<Tag> tags;
+		try {
+			tags = getDatabaseService().getTags(userId);
+		} catch (DatabaseTinyException e) {
+			log.debug("Database get request failed. User not found");
+			throw (new NotFoundException());
+		}
 		if (tags == null) {
 			log.debug("Database get request failed. Get tags not found");
 			throw (new NotFoundException());
@@ -198,7 +220,17 @@ public class UsersHandler {
 	public Response addTag(@PathParam("id") long userId, String tagNameJson) {
 		log.trace("Add tag");
 		String tagName = parseTagName(tagNameJson);
-		Long id = getDatabaseService().addTag(userId, tagName);
+		Tag tag = new Tag(null, userId, tagName);
+		try {
+			getDatabaseService().addTag(tag);
+		} catch (DatabaseTinyException e) {
+			log.debug("Database add request failed. User not found");
+			throw (new BadRequestException());
+		} catch (DatabaseSeriousException e) {
+			log.debug("Database add request failed. Failed");
+			throw (new BadRequestException());
+		}
+		Long id = tag.getId();
 		if (id == null) {
 			log.debug("Database add request failed. Edit resources bad request");
 			throw (new BadRequestException());
@@ -224,8 +256,13 @@ public class UsersHandler {
 			throw new BadRequestException(
 					"Database put request failed. Tag name can't be null.");
 		}
-		if (!getDatabaseService().editTag(userId, tagId, tagName)) {
+		try {
+			getDatabaseService().editTag(new Tag(tagId, userId, tagName));
+		} catch (DatabaseTinyException e) {
 			log.debug("Database add request failed. Edit resources bad request");
+			throw (new BadRequestException());
+		} catch (DatabaseSeriousException e) {
+			log.debug("Database add request failed. Failed");
 			throw (new BadRequestException());
 		}
 	}
@@ -241,7 +278,7 @@ public class UsersHandler {
 					"Database delete request failed. Invalid user or tag id");
 		}
 		try {
-			getDatabaseService().deleteTag(userId, tagId);
+			getDatabaseService().deleteTag(new Tag(tagId, userId, null));
 		} catch (DatabaseException e) {
 			log.debug("Database delete request failed. Invalid user or tag id");
 			throw new BadRequestException(
@@ -282,16 +319,16 @@ public class UsersHandler {
 		}
 	}
 
-	private static Long[] parseTags(String tagsString) {
-		Long[] tags;
+	private static List<Long> parseTags(String tagsString) {
+		List<Long> tags;
 		if ("".equals(tagsString) || tagsString == null) {
 			tags = null;
 		} else {
 			String[] tagsStrings = tagsString.split(",");
-			tags = new Long[tagsStrings.length];
+			tags = new LinkedList<Long>();
 			try {
 				for (int i = 0; i < tagsStrings.length; i += 1) {
-					tags[i] = Long.parseLong(tagsStrings[i]);
+					tags.add(Long.parseLong(tagsStrings[i]));
 				}
 			} catch (NumberFormatException ex) {
 				log.debug("Tags id parsing error");
