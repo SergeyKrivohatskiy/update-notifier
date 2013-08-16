@@ -26,6 +26,11 @@ public class UserDAOImpl implements UserDAO {
 		return mapper.get2(id);
 	}
 	
+	public boolean edit(User user) {
+		//TODO not implemented!
+		return false;
+	}
+	
 	public boolean exists(long id) {
 		return (mapper.check(id) != null);
 	}
