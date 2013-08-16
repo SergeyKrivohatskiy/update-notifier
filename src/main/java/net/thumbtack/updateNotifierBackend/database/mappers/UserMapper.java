@@ -9,14 +9,14 @@ import org.apache.ibatis.annotations.Select;
 
 public interface UserMapper {
 
+	String ADD_USER = "INSERT INTO users (email) VALUES (#{email})";
 	String GET_ID = "SELECT id FROM users WHERE email=#{email}";
-	String ADD_USER = "INSERT INTO users VALUE (null, #{email})";
-//	String GET_EMAIL = "SELECT email FROM users WHERE id=#{id}";
-	String DEL_ALL = "DELETE FROM users";
-	String CHECK_EXISTENCE = "SELECT id FROM users WHERE id=#{id}";
 	String GET = "SELECT * FROM users WHERE email=#{email}";
 	String GET2 = "SELECT * FROM users WHERE id=#{id}";
+	String CHECK_EXISTENCE = "SELECT id FROM users WHERE id=#{id}";
 	String DEL = "DELETE FROM users WHERE id = #{id}";
+	String DEL_ALL = "DELETE FROM users";
+//	String GET_EMAIL = "SELECT email FROM users WHERE id=#{id}";
 	
 	@Insert(ADD_USER)
 	@Options(useGeneratedKeys = true)

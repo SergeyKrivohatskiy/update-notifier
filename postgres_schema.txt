@@ -1,0 +1,40 @@
+#CREATE DATABASE update_notifier ENCODING 'UTF8';
+
+CREATE SEQUENCE auto_id_users;
+CREATE TABLE users(
+	id bigint NOT NULL DEFAULT nextval('auto_id_users'),
+	email varchar(50) NOT NULL,
+	PRIMARY KEY (id)
+);
+
+CREATE SEQUENCE auto_id_res;
+CREATE TABLE resources(
+	id bigint NOT NULL DEFAULT nextval('auto_id_res'),
+	user_id bigint NOT NULL,
+	url varchar(255) NOT NULL,
+	shedule_code smallint NOT NULL,
+	dom_path varchar(255) NOT NULL,
+	filter varchar(255),
+	hash integer NOT NULL,
+	last_update timestamp NOT NULL,
+	PRIMARY KEY (id),
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE SEQUENCE auto_id_tags;
+CREATE TABLE tags(
+	id bigint NOT NULL DEFAULT nextval('auto_id_tags'),
+	user_id bigint NOT NULL,
+	name varchar(30) NOT NULL,
+	PRIMARY KEY (id),
+	CONSTRAINT no_duplicate_tags UNIQUE (user_id,name),
+	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE resource_tag(
+	resource_id bigint,
+	tag_id bigint,
+	PRIMARY KEY (tag_id,resource_id),
+	FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
+	FOREIGN KEY (resource_id) REFERENCES resources(id) ON DELETE CASCADE
+);

@@ -5,14 +5,11 @@
 <configuration>
 
 	<properties>
-		<property name="m_username" value="root" />
-		<property name="m_password" value="root" />
-		<property name="p_username" value="postgres" />
-		<property name="p_password" value="passw0rd" />
-		<property name="m_driver" value="com.mysql.jdbc.Driver" />
-		<property name="p_driver" value="driver must be here" />
-		<property name="m_url" value="jdbc:mysql://localhost/update_notifier" />
-		<property name="p_url" value="url or dynamic" />
+		<property name="username" value="root" />
+		<property name="password" value="root" />
+		<property name="driver" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost/update_notifier" />
+		<property name="p_driver" value="org.postgresql.Driver" />
 	</properties>
 
 	<settings>
@@ -23,10 +20,10 @@
 		<environment id="development">
 			<transactionManager type="JDBC" />
 			<dataSource type="POOLED">
-				<property name="driver" value="${m_driver}" />
-				<property name="url" value="${m_url}" />
-				<property name="username" value="${m_username}" />
-				<property name="password" value="${m_password}" />
+				<property name="driver" value="${driver}" />
+				<property name="url" value="${url}" />
+				<property name="username" value="${username}" />
+				<property name="password" value="${password}" />
 			</dataSource>
 		</environment>
 		
