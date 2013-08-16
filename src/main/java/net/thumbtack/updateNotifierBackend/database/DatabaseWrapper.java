@@ -11,10 +11,12 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import net.thumbtack.updateNotifierBackend.database.daos.InitialDAO;
 import net.thumbtack.updateNotifierBackend.database.daos.ResourceDAO;
 import net.thumbtack.updateNotifierBackend.database.daos.ResourceTagDAO;
 import net.thumbtack.updateNotifierBackend.database.daos.TagDAO;
 import net.thumbtack.updateNotifierBackend.database.daos.UserDAO;
+import net.thumbtack.updateNotifierBackend.database.daosimpl.InitialDAOImpl;
 import net.thumbtack.updateNotifierBackend.database.daosimpl.ResourceDAOImpl;
 import net.thumbtack.updateNotifierBackend.database.daosimpl.ResourceTagDAOImpl;
 import net.thumbtack.updateNotifierBackend.database.daosimpl.TagDAOImpl;
@@ -24,7 +26,6 @@ import net.thumbtack.updateNotifierBackend.database.entities.Tag;
 import net.thumbtack.updateNotifierBackend.database.entities.User;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseSeriousException;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseTinyException;
-import net.thumbtack.updateNotifierBackend.database.mappers.InitialMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.UserMapper;
 
 import org.apache.ibatis.io.Resources;
@@ -75,20 +76,21 @@ public class DatabaseWrapper {
 								+ dbUri.getPort() + dbUri.getPath());
 				sqlSessionFactory = new SqlSessionFactoryBuilder().build(
 						reader, "production", properties);
+
+				session = sqlSessionFactory.openSession();
+				InitialDAO lordOfTheDB = new InitialDAOImpl(session);
+				lordOfTheDB.godMode();
+				session.commit();
 			} else {
 				sqlSessionFactory = new SqlSessionFactoryBuilder()
 						.build(reader);
+				session = sqlSessionFactory.openSession();
 			}
-			session = sqlSessionFactory.openSession();
 			tagDao = new TagDAOImpl(session);
 			userDao = new UserDAOImpl(session);
 			resourceDao = new ResourceDAOImpl(session);
 			resourceTagDao = new ResourceTagDAOImpl(session);
 
-//			 InitialMapper mapper = session.getMapper(InitialMapper.class);
-//			 int create = mapper.createUsersInc();
-//			 session.commit();
-//			 System.err.println(create);
 		} catch (IOException e) {
 			log.error("Great crash: exception on initialize database");
 			// TODO Great crash should be here!
