@@ -5,19 +5,18 @@ import java.util.Collections;
 import java.util.List;
 
 public class Resource implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private Long id;
 	private transient Long userId;
 
 	private String url;
 	private byte scheduleCode;
 	private transient int hash;
-	private String domPath;
 	private String filter;
 	private List<Long> tags = Collections.emptyList();
-	
+
 	public Resource() {
 	}
 
@@ -36,6 +35,7 @@ public class Resource implements Serializable {
 	public Long getId() {
 		return id;
 	}
+
 	public void setId(Long id) {
 		this.id = id;
 	}
@@ -51,7 +51,6 @@ public class Resource implements Serializable {
 	public List<Long> getTags() {
 		return tags;
 	}
-
 
 	public void setTags(List<Long> list) {
 		this.tags = list;
@@ -96,14 +95,6 @@ public class Resource implements Serializable {
 		return true;
 	}
 
-	public String getDomPath() {
-		return domPath;
-	}
-
-	public void setDomPath(String domPath) {
-		this.domPath = domPath;
-	}
-	
 	public String getFilter() {
 		return filter;
 	}
@@ -111,8 +102,8 @@ public class Resource implements Serializable {
 	@Override
 	public String toString() {
 		return "Resource [id=" + id + ", userId=" + userId + ", url=" + url
-				+ ", scheduleCode=" + scheduleCode + ", domPath=" + domPath
-				+ ", filter=" + filter + ", tags=" + tags + "]";
+				+ ", scheduleCode=" + scheduleCode + ", filter="
+				+ filter + ", tags=" + tags + "]";
 	}
 
 }

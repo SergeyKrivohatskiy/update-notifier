@@ -289,7 +289,8 @@ public class DatabaseWrapper {
 		if (!resourceDao.edit(resource)) {
 			throw new DatabaseSeriousException("Resource edition failed");
 		}
-		if (!resourceTagDao.delete(resource.getId())) {
+		if (resourceTagDao.exist(resource.getId())
+				&& !resourceTagDao.delete(resource.getId())) {
 			throw new DatabaseSeriousException("Relation delition failed");
 		}
 		if (resource.getTags() != null) {

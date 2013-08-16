@@ -67,21 +67,20 @@ public class CheckForUpdate implements Runnable {
 			Document document;
 			
 			document = Jsoup.parse(new URL(resource.getUrl()), TIMEOUT);
-			String domPathString = resource.getDomPath();
 			String filter = resource.getFilter();
-			if(domPathString.startsWith("/")) {
-				domPathString = domPathString.substring(1);
-			} else {
-				log.debug("incorrect dom path " + domPathString);
-				return 0;
-			}
-			String[] domPath = domPathString.split("/");
+//			if(domPathString.startsWith("/")) {
+//				domPathString = domPathString.substring(1);
+//			} else {
+//				log.debug("incorrect dom path " + domPathString);
+//				return 0;
+//			}
+//			String[] domPath = domPathString.split("/");
 			Element targetElement = document.body();
-			if(!domPathString.equals("")) {
-				for(int i = 0; i < domPath.length; i += 1) {
-					targetElement = targetElement.child(Integer.parseInt(domPath[i]));
-				}
-			}
+//			if(!domPathString.equals("")) {
+//				for(int i = 0; i < domPath.length; i += 1) {
+//					targetElement = targetElement.child(Integer.parseInt(domPath[i]));
+//				}
+//			}
 			return applyFilter(targetElement, filter).hashCode();
 		} catch (Throwable e) {
 			// May be NullPtrEx, NumberFormatException, IndexOutOfBoundsException,

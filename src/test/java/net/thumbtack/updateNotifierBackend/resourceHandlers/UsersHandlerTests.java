@@ -187,13 +187,10 @@ public class UsersHandlerTests {
 	private int addResources(UsersHandler handler, Long userId) {
 		Resource newResource = new Resource();
 		newResource.setUrl("http://google.com");
-		newResource.setDomPath("/");
 		handler.addUserResource(userId, GSON.toJson(newResource));
 		newResource.setUrl("http://yandex.ru");
-		newResource.setDomPath("/0");
 		handler.addUserResource(userId, GSON.toJson(newResource));
 		newResource.setUrl("http://habrahabr.ru");
-		newResource.setDomPath("/1/0");
 		handler.addUserResource(userId, GSON.toJson(newResource));
 		return 3;
 	}
@@ -218,7 +215,6 @@ public class UsersHandlerTests {
 		for (int i = 0; i < tags.length; i += 1) {
 			tagsList.add(tags[i].getId());
 			Resource newResource = new Resource();
-			newResource.setDomPath("/");
 			newResource.setTags(new ArrayList<Long>(tagsList));
 			newResource.setUrl(Integer.toString(tagsList.size()));
 			handler.addUserResource(userId, GSON.toJson(newResource));

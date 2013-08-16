@@ -291,7 +291,7 @@ public class UsersHandler {
 	private static Resource parseResource(String resourceJson) {
 		try {
 			Resource res = GSON.fromJson(resourceJson, Resource.class);
-			if (res == null || res.getDomPath() == null
+			if (res == null 
 					|| res.getSheduleCode() < 0
 					|| res.getSheduleCode() > UpdateChecker.MAGIC_NUMBER
 					|| res.getUrl() == null) {

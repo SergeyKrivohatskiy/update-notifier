@@ -14,7 +14,7 @@ import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 
 public interface ResourceMapper {
 
-	String INS_RESOURCE = "INSERT INTO resources (user_id, url, shedule_code, dom_path, filter, hash, last_update) VALUES (#{userId}, #{url}, #{scheduleCode}, #{domPath}, #{filter}, #{hash}, NOW())";
+	String INS_RESOURCE = "INSERT INTO resources (user_id, url, shedule_code, filter, hash, last_update) VALUES (#{userId}, #{url}, #{scheduleCode}, #{filter}, #{hash}, NOW())";
 	String DEL_RESOURCE = "DELETE FROM resources WHERE id=#{id} AND user_id=#{userId}";
 	String GET_ALL_FOR_USER = "SELECT * FROM resources WHERE user_id=#{id}";
 	String GET_BY_IDS = "SELECT * FROM resources WHERE id=#{id} AND user_id=#{userId}";
@@ -22,7 +22,7 @@ public interface ResourceMapper {
 	String GET_BY_SHEDULE_CODE = "SELECT * FROM resources WHERE shedule_code=#{scheduleCode}";
 	String DEL_ALL_USER_RESOURCES = "DELETE FROM resources WHERE id=#{id}";
 	String DEL_BY_TAGS = "DELETE FROM resources WHERE user_id=#{userId} AND NOT EXISTS (SELECT id FROM tags WHERE tags.id IN (${tagIds}) AND NOT EXISTS (SELECT * FROM resource_tag WHERE resource_id=resources.id AND tag_id = tags.id))";
-	String UPD_RESOURCE = "UPDATE resources SET user_id=#{userId}, url=#{url}, dom_path=#{domPath}, filter=#{filter}, shedule_code=#{scheduleCode} WHERE id=#{id}";
+	String UPD_RESOURCE = "UPDATE resources SET user_id=#{userId}, url=#{url}, filter=#{filter}, shedule_code=#{scheduleCode} WHERE id=#{id}";
 	String UPD_AFTER_UPD = "UPDATE resources SET hash=#{hash}, last_update=NOW() WHERE id=#{id}";
 	String LAST_ID = "SELECT LAST_INSERT_ID()";
 	String DEL_ALL_RESOURCES = "DELETE FROM resources";
