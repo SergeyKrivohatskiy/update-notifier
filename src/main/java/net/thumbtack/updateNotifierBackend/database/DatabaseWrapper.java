@@ -266,7 +266,7 @@ public class DatabaseWrapper {
 		if (log.isTraceEnabled()) {
 			log.trace("Edit resource; resource = {}", resource.toString());
 		}
-		if (!userDao.exists(resource.getId())) {
+		if (!userDao.exists(resource.getUserId())) {
 			throw new DatabaseTinyException(
 					"Can't edit resource for nonexistent user");
 		}
@@ -281,7 +281,7 @@ public class DatabaseWrapper {
 			resourceDao.updateAfterCheck(resource.getId(),
 					getNewHashCode(resource));
 		}
-		if (!tagDao.exists(resource.getId(), resource.getTags())) {
+		if (!tagDao.exists(resource.getUserId(), resource.getTags())) {
 			log.debug("Database exception: can't assign nonexistant tags to resource");
 			throw new DatabaseTinyException(
 					"Database exception: can't assign nonexistant tags to resource");

@@ -183,6 +183,7 @@ public class UsersHandler {
 		log.trace("Edit resource");
 		Resource resource = parseResource(resourceJson);
 		resource.setId(resourceId);
+		resource.setUserId(userId);
 		try {
 			getDatabaseService().editResource(resource);
 		} catch (DatabaseTinyException e) {
