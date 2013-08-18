@@ -16,6 +16,7 @@ public interface TagMapper {
 	// TODO return user id?
 	String ADD_TAG = "INSERT INTO tags (user_id, name) VALUES (#{userId}, #{name})";
 	String GET_TAGS = "SELECT * FROM tags WHERE user_id=#{userId}";
+	String GET_TAG = "SELECT * FROM tags WHERE user_id=#{userId} AND id=#{id}";
 	String GET_FOR_RESOURCE = "SELECT id FROM tags JOIN resource_tag ON tags.id = resource_tag.tag_id WHERE resource_id=#{id}";
 	String UPD_TAG = "UPDATE tags SET name=#{name} WHERE id=#{id} AND user_id=#{userId}";
 	String DEL_TAG = "DELETE FROM tags WHERE id=#{id} AND user_id = #{userId}";
@@ -25,6 +26,9 @@ public interface TagMapper {
 	@Insert(ADD_TAG)
 	@Options(useGeneratedKeys = true)
 	int add(Tag tag);
+
+	@Select(GET_TAG)
+	Tag getTag(Tag tag);
 
 	@Select(GET_TAGS)
 	Set<Tag> getTags(long userId);

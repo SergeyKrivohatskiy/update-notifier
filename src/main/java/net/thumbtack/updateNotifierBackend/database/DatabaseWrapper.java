@@ -305,22 +305,6 @@ public class DatabaseWrapper {
 	}
 
 	/**
-	 * Return all tags for specified user.
-	 * 
-	 * @param userId
-	 * @return all tags for user with <code>userId</code>
-	 * @throws DatabaseTinyException
-	 */
-	public Set<Tag> getTags(long userId) throws DatabaseTinyException {
-		log.trace("Get tags for user with user id: {}", userId);
-		if (!userDao.exists(userId)) {
-			throw new DatabaseTinyException(
-					"Can't get tags for nonexistent user");
-		}
-		return tagDao.get(userId);
-	}
-
-	/**
 	 * Update (in database) hash for resource with <code>resourceId</code>.
 	 * 
 	 * @param resourceId
@@ -345,6 +329,31 @@ public class DatabaseWrapper {
 		session.commit();
 	}
 
+	/**
+	 * Return all tags for specified user.
+	 * 
+	 * @param userId
+	 * @return all tags for user with <code>userId</code>
+	 * @throws DatabaseTinyException
+	 */
+	public Set<Tag> getTags(long userId) throws DatabaseTinyException {
+		log.trace("Get tags for user with user id: {}", userId);
+		if (!userDao.exists(userId)) {
+			throw new DatabaseTinyException(
+					"Can't get tags for nonexistent user");
+		}
+		return tagDao.get(userId);
+	}
+
+	public Tag getTag(Tag tag) throws DatabaseTinyException {
+		log.trace("Get tags for user with user id: {}", tag.getUserId());
+		if (!userDao.exists(tag.getUserId())) {
+			throw new DatabaseTinyException(
+					"Can't get tags for nonexistent user");
+		}
+		return tagDao.get(tag);
+	}
+	
 	/**
 	 * Add tag with specified name and user id to database
 	 * 

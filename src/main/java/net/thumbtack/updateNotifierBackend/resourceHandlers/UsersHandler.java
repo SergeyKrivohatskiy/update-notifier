@@ -215,6 +215,25 @@ public class UsersHandler {
 		return GSON.toJson(tags);
 	}
 
+	@Path("/{id}/tags/{tagId}")
+	@GET
+	@Produces({ "application/json" })
+	public String getUserTag(@PathParam("id") long userId, @PathParam("tagId") long tagId) {
+		log.trace("Get tags");
+		Tag tag;
+		try {
+			tag = getDatabaseService().getTag(new Tag(tagId, userId, null));
+		} catch (DatabaseTinyException e) {
+			log.debug("Database get request failed. User not found");
+			throw (new NotFoundException());
+		}
+		if (tag == null) {
+			log.debug("Database get request failed. Get tags not found");
+			throw (new NotFoundException());
+		}
+		return GSON.toJson(tag);
+	}
+	
 	@Path("/{id}/tags")
 	@POST
 	@Consumes({ "application/json" })

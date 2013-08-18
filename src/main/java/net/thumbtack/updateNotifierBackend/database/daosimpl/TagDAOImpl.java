@@ -21,6 +21,10 @@ public class TagDAOImpl implements TagDAO {
 		return mapper.getTags(userId);
 	}
 
+	public Tag get(Tag tag) {
+		return mapper.getTag(tag);
+	}
+	
 	/**
 	 * Add tag with <code>name</code> for user with <code>userId</code>
 	 * 
