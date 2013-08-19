@@ -139,6 +139,9 @@ public class DatabaseWrapper {
 					"Database exception: can't add resource to nonexist user");
 		}
 		resource.setHash(getNewHashCode(resource));
+		if(resource.getName() == null) {
+			resource.setName("noname");
+		}
 
 		if (!resourceDao.add(resource)) {
 			throw new DatabaseSeriousException("Resource addition failed");

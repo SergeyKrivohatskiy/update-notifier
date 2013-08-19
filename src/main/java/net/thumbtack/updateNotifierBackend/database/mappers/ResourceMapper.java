@@ -14,26 +14,26 @@ import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 
 public interface ResourceMapper {
 
-	String INS_RESOURCE = "INSERT INTO resources (user_id, url, shedule_code, filter, hash, last_update) VALUES (#{userId}, #{url}, #{scheduleCode}, #{filter}, #{hash}, NOW())";
-	String DEL_RESOURCE = "DELETE FROM resources WHERE id=#{id} AND user_id=#{userId}";
+	String ADD = "INSERT INTO resources (user_id, url, name, shedule_code, filter, hash, last_update) VALUES (#{userId}, #{url}, #{name}, #{scheduleCode}, #{filter}, #{hash}, NOW())";
+	String DEL = "DELETE FROM resources WHERE id=#{id} AND user_id=#{userId}";
 	String GET_ALL_FOR_USER = "SELECT * FROM resources WHERE user_id=#{id}";
 	String GET_BY_IDS = "SELECT * FROM resources WHERE id=#{id} AND user_id=#{userId}";
 	String GET_BY_USER_ID_AND_TAGS = "SELECT DISTINCT * FROM resources WHERE NOT EXISTS (SELECT id FROM tags WHERE tags.id IN (${tagIds}) AND NOT EXISTS (SELECT * FROM resource_tag WHERE resource_id=resources.id AND tag_id = tags.id))";
 	String GET_BY_SHEDULE_CODE = "SELECT * FROM resources WHERE shedule_code=#{scheduleCode}";
 	String DEL_ALL_USER_RESOURCES = "DELETE FROM resources WHERE id=#{id}";
 	String DEL_BY_TAGS = "DELETE FROM resources WHERE user_id=#{userId} AND NOT EXISTS (SELECT id FROM tags WHERE tags.id IN (${tagIds}) AND NOT EXISTS (SELECT * FROM resource_tag WHERE resource_id=resources.id AND tag_id = tags.id))";
-	String UPD_RESOURCE = "UPDATE resources SET user_id=#{userId}, url=#{url}, filter=#{filter}, shedule_code=#{scheduleCode} WHERE id=#{id}";
+	String UPD = "UPDATE resources SET user_id=#{userId}, url=#{url}, name=#{name}, filter=#{filter}, shedule_code=#{scheduleCode} WHERE id=#{id}";
 	String UPD_AFTER_UPD = "UPDATE resources SET hash=#{hash}, last_update=NOW() WHERE id=#{id}";
 	String LAST_ID = "SELECT LAST_INSERT_ID()";
 	String DEL_ALL_RESOURCES = "DELETE FROM resources";
-	String CHECK = "UPDATE resources SET id=id WHERE id=#{id}";
+	String CHK = "UPDATE resources SET id=id WHERE id=#{id}";
 
-	@Insert(INS_RESOURCE)
+	@Insert(ADD)
 	@Options(useGeneratedKeys = true)
 	// TODO check that after addition resource have not-null id
 	int add(Resource resource);
 
-	@Delete(DEL_RESOURCE)
+	@Delete(DEL)
 	int delete(Resource resource);
 
 	@Select(GET_ALL_FOR_USER)
@@ -52,7 +52,7 @@ public interface ResourceMapper {
 	int deleteByTags(@Param(value = "userId") long userId,
 			@Param(value = "tagIds") String tagIds);
 
-	@Update(UPD_RESOURCE)
+	@Update(UPD)
 	int update(Resource resource);
 
 	@Update(UPD_AFTER_UPD)
@@ -66,7 +66,7 @@ public interface ResourceMapper {
 	Resource get(@Param(value = "userId") Long userId,
 			@Param(value = "id") Long id);
 
-	@Update(CHECK)
+	@Update(CHK)
 	boolean check(long id);
 
 }

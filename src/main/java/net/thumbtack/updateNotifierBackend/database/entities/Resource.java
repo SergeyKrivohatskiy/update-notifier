@@ -11,6 +11,7 @@ public class Resource implements Serializable {
 	private Long id;
 	private transient Long userId;
 
+	private String name;
 	private String url;
 	private byte scheduleCode;
 	private transient int hash;
@@ -64,6 +65,14 @@ public class Resource implements Serializable {
 		this.hash = hash;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -101,9 +110,9 @@ public class Resource implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Resource [id=" + id + ", userId=" + userId + ", url=" + url
-				+ ", scheduleCode=" + scheduleCode + ", filter="
-				+ filter + ", tags=" + tags + "]";
+		return "Resource [id=" + id + ", userId=" + userId + ", name=" + name
+				+ ", url=" + url + ", scheduleCode=" + scheduleCode + ", hash="
+				+ hash + ", filter=" + filter + ", tags=" + tags + "]";
 	}
 
 }

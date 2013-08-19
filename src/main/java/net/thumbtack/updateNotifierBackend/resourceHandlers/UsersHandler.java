@@ -218,7 +218,8 @@ public class UsersHandler {
 	@Path("/{id}/tags/{tagId}")
 	@GET
 	@Produces({ "application/json" })
-	public String getUserTag(@PathParam("id") long userId, @PathParam("tagId") long tagId) {
+	public String getUserTag(@PathParam("id") long userId,
+			@PathParam("tagId") long tagId) {
 		log.trace("Get tags");
 		Tag tag;
 		try {
@@ -233,7 +234,7 @@ public class UsersHandler {
 		}
 		return GSON.toJson(tag);
 	}
-	
+
 	@Path("/{id}/tags")
 	@POST
 	@Consumes({ "application/json" })
@@ -310,8 +311,7 @@ public class UsersHandler {
 	private static Resource parseResource(String resourceJson) {
 		try {
 			Resource res = GSON.fromJson(resourceJson, Resource.class);
-			if (res == null 
-					|| res.getSheduleCode() < 0
+			if (res == null ||  res.getSheduleCode() < 0
 					|| res.getSheduleCode() > UpdateChecker.MAGIC_NUMBER
 					|| res.getUrl() == null) {
 				log.debug("Resource parsing error: bad or expecting params");

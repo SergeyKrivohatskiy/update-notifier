@@ -11,6 +11,7 @@ create table users (
 create table resources (
 	id bigint(20) unsigned auto_increment, 
 	user_id bigint(20) unsigned not null,
+	name varchar(50) not null,
 	url varchar(255) not null,
 	shedule_code tinyint not null,
 	filter varchar(255),

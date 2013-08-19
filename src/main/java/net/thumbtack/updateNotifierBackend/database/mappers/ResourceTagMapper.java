@@ -13,7 +13,7 @@ public interface ResourceTagMapper {
 	String ADD = "INSERT INTO resource_tag VALUES (#{id},#{tagId})";
 	String GET_TAG_IDS_FOR_RESOURCE = "SELECT tag_id FROM resource_tag WHERE resource_id = #{id}";
 	String DEL = "DELETE FROM resource_tag WHERE resource_id = #{id}";
-	String CHECK = "UPDATE resource_tag SET tag_id=tag_id WHERE resource_id=#{resourceId}";
+	String CHK = "UPDATE resource_tag SET tag_id=tag_id WHERE resource_id=#{resourceId}";
 
 	@Insert(ADD)
 	int add(@Param(value = "id") long id, @Param(value = "tagId") long tagId);
@@ -21,7 +21,7 @@ public interface ResourceTagMapper {
 	@Select(GET_TAG_IDS_FOR_RESOURCE)
 	List<Long> get(long id);
 
-	@Update(CHECK)
+	@Update(CHK)
 	int exist(long resourceId);
 
 	@Delete(DEL)
