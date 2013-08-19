@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Select;
 
 public interface UserMapper {
 
-	String ADD = "INSERT INTO users (email) VALUES (#{email})";
+	String ADD = "INSERT INTO users (name, surname, email) VALUES (#{name}, #{surname}, #{email})";
 	String GET_ID = "SELECT id FROM users WHERE email=#{email}";
 	String GET_BY_EMAIL = "SELECT * FROM users WHERE email=#{email}";
 	String GET_BY_ID = "SELECT * FROM users WHERE id=#{id}";

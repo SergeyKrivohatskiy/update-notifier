@@ -38,20 +38,20 @@ public class UsersHandlerTests {
 		final String EMAIL_PATTERN = "email{0,number}@post.com";
 
 		for (Integer i = 0; i < EMAILS_COUNT; i += 1) {
-			usersId[i] = handler.signIn(MessageFormat.format(EMAIL_PATTERN, i));
+			usersId[i] = handler.signIn(MessageFormat.format(EMAIL_PATTERN, i), "Mr.", "X");
 			assertTrue(usersId[i] != null);
 		}
 
 		for (Integer i = 0; i < EMAILS_COUNT; i += 1) {
 			assertEquals(usersId[i].longValue(),
-					handler.signIn(MessageFormat.format(EMAIL_PATTERN, i)));
+					handler.signIn(MessageFormat.format(EMAIL_PATTERN, i), "Mr.", "X"));
 		}
 	}
 
 	@Test
 	public void addGetDeleteResourcesTest() {
 		UsersHandler handler = new UsersHandler();
-		Long userId = handler.signIn(EXAMPLE_USER_EMAIL);
+		Long userId = handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X");
 
 		int count = addResources(handler, userId);
 
@@ -74,7 +74,7 @@ public class UsersHandlerTests {
 	public void addGetEditTagsTest() {
 		UsersHandler handler = new UsersHandler();
 
-		Long userId = handler.signIn(EXAMPLE_USER_EMAIL);
+		Long userId = handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X");
 
 		int count = addTags(handler, userId);
 
@@ -98,7 +98,7 @@ public class UsersHandlerTests {
 	@Test
 	public void addGetResourcesWithTags() {
 		UsersHandler handler = new UsersHandler();
-		Long userId = handler.signIn(EXAMPLE_USER_EMAIL);
+		Long userId = handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X");
 
 		addTags(handler, userId);
 		Tag[] tags = new Gson().fromJson(handler.getUserTags(userId),
@@ -123,7 +123,7 @@ public class UsersHandlerTests {
 	@Test
 	public void addResourceBadRequest() {
 		UsersHandler handler = new UsersHandler();
-		Long userId = handler.signIn(EXAMPLE_USER_EMAIL);
+		Long userId = handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X");
 		try {
 			handler.addUserResource(userId,
 					"{'incorrect':'resource', 'j':'son'}");
@@ -157,7 +157,7 @@ public class UsersHandlerTests {
 	@Test
 	public void editResourceBadRequest() {
 		UsersHandler handler = new UsersHandler();
-		Long userId = handler.signIn(EXAMPLE_USER_EMAIL);
+		Long userId = handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X");
 		try {
 			handler.editUserResource(userId,
 					0, "{'incorrect':'resource', 'j':'son'}");
@@ -170,7 +170,7 @@ public class UsersHandlerTests {
 	public void getResourceBadRequest() {
 		UsersHandler handler = new UsersHandler();
 		try {
-			handler.getUserResources(handler.signIn(EXAMPLE_USER_EMAIL),
+			handler.getUserResources(handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X"),
 					"incorrect tag string");
 			fail();
 		} catch (BadRequestException e) {

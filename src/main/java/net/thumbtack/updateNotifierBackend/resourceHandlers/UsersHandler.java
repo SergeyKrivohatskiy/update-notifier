@@ -52,7 +52,9 @@ public class UsersHandler {
 
 	@Path("signin")
 	@GET
-	public long signIn(@QueryParam("email") String userEmail) {
+	public long signIn(@QueryParam("email") String userEmail,
+			@QueryParam("name") String userName,
+			@QueryParam("surname") String userSurname) {
 		log.trace("Sign in: " + userEmail);
 		if (userEmail == null) {
 			throw new BadRequestException(
@@ -62,6 +64,8 @@ public class UsersHandler {
 		try {
 			User user = new User();
 			user.setEmail(userEmail);
+			user.setName(userName != null ? userName : "Mr. X");
+			user.setSurname(userSurname != null ? userSurname : "");
 			userId = getDatabaseService().getUserIdByEmailOrAdd(user);
 		} catch (DatabaseSeriousException e) {
 			log.error("Database request failed. Sign in failed");
@@ -82,6 +86,10 @@ public class UsersHandler {
 			throw new BadRequestException(
 					"Database add request failed: resource expected in request body");
 		}
+		if(resource.getName() == null) {
+			resource.setName("noname");
+		}
+
 		try {
 			resource.setUserId(userId);
 			getDatabaseService().addResource(resource);
@@ -311,7 +319,7 @@ public class UsersHandler {
 	private static Resource parseResource(String resourceJson) {
 		try {
 			Resource res = GSON.fromJson(resourceJson, Resource.class);
-			if (res == null ||  res.getSheduleCode() < 0
+			if (res == null || res.getSheduleCode() < 0
 					|| res.getSheduleCode() > UpdateChecker.MAGIC_NUMBER
 					|| res.getUrl() == null) {
 				log.debug("Resource parsing error: bad or expecting params");

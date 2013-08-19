@@ -139,10 +139,6 @@ public class DatabaseWrapper {
 					"Database exception: can't add resource to nonexist user");
 		}
 		resource.setHash(getNewHashCode(resource));
-		if(resource.getName() == null) {
-			resource.setName("noname");
-		}
-
 		if (!resourceDao.add(resource)) {
 			throw new DatabaseSeriousException("Resource addition failed");
 		}
@@ -288,6 +284,9 @@ public class DatabaseWrapper {
 			log.debug("Database exception: can't assign nonexistant tags to resource");
 			throw new DatabaseTinyException(
 					"Database exception: can't assign nonexistant tags to resource");
+		}
+		if(resource.getName() == null) {
+			resource.setName("noname");
 		}
 		if (!resourceDao.edit(resource)) {
 			throw new DatabaseSeriousException("Resource edition failed");

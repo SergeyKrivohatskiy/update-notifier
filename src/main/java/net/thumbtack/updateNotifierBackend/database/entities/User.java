@@ -6,6 +6,8 @@ import java.util.Set;
 public class User {
 
 	private Long id;
+	private String name;
+	private String surname;
 	private String email;
 	private Set<Resource> resources = new HashSet<Resource>();
 	private Set<Tag> tags = new HashSet<Tag>();
@@ -47,6 +49,22 @@ public class User {
 		this.id = id;
 	}
 	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getSurname() {
+		return surname;
+	}
+
+	public void setSurname(String surname) {
+		this.surname = surname;
+	}
+
 	public Set<Resource> getResources() {
 		return resources;
 	}

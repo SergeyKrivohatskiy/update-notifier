@@ -4,6 +4,8 @@ use update_notifier_test;
 # Index for user's mail?
 create table users (
 	id bigint(20) unsigned auto_increment, 
+	name varchar(30) not null,
+	surname varchar(30) not null,
 	email varchar(50) not null,
 	primary key (id)
 );
