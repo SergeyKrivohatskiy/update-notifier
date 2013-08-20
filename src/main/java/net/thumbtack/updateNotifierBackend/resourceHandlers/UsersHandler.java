@@ -320,7 +320,7 @@ public class UsersHandler {
 		try {
 			Resource res = GSON.fromJson(resourceJson, Resource.class);
 			if (res == null || res.getSheduleCode() < 0
-					|| res.getSheduleCode() > UpdateChecker.MAGIC_NUMBER
+					|| res.getSheduleCode() > UpdateChecker.SHEDULE_CODE_MAX_VALUE
 					|| res.getUrl() == null) {
 				log.debug("Resource parsing error: bad or expecting params");
 				throw (new BadRequestException("Json parsing error"));

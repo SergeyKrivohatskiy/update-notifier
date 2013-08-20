@@ -48,10 +48,7 @@ public class CheckForUpdate implements Runnable {
 			try {
 				UpdateNotifierBackend.getDatabaseService().updateResourceHash(
 						resource.getId(), newHashCode);
-			} catch (DatabaseSeriousException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			} catch (DatabaseSeriousException e) {} // Ignore if resource is not exist
 			result = true;
 		}
 		return result;
@@ -68,20 +65,7 @@ public class CheckForUpdate implements Runnable {
 			
 			document = Jsoup.parse(new URL(resource.getUrl()), TIMEOUT);
 			String filter = resource.getFilter();
-//			if(domPathString.startsWith("/")) {
-//				domPathString = domPathString.substring(1);
-//			} else {
-//				log.debug("incorrect dom path " + domPathString);
-//				return 0;
-//			}
-//			String[] domPath = domPathString.split("/");
-			Element targetElement = document.body();
-//			if(!domPathString.equals("")) {
-//				for(int i = 0; i < domPath.length; i += 1) {
-//					targetElement = targetElement.child(Integer.parseInt(domPath[i]));
-//				}
-//			}
-			return applyFilter(targetElement, filter).hashCode();
+			return applyFilter(document.body(), filter).hashCode();
 		} catch (Throwable e) {
 			// May be NullPtrEx, NumberFormatException, IndexOutOfBoundsException,
 			// IOex or other Jsoup exceptions
