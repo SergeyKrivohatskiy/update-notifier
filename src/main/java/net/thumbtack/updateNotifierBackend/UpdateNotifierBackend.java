@@ -16,7 +16,7 @@ public class UpdateNotifierBackend extends ResourceConfig {
 	private static final Logger log = LoggerFactory.getLogger(UpdateNotifierBackend.class);
 	private static DatabaseWrapper databaseService = DatabaseWrapper.getInstance();
 	private static UpdateChecker updateChecker = new UpdateChecker();
-	private static ResourcesUpdateListener resUpdateListener = new ResourcesUpdateListener();
+	private static ResourcesUpdateListener resUpdateListener = ResourcesUpdateListener.getInstance();
 	
 	public UpdateNotifierBackend() {
 		log.debug("Starting");

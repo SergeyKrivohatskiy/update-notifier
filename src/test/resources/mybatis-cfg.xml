@@ -5,10 +5,10 @@
 <configuration>
 
 	<properties>
-		<property name="username" value="postgres" />
-		<property name="password" value="passw0rd" />
-		<property name="driver" value="org.postgresql.Driver" />
-		<property name="url" value="jdbc:postgresql://localhost/update_notifier_test" />
+		<property name="username" value="root" />
+		<property name="password" value="root" />
+		<property name="driver" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost/update_notifier_test" />
 		<property name="p_driver" value="org.postgresql.Driver" />
 	</properties>
 
@@ -26,7 +26,7 @@
 				<property name="password" value="${password}" />
 			</dataSource>
 		</environment>
-
+		
 		<environment id="production">
 			<transactionManager type="JDBC" />
 			<dataSource type="POOLED">

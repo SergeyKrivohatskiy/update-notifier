@@ -42,6 +42,9 @@ import net.thumbtack.updateNotifierBackend.updateChecker.UpdateChecker;
 @Singleton
 public class UsersHandler {
 
+	private static final String RESOURCE_DEFAULT_NAME = "noname";
+	private static final String USER_DEFAULT_SURNAME = "usersurname";
+	private static final String USER_DEFAULT_NAME = "username";
 	private static final Gson GSON = new GsonBuilder()
 			.setDateFormat("yyyy-MM-dd hh:mm:ss.S")
 			.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -61,8 +64,10 @@ public class UsersHandler {
 		}
 		long userId = 0;
 		try {
-			User user = new User(userName != null ? userName : "Mr. X",
-					userSurname != null ? userSurname : "", userEmail);
+			User user = new User();
+			user.setEmail(userEmail);
+			user.setName(userName != null ? userName : USER_DEFAULT_NAME);
+			user.setSurname(userSurname != null ? userSurname : USER_DEFAULT_SURNAME);
 			userId = getDatabaseService().getUserIdByEmailOrAdd(user);
 		} catch (DatabaseSeriousException e) {
 			log.error("Database request failed. Sign in failed");
@@ -84,7 +89,7 @@ public class UsersHandler {
 					"Database add request failed: resource expected in request body");
 		}
 		if (resource.getName() == null) {
-			resource.setName("noname");
+			resource.setName(RESOURCE_DEFAULT_NAME);
 		}
 
 		try {
@@ -317,7 +322,7 @@ public class UsersHandler {
 		try {
 			Resource res = GSON.fromJson(resourceJson, Resource.class);
 			if (res == null || res.getSheduleCode() < 0
-					|| res.getSheduleCode() > UpdateChecker.MAGIC_NUMBER
+					|| res.getSheduleCode() > UpdateChecker.SHEDULE_CODE_MAX_VALUE
 					|| res.getUrl() == null) {
 				log.debug("Resource parsing error: bad or expecting params");
 				throw (new BadRequestException("Json parsing error"));

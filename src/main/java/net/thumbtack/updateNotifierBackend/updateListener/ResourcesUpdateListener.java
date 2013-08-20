@@ -3,11 +3,14 @@ package net.thumbtack.updateNotifierBackend.updateListener;
 import java.util.Date;
 import java.util.Properties;
 
+import javax.mail.Address;
+import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
@@ -25,11 +28,21 @@ public class ResourcesUpdateListener {
 	private static final String USER = "UpdateNotifier@mail.ru";
 	private static final Logger log = LoggerFactory
 			.getLogger(ResourcesUpdateListener.class);
-	private static Properties PROPS;
+	private static Properties PROPS = null;
 	private static final String FROM = USER;
 	private static final String HOST = "smtp.mail.ru";
-
-	static {
+	private static Address addressFrom;
+	private static Authenticator authenticator;
+	private static ResourcesUpdateListener updateListener = null;
+	
+	public static ResourcesUpdateListener getInstance() {
+		if (updateListener == null) {
+			updateListener = new ResourcesUpdateListener();
+		}
+		return updateListener;
+	}
+	
+	private ResourcesUpdateListener() {
 		PROPS = new Properties();
 
 		PROPS.put("mail.transport.protocol", "smtp");
@@ -39,6 +52,13 @@ public class ResourcesUpdateListener {
 		if (log.isDebugEnabled()) {
 			PROPS.put("mail.debug", "true");
 		}
+		authenticator = new SMTPAuthenticator();
+		try {
+			addressFrom = new InternetAddress(FROM);
+		} catch (AddressException e) {
+			// Ignore. Address from must be valid
+			log.error("Address from no valid!", e);
+		} 
 	}
 
 	public void onResourceUpdate(Resource resource) {
@@ -55,16 +75,16 @@ public class ResourcesUpdateListener {
 					resource.getUserId());
 			to = user.getEmail();
 		} catch (DatabaseException e) {
-			log.error("Get email failed");
+			log.error("Get email to {} failed", to);
 			return false;
 		}
 		log.debug("Email to {}", to);
-		Session session = Session.getInstance(PROPS, new SMTPAuthenticator());
+		Session session = Session.getInstance(PROPS, authenticator);
 
 		try {
 			Message msg = new MimeMessage(session);
 
-			msg.setFrom(new InternetAddress(FROM));
+			msg.setFrom(addressFrom);
 			InternetAddress[] address = { new InternetAddress(to) };
 			msg.setRecipients(Message.RecipientType.TO, address);
 			msg.setSubject("Resource " + resource.getUrl() + " was updated");
@@ -82,6 +102,7 @@ public class ResourcesUpdateListener {
 
 	private class SMTPAuthenticator extends javax.mail.Authenticator {
 		public PasswordAuthentication getPasswordAuthentication() {
+			// TODO may be move this allocation to the constructor?
 			return new PasswordAuthentication(USER, PASS);
 		}
 	}

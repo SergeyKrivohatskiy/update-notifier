@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
  */
 public class UpdateChecker {
 
+	private static final int STARTING_DELAY_FACTOR = 5;
 	private static final Logger log = LoggerFactory.getLogger(UpdateChecker.class);
 	private static final long VERY_OFTEN = 60000;
 	private static final long OFTEN = 300000;
@@ -25,7 +26,7 @@ public class UpdateChecker {
 	/**
 	 * Intervals length + one value for 'Never' code
 	 */
-	public final static int MAGIC_NUMBER = INTERVALS.length;
+	public final static int SHEDULE_CODE_MAX_VALUE = INTERVALS.length;
 
 	private static final long TIME_TO_STOP = 10000;
 	
@@ -37,7 +38,7 @@ public class UpdateChecker {
 		log.debug("Starting");
 		for(byte scheduleCode = 0; scheduleCode < INTERVALS.length; scheduleCode += 1) {
 			timer.schedule(new StartUpdatesChecking(scheduleCode, executor), 
-					INTERVALS[scheduleCode] / 10, INTERVALS[scheduleCode]);
+					INTERVALS[scheduleCode] / STARTING_DELAY_FACTOR, INTERVALS[scheduleCode]);
 		}
 	}
 
