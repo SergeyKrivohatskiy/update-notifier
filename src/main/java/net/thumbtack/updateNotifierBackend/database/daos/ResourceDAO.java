@@ -17,8 +17,6 @@ public interface ResourceDAO extends BaseDAO<Resource> {
 
 	boolean updateAfterCheck(Long id, Integer hash);
 
-	boolean exists(long resourceId);
-
 	boolean deleteByTags(long userId, List<Long> tagIds);
 
 	boolean deleteAll(long userId);

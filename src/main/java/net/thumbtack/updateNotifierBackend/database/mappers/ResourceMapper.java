@@ -67,6 +67,6 @@ public interface ResourceMapper {
 			@Param(value = "id") Long id);
 
 	@Update(CHK)
-	boolean check(long id);
+	boolean check(Resource resource);
 
 }

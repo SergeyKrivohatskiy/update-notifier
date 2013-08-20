@@ -8,6 +8,4 @@ public interface UserDAO extends BaseDAO<User> {
 
 	User get2(long id);
 	
-	boolean exists(long id);
-	
 }

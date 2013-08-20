@@ -1,19 +1,55 @@
 package net.thumbtack.updateNotifierBackend.database.entities;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class User {
 
 	private Long id;
 	private String name;
 	private String surname;
 	private String email;
-	private Set<Resource> resources = new HashSet<Resource>();
-	private Set<Tag> tags = new HashSet<Tag>();
 	
 	public User() {
-		
+	}
+
+	public User(Long id) {
+		this.id = id;
+	}
+
+	public User(String name, String surname, String email) {
+		this.name = name;
+		this.surname = surname;
+		this.email = email;
+	}
+
+	public Long getId() {
+		return id;
+	}
+	
+	public void setId(Long id) {
+		this.id = id;
+	}
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getSurname() {
+		return surname;
+	}
+
+	public void setSurname(String surname) {
+		this.surname = surname;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	@Override
@@ -41,52 +77,10 @@ public class User {
 		return true;
 	}
 	
-	public Long getId() {
-		return id;
-	}
-	
-	public void setId(Long id) {
-		this.id = id;
-	}
-	
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getSurname() {
-		return surname;
-	}
-
-	public void setSurname(String surname) {
-		this.surname = surname;
-	}
-
-	public Set<Resource> getResources() {
-		return resources;
-	}
-	
-	public void setResources(Set<Resource> resources) {
-		this.resources = resources;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public Set<Tag> getTags() {
-		return tags;
-	}
-
-	public void setTags(Set<Tag> categories) {
-		this.tags = categories;
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", name=" + name + ", surname=" + surname
+				+ ", email=" + email + "]";
 	}
 	
 }

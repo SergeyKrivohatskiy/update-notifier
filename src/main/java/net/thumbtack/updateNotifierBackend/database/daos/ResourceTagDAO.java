@@ -8,7 +8,7 @@ public interface ResourceTagDAO {
 	
 	List<Long> get(long resourceId);
 
-	boolean exist(long resourceId);
+	boolean exists(long resourceId);
 
 	boolean delete(long resourceId);
 }

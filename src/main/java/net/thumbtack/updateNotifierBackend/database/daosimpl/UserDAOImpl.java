@@ -31,8 +31,8 @@ public class UserDAOImpl implements UserDAO {
 		return false;
 	}
 	
-	public boolean exists(long id) {
-		return (mapper.check(id) != null);
+	public boolean exists(User user) {
+		return (mapper.check(user) != null);
 	}
 	
 	public boolean delete(User user) {

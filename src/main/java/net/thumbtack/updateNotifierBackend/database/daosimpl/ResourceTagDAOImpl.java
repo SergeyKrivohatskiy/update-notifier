@@ -23,7 +23,7 @@ public class ResourceTagDAOImpl implements ResourceTagDAO {
 		return mapper.get(resourceId);
 	}
 
-	public boolean exist(long resourceId) {
+	public boolean exists(long resourceId) {
 		return mapper.exist(resourceId) > 0;
 	}
 	

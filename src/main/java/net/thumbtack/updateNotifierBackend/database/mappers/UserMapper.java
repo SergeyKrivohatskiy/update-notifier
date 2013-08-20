@@ -32,7 +32,7 @@ public interface UserMapper {
 	User get2(long id);
 	
 	@Select(CHK)
-	Long check(long id);
+	Long check(User user);
 
 	@Delete(DEL)
 	int delete(User user);

@@ -103,24 +103,30 @@ public class DatabaseWrapper {
 
 	public long getUserIdByEmailOrAdd(User user)
 			throws DatabaseSeriousException {
-		log.trace("Get user email by id; email: {}", user.getEmail());
+		if (log.isTraceEnabled()) {
+			log.trace("getUserIdByEmailOrAdd(user); user: {}", user);
+		}
 		User savedUser = userDao.get(user.getEmail());
 		if (savedUser == null) {
+			log.debug("User doesn't exist, create new");
 			if (!userDao.add(user)) {
+				log.error("Serious exception: DB can't create user");
 				throw new DatabaseSeriousException("User can't to login");
 			} else {
 				session.commit();
 			}
 		} else {
+			log.debug("User exists");
 			user = savedUser;
 		}
 		return user.getId();
 	}
 
 	public User getUserEmailById(long id) throws DatabaseSeriousException {
-		log.trace("get user email by id; id: {}", id);
+		log.trace("getUserEmailById; id: {}", id);
 		User user = userDao.get2(id);
 		if (user == null) {
+			log.error("Serious exception: user doesn't exist");
 			// TODO user deletes his account when his resource was updationg?
 			// Serious, because i know, where this method is called
 			throw new DatabaseSeriousException("Can't get user by id");
@@ -133,24 +139,28 @@ public class DatabaseWrapper {
 		if (log.isTraceEnabled()) {
 			log.trace("Add resource; resource: {}", resource.toString());
 		}
-		if (!userDao.exists(resource.getUserId())) {
+		if (!userDao.exists(new User(resource.getUserId()))) {
 			log.debug("Database exception: can't add resource to nonexist user");
 			throw new DatabaseTinyException(
-					"Database exception: can't add resource to nonexist user");
+					"Can't add resource to nonexist user");
 		}
+		log.debug("User exists");
 		resource.setHash(getNewHashCode(resource));
 		if (!resourceDao.add(resource)) {
+			log.error("Serious exception: resource addition failed");
 			throw new DatabaseSeriousException("Resource addition failed");
 		}
 		session.commit();
 		if (resource.getTags() != null) {
 			for (Long tagId : resource.getTags()) {
 				if (!resourceTagDao.add(resource.getId(), tagId)) {
+					log.error("Serious exception: relation addition failed");
 					throw new DatabaseSeriousException(
 							"Relation addition failed");
 				}
 			}
 		}
+		log.debug("Tag addition successful");
 		session.commit();
 	}
 
@@ -158,14 +168,14 @@ public class DatabaseWrapper {
 			throws DatabaseTinyException {
 		if (log.isTraceEnabled()) {
 			log.trace("Get resources by id and tags; user id: {}, tag ids: {}",
-					userId, tagIds == null ? null : tagIds.toString());
+					userId, tagIds == null ? "null" : tagIds.toString());
 		}
-		if (!userDao.exists(userId)) {
+		if (!userDao.exists(new User(userId))) {
 			log.debug("Database exception: can't get resources for nonexistent user");
 			throw new DatabaseTinyException(
 					"Database exception: can't get resources for nonexistent user");
 		}
-
+		log.debug("User exists");
 		List<Resource> resources = null;
 		if (tagIds == null) {
 			resources = resourceDao.getAllForUser(userId);
@@ -187,14 +197,19 @@ public class DatabaseWrapper {
 			throws DatabaseTinyException {
 		log.trace("Get resource; user id = {}, resource id = {}", userId,
 				resourceId);
-		if (!userDao.exists(userId)) {
+		if (!userDao.exists(new User(userId))) {
+			log.debug("Database exception: can't get resource to nonexist user");
 			throw new DatabaseTinyException(
 					"Can't get resource for nonexistent user");
 		}
+		log.debug("User exists");
 		Resource resource = null;
 		resource = resourceDao.get(userId, resourceId);
 		if (resource != null) {
+			log.debug("Resource exists");
 			resource.setTags(resourceTagDao.get(resource.getId()));
+		} else {
+			log.debug("Resource doesn't exist");
 		}
 		return resource;
 	}
@@ -207,9 +222,10 @@ public class DatabaseWrapper {
 	 */
 	public Set<Resource> getResourcesByScheduleCode(byte scheduleCode) {
 		log.trace("Get resources by shedule code; code: {}", scheduleCode);
-		// TODO check schedule code
+		// TODO check schedule code?
 		Set<Resource> resources = resourceDao.getByscheduleCode(scheduleCode);
 		if (resources == null) {
+			log.debug("No resources with such shedule code");
 			return Collections.emptySet();
 		}
 		return resources;
@@ -221,14 +237,17 @@ public class DatabaseWrapper {
 			log.trace("Delete resource; user id: {}, resource id: {}",
 					resource.getUserId(), resource.getId());
 		}
-		if (!userDao.exists(resource.getUserId())) {
+		if (!userDao.exists(new User(resource.getUserId()))) {
 			log.debug("Database exception: can't delete resource for nonexistant user");
 			throw new DatabaseTinyException(
 					"Database exception: can't delete resource for nonexistant user");
 		}
+		log.debug("User exists");
 		if (!resourceDao.delete(resource)) {
+			log.error("Serious exception: resource deletion failed");
 			throw new DatabaseSeriousException("Resource deletion failed");
 		}
+		log.debug("Resource deleted successfully");
 		session.commit();
 	}
 
@@ -238,15 +257,18 @@ public class DatabaseWrapper {
 			log.trace("Delete resource; user id: {}, tag ids: {}", userId,
 					tagIds == null ? "null" : tagIds.toString());
 		}
-		if (!userDao.exists(userId)) {
+		if (!userDao.exists(new User(userId))) {
 			log.debug("Database exception: can't delete resource for nonexistant user");
 			throw new DatabaseTinyException(
 					"Database exception: can't delete resource for nonexistant user");
 		}
+		log.debug("User exists");
 		boolean result = false;
 		if (tagIds == null) {
+			log.debug("Delete all resources");
 			result = resourceDao.deleteAll(userId);
 		} else {
+			log.debug("Delete resources by tags");
 			if (!tagDao.exists(userId, tagIds)) {
 				log.debug("Database exception: can't get resources for nonexistent tags");
 				throw new DatabaseTinyException(
@@ -255,6 +277,7 @@ public class DatabaseWrapper {
 			result = resourceDao.deleteByTags(userId, tagIds);
 		}
 		if (!result) {
+			log.error("Serious exception: resource delition failed");
 			throw new DatabaseSeriousException("Resource delition failed");
 		}
 		session.commit();
@@ -265,10 +288,11 @@ public class DatabaseWrapper {
 		if (log.isTraceEnabled()) {
 			log.trace("Edit resource; resource = {}", resource.toString());
 		}
-		if (!userDao.exists(resource.getUserId())) {
+		if (!userDao.exists(new User(resource.getUserId()))) {
 			throw new DatabaseTinyException(
 					"Can't edit resource for nonexistent user");
 		}
+		log.debug("User exists");
 		Resource savedResource = resourceDao.get(resource.getUserId(),
 				resource.getId());
 		if (savedResource == null) {
@@ -277,6 +301,7 @@ public class DatabaseWrapper {
 					"Database exception: not found resource for edit"));
 		}
 		if (!savedResource.getUrl().equals(resource.getUrl())) {
+			log.debug("Hash update need");
 			resourceDao.updateAfterCheck(resource.getId(),
 					getNewHashCode(resource));
 		}
@@ -285,24 +310,29 @@ public class DatabaseWrapper {
 			throw new DatabaseTinyException(
 					"Database exception: can't assign nonexistant tags to resource");
 		}
-		if(resource.getName() == null) {
+		if (resource.getName() == null) {
 			resource.setName("noname");
 		}
 		if (!resourceDao.edit(resource)) {
+			log.error("Serious exception: resource delition failed");
 			throw new DatabaseSeriousException("Resource edition failed");
 		}
-		if (resourceTagDao.exist(resource.getId())
+		if (resourceTagDao.exists(resource.getId())
 				&& !resourceTagDao.delete(resource.getId())) {
+			log.error("Serious exception: relation delition failed");
 			throw new DatabaseSeriousException("Relation delition failed");
 		}
+		log.debug("Relations were deleted");
 		if (resource.getTags() != null) {
 			for (Long tagId : resource.getTags()) {
 				if (!resourceTagDao.add(resource.getId(), tagId)) {
+					log.error("Serious exception: relation addition failed");
 					throw new DatabaseSeriousException(
 							"Relation addition failed");
 				}
 			}
 		}
+		log.debug("Relations were added");
 		session.commit();
 	}
 
@@ -319,13 +349,14 @@ public class DatabaseWrapper {
 			throws DatabaseSeriousException {
 		log.trace("Update resource hash; resource id: {}, new hash: {}",
 				resourceId, newHash);
-		if (!resourceDao.exists(resourceId)) {
+		if (!resourceDao.exists(new Resource(resourceId))) {
 			// TODO What can i dooo?
+			log.error("Serious exception: hash updating failed");
 			throw new DatabaseSeriousException(
 					"Can't update hash for nonexistent resource");
 		}
-		// Don't forget - hash will be update only with 'true' result
 		if (!resourceDao.updateAfterCheck(resourceId, newHash)) {
+			log.error("Serious exception: hash updating failed");
 			throw new DatabaseSeriousException("Hash updating failed");
 		}
 		session.commit();
@@ -340,7 +371,8 @@ public class DatabaseWrapper {
 	 */
 	public Set<Tag> getTags(long userId) throws DatabaseTinyException {
 		log.trace("Get tags for user with user id: {}", userId);
-		if (!userDao.exists(userId)) {
+		if (!userDao.exists(new User(userId))) {
+			log.debug("Can't get tags for nonexistent user");
 			throw new DatabaseTinyException(
 					"Can't get tags for nonexistent user");
 		}
@@ -349,13 +381,14 @@ public class DatabaseWrapper {
 
 	public Tag getTag(Tag tag) throws DatabaseTinyException {
 		log.trace("Get tags for user with user id: {}", tag.getUserId());
-		if (!userDao.exists(tag.getUserId())) {
+		if (!userDao.exists(new User(tag.getUserId()))) {
+			log.debug("Can't get tag for nonexistent user");
 			throw new DatabaseTinyException(
-					"Can't get tags for nonexistent user");
+					"Can't get tag for nonexistent user");
 		}
 		return tagDao.get(tag);
 	}
-	
+
 	/**
 	 * Add tag with specified name and user id to database
 	 * 
@@ -367,10 +400,12 @@ public class DatabaseWrapper {
 	 */
 	public void addTag(Tag tag) throws DatabaseTinyException,
 			DatabaseSeriousException {
-		if (!userDao.exists(tag.getUserId())) {
+		if (!userDao.exists(new User(tag.getUserId()))) {
+			log.debug("Can't add tag to nonexistent user");
 			throw new DatabaseTinyException("Can't add tag to nonexistent user");
 		}
 		if (!tagDao.add(tag)) {
+			log.error("Serious exception: tag addition failed");
 			throw new DatabaseSeriousException("Tag addition failed");
 		}
 		session.commit();
@@ -378,11 +413,13 @@ public class DatabaseWrapper {
 
 	public void editTag(Tag tag) throws DatabaseTinyException,
 			DatabaseSeriousException {
-		if (!userDao.exists(tag.getUserId())) {
+		if (!userDao.exists(new User(tag.getUserId()))) {
+			log.debug("Can't edit tag of nonexistent user");
 			throw new DatabaseTinyException(
 					"Can't edit tag of nonexistent user");
 		}
 		if (!tagDao.edit(tag)) {
+			log.error("Serious exception: tag edition failed");
 			throw new DatabaseSeriousException("Tag edition failed");
 		}
 		session.commit();
@@ -390,11 +427,13 @@ public class DatabaseWrapper {
 
 	public void deleteTag(Tag tag) throws DatabaseTinyException,
 			DatabaseSeriousException {
-		if (!userDao.exists(tag.getUserId())) {
+		if (!userDao.exists(new User(tag.getUserId()))) {
+			log.debug("Can't delete tag of nonexistent user");
 			throw new DatabaseTinyException(
 					"Can't delete tag of nonexistent user");
 		}
 		if (!tagDao.delete(tag)) {
+			log.error("Serious exception: tag edition failed");
 			throw new DatabaseSeriousException("Tag delition failed");
 		}
 		session.commit();

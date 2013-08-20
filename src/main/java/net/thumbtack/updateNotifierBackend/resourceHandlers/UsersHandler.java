@@ -42,7 +42,6 @@ import net.thumbtack.updateNotifierBackend.updateChecker.UpdateChecker;
 @Singleton
 public class UsersHandler {
 
-	// TODO Why do not I use this and create new gSon object every time?
 	private static final Gson GSON = new GsonBuilder()
 			.setDateFormat("yyyy-MM-dd hh:mm:ss.S")
 			.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -62,10 +61,8 @@ public class UsersHandler {
 		}
 		long userId = 0;
 		try {
-			User user = new User();
-			user.setEmail(userEmail);
-			user.setName(userName != null ? userName : "Mr. X");
-			user.setSurname(userSurname != null ? userSurname : "");
+			User user = new User(userName != null ? userName : "Mr. X",
+					userSurname != null ? userSurname : "", userEmail);
 			userId = getDatabaseService().getUserIdByEmailOrAdd(user);
 		} catch (DatabaseSeriousException e) {
 			log.error("Database request failed. Sign in failed");
@@ -86,7 +83,7 @@ public class UsersHandler {
 			throw new BadRequestException(
 					"Database add request failed: resource expected in request body");
 		}
-		if(resource.getName() == null) {
+		if (resource.getName() == null) {
 			resource.setName("noname");
 		}
 

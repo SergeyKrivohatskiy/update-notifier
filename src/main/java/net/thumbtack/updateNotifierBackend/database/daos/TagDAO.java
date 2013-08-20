@@ -11,8 +11,6 @@ public interface TagDAO extends BaseDAO<Tag> {
 
 	boolean exists(long userId, List<Long> tagIds);
 
-	boolean exists(Tag tag);
-
 	Tag get(Tag tag);
 	
 }

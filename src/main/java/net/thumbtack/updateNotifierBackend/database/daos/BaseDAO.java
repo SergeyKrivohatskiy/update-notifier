@@ -7,5 +7,7 @@ public interface BaseDAO<T> {
 	boolean edit(T obj);
 
 	boolean delete(T obj);
+	
+	boolean exists(T obj);
 
 }

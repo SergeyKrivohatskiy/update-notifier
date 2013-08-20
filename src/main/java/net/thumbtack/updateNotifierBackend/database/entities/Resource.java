@@ -21,6 +21,10 @@ public class Resource implements Serializable {
 	public Resource() {
 	}
 
+	public Resource(long id) {
+		this.id = id;
+	}
+
 	public String getUrl() {
 		return url;
 	}

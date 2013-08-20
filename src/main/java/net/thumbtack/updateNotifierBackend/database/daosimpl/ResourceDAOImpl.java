@@ -46,8 +46,8 @@ public class ResourceDAOImpl implements ResourceDAO {
 		return mapper.updateAfterUpdate(id, hash) > 0;
 	}
 
-	public boolean exists(long resourceId) {
-		return mapper.check(resourceId);
+	public boolean exists(Resource resource) {
+		return mapper.check(resource);
 	}
 	
 	public boolean delete(Resource resource) {
