@@ -8,6 +8,7 @@ import javax.ws.rs.BadRequestException;
 import net.thumbtack.updateNotifierBackend.UpdateNotifierBackend;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
 import net.thumbtack.updateNotifierBackend.database.entities.Tag;
+import net.thumbtack.updateNotifierBackend.database.entities.User;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
@@ -38,20 +39,21 @@ public class UsersHandlerTests {
 		final String EMAIL_PATTERN = "email{0,number}@post.com";
 
 		for (Integer i = 0; i < EMAILS_COUNT; i += 1) {
-			usersId[i] = handler.signIn(MessageFormat.format(EMAIL_PATTERN, i), "Mr.", "X");
+			usersId[i] = GSON.fromJson(handler.signIn(MessageFormat.format(EMAIL_PATTERN, i), "Mr.", "X"), User.class).getId();
 			assertTrue(usersId[i] != null);
 		}
 
+		long userId = 0;
 		for (Integer i = 0; i < EMAILS_COUNT; i += 1) {
-			assertEquals(usersId[i].longValue(),
-					handler.signIn(MessageFormat.format(EMAIL_PATTERN, i), "Mr.", "X"));
+			userId = GSON.fromJson(handler.signIn(MessageFormat.format(EMAIL_PATTERN, i), "Mr.", "X"), User.class).getId();
+			assertEquals(usersId[i].longValue(), userId);
 		}
 	}
 
 	@Test
 	public void addGetDeleteResourcesTest() {
 		UsersHandler handler = new UsersHandler();
-		Long userId = handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X");
+		Long userId = GSON.fromJson(handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X"), User.class).getId();
 
 		int count = addResources(handler, userId);
 
@@ -74,7 +76,7 @@ public class UsersHandlerTests {
 	public void addGetEditTagsTest() {
 		UsersHandler handler = new UsersHandler();
 
-		Long userId = handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X");
+		Long userId = GSON.fromJson(handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X"), User.class).getId();
 
 		int count = addTags(handler, userId);
 
@@ -98,7 +100,7 @@ public class UsersHandlerTests {
 	@Test
 	public void addGetResourcesWithTags() {
 		UsersHandler handler = new UsersHandler();
-		Long userId = handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X");
+		Long userId = GSON.fromJson(handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X"), User.class).getId();
 
 		addTags(handler, userId);
 		Tag[] tags = new Gson().fromJson(handler.getUserTags(userId),
@@ -123,7 +125,7 @@ public class UsersHandlerTests {
 	@Test
 	public void addResourceBadRequest() {
 		UsersHandler handler = new UsersHandler();
-		Long userId = handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X");
+		Long userId = GSON.fromJson(handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X"), User.class).getId();
 		try {
 			handler.addUserResource(userId,
 					"{'incorrect':'resource', 'j':'son'}");
@@ -157,7 +159,7 @@ public class UsersHandlerTests {
 	@Test
 	public void editResourceBadRequest() {
 		UsersHandler handler = new UsersHandler();
-		Long userId = handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X");
+		Long userId = GSON.fromJson(handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X"), User.class).getId();
 		try {
 			handler.editUserResource(userId,
 					0, "{'incorrect':'resource', 'j':'son'}");
@@ -170,7 +172,7 @@ public class UsersHandlerTests {
 	public void getResourceBadRequest() {
 		UsersHandler handler = new UsersHandler();
 		try {
-			handler.getUserResources(handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X"),
+			handler.getUserResources(GSON.fromJson(handler.signIn(EXAMPLE_USER_EMAIL, "Mr.", "X"), User.class).getId(),
 					"incorrect tag string");
 			fail();
 		} catch (BadRequestException e) {

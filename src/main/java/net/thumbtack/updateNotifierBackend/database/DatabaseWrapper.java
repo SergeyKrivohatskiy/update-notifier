@@ -101,7 +101,7 @@ public class DatabaseWrapper {
 		}
 	}
 
-	public long getUserIdByEmailOrAdd(User user)
+	public User getUserIdByEmailOrAdd(User user)
 			throws DatabaseSeriousException {
 		if (log.isTraceEnabled()) {
 			log.trace("getUserIdByEmailOrAdd(user); user: {}", user);
@@ -119,7 +119,7 @@ public class DatabaseWrapper {
 			log.debug("User exists");
 			user = savedUser;
 		}
-		return user.getId();
+		return user;
 	}
 
 	public User getUserEmailById(long id) throws DatabaseSeriousException {

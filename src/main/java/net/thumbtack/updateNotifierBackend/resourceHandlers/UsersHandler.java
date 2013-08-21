@@ -54,7 +54,8 @@ public class UsersHandler {
 
 	@Path("signin")
 	@GET
-	public long signIn(@QueryParam("email") String userEmail,
+	@Produces({ "application/json" })
+	public String signIn(@QueryParam("email") String userEmail,
 			@QueryParam("name") String userName,
 			@QueryParam("surname") String userSurname) {
 		log.trace("Sign in: " + userEmail);
@@ -62,18 +63,18 @@ public class UsersHandler {
 			throw new BadRequestException(
 					"Missing 'email' parameter in the url");
 		}
-		long userId = 0;
+		User user = null;
 		try {
-			User user = new User();
+			user = new User();
 			user.setEmail(userEmail);
 			user.setName(userName != null ? userName : USER_DEFAULT_NAME);
 			user.setSurname(userSurname != null ? userSurname : USER_DEFAULT_SURNAME);
-			userId = getDatabaseService().getUserIdByEmailOrAdd(user);
+			user = getDatabaseService().getUserIdByEmailOrAdd(user);
 		} catch (DatabaseSeriousException e) {
 			log.error("Database request failed. Sign in failed");
 			throw (new WebApplicationException("Database get account error"));
 		}
-		return userId;
+		return GSON.toJson(user);
 	}
 
 	@Path("/{id}/resources")
