@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 public interface UserMapper {
 
@@ -14,6 +15,7 @@ public interface UserMapper {
 	String GET_BY_EMAIL = "SELECT * FROM users WHERE email=#{email}";
 	String GET_BY_ID = "SELECT * FROM users WHERE id=#{id}";
 	String CHK = "SELECT id FROM users WHERE id=#{id}";
+	String UPD = "UPDATE users SET name=#{name}, surname=#{surname} WHERE id=#{id}";
 	String DEL = "DELETE FROM users WHERE id = #{id}";
 	String DEL_ALL = "DELETE FROM users";
 //	String GET_EMAIL = "SELECT email FROM users WHERE id=#{id}";
@@ -34,10 +36,14 @@ public interface UserMapper {
 	@Select(CHK)
 	Long check(User user);
 
+	@Update(UPD)
+	int update(User user);
+	
 	@Delete(DEL)
 	int delete(User user);
 
 	@Delete(DEL_ALL)
 	int deleteAll();
+
 
 }

@@ -27,6 +27,7 @@ import net.thumbtack.updateNotifierBackend.database.entities.User;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseSeriousException;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseTinyException;
 import net.thumbtack.updateNotifierBackend.database.mappers.UserMapper;
+import net.thumbtack.updateNotifierBackend.resourceHandlers.UsersHandler;
 
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -117,6 +118,24 @@ public class DatabaseWrapper {
 			}
 		} else {
 			log.debug("User exists");
+			boolean updateNeed = false;
+			if (!savedUser.getName().equals(user.getName())
+					&& !UsersHandler.USER_DEFAULT_NAME.equals(user.getName())) {
+				updateNeed = true;
+				savedUser.setName(user.getName());
+			}
+			if (!savedUser.getSurname().equals(user.getSurname())
+					&& !UsersHandler.USER_DEFAULT_SURNAME.equals(user.getSurname())) {
+				updateNeed = true;
+				savedUser.setSurname(user.getSurname());
+			}
+			if (updateNeed) {
+				if (!userDao.edit(savedUser)) {
+					log.error("Serious exception: DB can't update user initials");
+					throw new DatabaseSeriousException(
+							"Automatic initials update failed");
+				}
+			}
 			user = savedUser;
 		}
 		return user;

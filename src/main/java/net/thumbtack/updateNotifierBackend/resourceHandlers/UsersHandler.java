@@ -43,8 +43,8 @@ import net.thumbtack.updateNotifierBackend.updateChecker.UpdateChecker;
 public class UsersHandler {
 
 	private static final String RESOURCE_DEFAULT_NAME = "noname";
-	private static final String USER_DEFAULT_SURNAME = "usersurname";
-	private static final String USER_DEFAULT_NAME = "username";
+	public static final String USER_DEFAULT_SURNAME = "usersurname";
+	public static final String USER_DEFAULT_NAME = "username";
 	private static final Gson GSON = new GsonBuilder()
 			.setDateFormat("yyyy-MM-dd hh:mm:ss.S")
 			.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)

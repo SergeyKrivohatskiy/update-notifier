@@ -27,8 +27,7 @@ public class UserDAOImpl implements UserDAO {
 	}
 	
 	public boolean edit(User user) {
-		//TODO not implemented!
-		return false;
+		return mapper.update(user) > 0;
 	}
 	
 	public boolean exists(User user) {
