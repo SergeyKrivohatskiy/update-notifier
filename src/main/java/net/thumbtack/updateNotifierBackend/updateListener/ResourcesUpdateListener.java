@@ -23,7 +23,7 @@ import net.thumbtack.updateNotifierBackend.database.entities.User;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseException;
 
 public class ResourcesUpdateListener {
-
+	//REVU: extract authentification credentails to paramaters file.
 	private static final String PASS = "updatenotifierpass";
 	private static final String USER = "UpdateNotifier@mail.ru";
 	private static final Logger log = LoggerFactory
