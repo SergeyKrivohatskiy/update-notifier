@@ -39,7 +39,7 @@ CAUTION: Do not modify this file unless you know what you are doing.
 	<column name="url" not-null="true">
 		<type name="varchar" length="255"/>
 	</column>
-	<column name="shedule_code" not-null="true">
+	<column name="schedule_code" not-null="true">
 		<type name="smallint"/>
 	</column>
 	<column name="dom_path" not-null="true">
