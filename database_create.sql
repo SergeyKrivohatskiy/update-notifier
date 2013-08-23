@@ -15,7 +15,7 @@ create table resources (
 	user_id bigint(20) unsigned not null,
 	name varchar(50) not null,
 	url varchar(255) not null,
-	shedule_code tinyint not null,
+	schedule_code tinyint not null,
 	filter varchar(255),
 	hash int not null,
 	last_update timestamp,
