@@ -1,5 +1,6 @@
 package net.thumbtack.updateNotifierBackend.database.mappers;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -27,6 +28,7 @@ public interface ResourceMapper {
 	String LAST_ID = "SELECT LAST_INSERT_ID()";
 	String DEL_ALL_RESOURCES = "DELETE FROM resources";
 	String CHK = "UPDATE resources SET id=id WHERE id=#{id}";
+	String GET_AFTER_UPD = "SELECT id FROM resources WHERE user_id=#{userId} AND last_update >= #{date}";
 
 	@Insert(ADD)
 	@Options(useGeneratedKeys = true)
@@ -68,5 +70,9 @@ public interface ResourceMapper {
 
 	@Update(CHK)
 	boolean check(Resource resource);
+
+	@Select(GET_AFTER_UPD)
+	List<Long> getUpdated(@Param(value = "userId") Long userId,
+			@Param(value = "date") Date date);
 
 }

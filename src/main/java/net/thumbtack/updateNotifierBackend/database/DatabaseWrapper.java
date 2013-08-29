@@ -7,6 +7,7 @@ import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -456,6 +457,30 @@ public class DatabaseWrapper {
 			throw new DatabaseSeriousException("Tag delition failed");
 		}
 		session.commit();
+	}
+
+	public List<Long> getUpdated(long userId, Date date) throws DatabaseTinyException {
+		if(log.isTraceEnabled()) {
+			log.trace("Get updated resources; userId: {}, date: {}", userId, date);
+		}
+		User user = new User(userId);
+		if(!userDao.exists(user)) {
+			log.debug("Can't get updated resources for nonexistent user");
+			throw new DatabaseTinyException(
+					"Can't get updated resources for nonexistent user");
+		}
+		log.debug("User exists");
+		List<Long> ids = resourceDao.getUpdated(userId, date);
+		if(ids == null) {
+			log.debug("Resource list is null");
+			ids = Collections.emptyList();
+		}
+		if(ids.isEmpty()) {
+			log.debug("Resource list is empty");
+		} else {
+			log.debug("Resource list is not empty");
+		}
+		return ids;
 	}
 
 	public void deleteAllData() {

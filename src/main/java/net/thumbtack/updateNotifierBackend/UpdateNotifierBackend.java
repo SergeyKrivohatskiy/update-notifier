@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.thumbtack.updateNotifierBackend.database.DatabaseWrapper;
-import net.thumbtack.updateNotifierBackend.updateChecker.UpdateChecker;
+import net.thumbtack.updateNotifierBackend.updateChecker.UpdateCheckStarter;
 import net.thumbtack.updateNotifierBackend.updateListener.ResourcesUpdateListener;
 
 @ApplicationPath("/")
@@ -15,13 +15,13 @@ public class UpdateNotifierBackend extends ResourceConfig {
 
 	private static final Logger log = LoggerFactory.getLogger(UpdateNotifierBackend.class);
 	private static DatabaseWrapper databaseService = DatabaseWrapper.getInstance();
-	private static UpdateChecker updateChecker = new UpdateChecker();
+	private static UpdateCheckStarter updateChecker = new UpdateCheckStarter();
 	private static ResourcesUpdateListener resUpdateListener = ResourcesUpdateListener.getInstance();
 	
 	public UpdateNotifierBackend() {
 		log.debug("Starting");
 		packages("net.thumbtack.updateNotifierBackend.resourceHandlers");
-//		updateChecker.start();
+		updateChecker.start();
 	}
 
 	/**

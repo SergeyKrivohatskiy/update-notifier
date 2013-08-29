@@ -12,10 +12,10 @@ import org.slf4j.LoggerFactory;
  * 
  * This class checks all resources for update
  */
-public class UpdateChecker {
+public class UpdateCheckStarter {
 
 	private static final int STARTING_DELAY_FACTOR = 5;
-	private static final Logger log = LoggerFactory.getLogger(UpdateChecker.class);
+	private static final Logger log = LoggerFactory.getLogger(UpdateCheckStarter.class);
 	private static final long VERY_OFTEN = 60000;
 	private static final long OFTEN = 300000;
 	private static final long REGULAR = 600000;

@@ -1,5 +1,6 @@
 package net.thumbtack.updateNotifierBackend.database.daosimpl;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -70,6 +71,10 @@ public class ResourceDAOImpl implements ResourceDAO {
 		}
 		stringBuilder.deleteCharAt(stringBuilder.length() - 1);
 		return stringBuilder.toString();
+	}
+
+	public List<Long> getUpdated(long userId, Date date) {
+		return mapper.getUpdated(userId, date);
 	}
 
 }

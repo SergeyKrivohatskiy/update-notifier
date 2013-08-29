@@ -1,5 +1,9 @@
 package net.thumbtack.updateNotifierBackend.resourceHandlers;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -36,7 +40,7 @@ import net.thumbtack.updateNotifierBackend.database.entities.User;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseException;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseSeriousException;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseTinyException;
-import net.thumbtack.updateNotifierBackend.updateChecker.UpdateChecker;
+import net.thumbtack.updateNotifierBackend.updateChecker.UpdateCheckStarter;
 
 @Path("/users")
 @Singleton
@@ -45,6 +49,8 @@ public class UsersHandler {
 	private static final String RESOURCE_DEFAULT_NAME = "noname";
 	public static final String USER_DEFAULT_SURNAME = "usersurname";
 	public static final String USER_DEFAULT_NAME = "username";
+	// private static final Element DUMMY = new
+	// Element(org.jsoup.parser.Tag.valueOf("p"), "");
 	private static final Gson GSON = new GsonBuilder()
 			.setDateFormat("yyyy-MM-dd hh:mm:ss.S")
 			.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
@@ -68,7 +74,8 @@ public class UsersHandler {
 			user = new User();
 			user.setEmail(userEmail);
 			user.setName(userName != null ? userName : USER_DEFAULT_NAME);
-			user.setSurname(userSurname != null ? userSurname : USER_DEFAULT_SURNAME);
+			user.setSurname(userSurname != null ? userSurname
+					: USER_DEFAULT_SURNAME);
 			user = getDatabaseService().getUserIdByEmailOrAdd(user);
 		} catch (DatabaseSeriousException e) {
 			log.error("Database request failed. Sign in failed");
@@ -319,19 +326,54 @@ public class UsersHandler {
 		return Response.status(HttpStatus.NO_CONTENT_204).build();
 	}
 
+	@Path("/{id}/updated")
+	@GET
+	@Consumes({ "application/json" })
+	@Produces({ "application/json" })
+	public String getUpdatedResources(@PathParam("id") long userId,
+			@QueryParam("time") String time) {
+		log.trace("get updated resources");
+		
+		if(time == null) {
+			log.debug("Time parameter is empty");
+			throw new BadRequestException("Time parameter is empty");
+		}
+		DateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+		Date date = null;
+		try {
+			date = parser.parse(time);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		if(date == null) {
+			log.debug("Time parameter is invalid");
+			throw new BadRequestException("Time parameter is invalid");
+		}
+
+		List<Long> result = null;
+		try {
+			result = getDatabaseService().getUpdated(userId, date);
+		} catch (DatabaseTinyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return GSON.toJson(result);
+	}
+
 	private static Resource parseResource(String resourceJson) {
 		try {
 			Resource res = GSON.fromJson(resourceJson, Resource.class);
-			if (res == null || res.getSheduleCode() < 0
-					|| res.getSheduleCode() > UpdateChecker.SHEDULE_CODE_MAX_VALUE
-					|| res.getUrl() == null) {
+			if (res == null
+					|| res.getScheduleCode() < 0
+					|| res.getScheduleCode() > UpdateCheckStarter.SHEDULE_CODE_MAX_VALUE
+					|| res.getUrl() == null /* || filterIsValid(res.getFilter()) */) {
 				log.debug("Resource parsing error: bad or expecting params");
-				throw (new BadRequestException("Json parsing error"));
+				throw new BadRequestException("Json parsing error");
 			}
 			return res;
 		} catch (JsonSyntaxException ex) {
 			log.debug("Resource parsing error");
-			throw (new BadRequestException("Json parsing error"));
+			throw new BadRequestException("Json parsing error");
 		}
 	}
 
@@ -368,4 +410,19 @@ public class UsersHandler {
 		}
 		return tags;
 	}
+
+	// public static boolean filterIsValid(String query) {
+	// if (query == null) {
+	// return false;
+	// }
+	// try {
+	// Selector.select(query, DUMMY);
+	// } catch (Selector.SelectorParseException e) {
+	// return false;
+	// } catch (IllegalArgumentException e) {
+	// return false;
+	// }
+	//
+	// return true;
+	// }
 }

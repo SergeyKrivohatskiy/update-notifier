@@ -33,7 +33,7 @@ public class Resource implements Serializable {
 		this.url = url;
 	}
 
-	public byte getSheduleCode() {
+	public byte getScheduleCode() {
 		return scheduleCode;
 	}
 

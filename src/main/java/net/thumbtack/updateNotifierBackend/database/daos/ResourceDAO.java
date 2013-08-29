@@ -1,5 +1,6 @@
 package net.thumbtack.updateNotifierBackend.database.daos;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -20,4 +21,6 @@ public interface ResourceDAO extends BaseDAO<Resource> {
 	boolean deleteByTags(long userId, List<Long> tagIds);
 
 	boolean deleteAll(long userId);
+
+	List<Long> getUpdated(long userId, Date date);
 }

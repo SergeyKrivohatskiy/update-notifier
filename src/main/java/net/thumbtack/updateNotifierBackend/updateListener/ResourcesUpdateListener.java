@@ -70,8 +70,9 @@ public class ResourcesUpdateListener {
 
 	private boolean sendEmail(Resource resource) {
 		String to = null;
+		User user = null;
 		try {
-			User user = UpdateNotifierBackend.getDatabaseService().getUserEmailById(
+			user = UpdateNotifierBackend.getDatabaseService().getUserEmailById(
 					resource.getUserId());
 			to = user.getEmail();
 		} catch (DatabaseException e) {
@@ -90,7 +91,7 @@ public class ResourcesUpdateListener {
 			msg.setSubject("Resource " + resource.getUrl() + " was updated");
 			msg.setSentDate(new Date());
 
-			msg.setText("Empty body");
+			msg.setText("Dear "+user.getName()+", your resource "+resource.getName()+" was changed :-)");
 
 			Transport.send(msg);
 			return true;
