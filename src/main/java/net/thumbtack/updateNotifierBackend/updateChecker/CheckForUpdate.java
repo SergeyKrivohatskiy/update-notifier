@@ -37,12 +37,12 @@ public class CheckForUpdate implements Runnable {
 
 	private boolean isResourceWasUpdated() {
 		log.debug("CheckForUpdate URL = \"" + resource.getUrl() + "\"");
-		Integer newHashCode;
+		int newHashCode;
 		newHashCode = getNewHashCode(resource);
 		boolean result = false;
-		if (newHashCode == null) {
+		if (newHashCode == 0) {
 			log.debug("getNewHashCode failed");
-		} else if (!newHashCode.equals(resource.getHash())) {
+		} else if (newHashCode != resource.getHash()) {
 			log.debug("New HashCode = " + newHashCode);
 			resource.setHash(newHashCode);
 			try {
@@ -50,6 +50,8 @@ public class CheckForUpdate implements Runnable {
 						resource.getId(), newHashCode);
 			} catch (DatabaseSeriousException e) {} // Ignore if resource is not exist
 			result = true;
+		} else {
+			log.debug("Resource hash is the same");
 		}
 		return result;
 	}
