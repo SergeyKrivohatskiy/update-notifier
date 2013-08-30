@@ -44,7 +44,7 @@ public class ResourceDAOImpl implements ResourceDAO {
 	}
 
 	public boolean updateAfterCheck(Long id, Integer hash) {
-		return mapper.updateAfterUpdate(id, hash) > 0;
+		return mapper.updateAfterUpdate(id, hash, new Date()) > 0;
 	}
 
 	public boolean exists(Resource resource) {
@@ -74,7 +74,11 @@ public class ResourceDAOImpl implements ResourceDAO {
 	}
 
 	public List<Long> getUpdated(long userId, Date date) {
-		return mapper.getUpdated(userId, date);
+//		TimeZone zone = TimeZone.getDefault();
+//		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+		List<Long> result = mapper.getUpdated(userId, date);
+//		TimeZone.setDefault(zone);
+		return result;
 	}
 
 }
