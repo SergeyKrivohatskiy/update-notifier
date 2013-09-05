@@ -15,7 +15,7 @@ CREATE TABLE resources(
 	schedule_code smallint NOT NULL,
 	filter varchar(255),
 	hash integer NOT NULL,
-	last_update timestamp with time zone NOT NULL,
+	last_update timestamp with time zone NOT NULL DEFAULT '1973-04-28 00:00:00',
 	PRIMARY KEY (id),
 	FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

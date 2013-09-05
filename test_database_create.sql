@@ -18,7 +18,7 @@ create table resources (
 	schedule_code tinyint not null,
 	filter varchar(255),
 	hash int not null,
-	last_update timestamp,
+	last_update timestamp not null DEFAULT '1973-04-28 00:00:00',
 	primary key (id),
 	foreign key (user_id) references users(id) on delete cascade
 );
