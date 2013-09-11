@@ -26,7 +26,7 @@ create table resources (
 create table tags (
 	id bigint(20) unsigned auto_increment, 
 	user_id bigint(20) unsigned not null,
-	name varchar(30) not null,
+	name varchar(30) CHARACTER SET utf8 COLLATE utf8_bin not null,
 	primary key (id),
 	constraint no_duplicate_tags unique(user_id, name),
 	foreign key (user_id) references users(id) on delete cascade
