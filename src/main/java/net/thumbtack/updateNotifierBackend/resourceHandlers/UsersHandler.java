@@ -40,7 +40,7 @@ import net.thumbtack.updateNotifierBackend.database.entities.User;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseException;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseSeriousException;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseTinyException;
-import net.thumbtack.updateNotifierBackend.updateChecker.UpdateCheckStarter;
+import net.thumbtack.updateNotifierBackend.updateChecker.UpdateCheckLauncher;
 
 @Path("/users")
 @Singleton
@@ -365,7 +365,7 @@ public class UsersHandler {
 			Resource res = GSON.fromJson(resourceJson, Resource.class);
 			if (res == null
 					|| res.getScheduleCode() < 0
-					|| res.getScheduleCode() > UpdateCheckStarter.SHEDULE_CODE_MAX_VALUE
+					|| res.getScheduleCode() > UpdateCheckLauncher.SHEDULE_CODE_MAX_VALUE
 					|| res.getUrl() == null /* || filterIsValid(res.getFilter()) */) {
 				log.debug("Resource parsing error: bad or expecting params");
 				throw new BadRequestException("Json parsing error");
