@@ -9,11 +9,11 @@ import java.util.concurrent.Executor;
  *         This class is the instance of timer task. It launch/relaunch update
  *         checking thread
  */
-public class StartUpdatesChecking extends TimerTask {
+public class UpdateTask extends TimerTask {
 	private Thread updateCheckingThread;
 	private UpdatesChecking updateChecking;
 
-	public StartUpdatesChecking(byte scheduleCode, Executor executor) {
+	public UpdateTask(byte scheduleCode, Executor executor) {
 		updateChecking = new UpdatesChecking(scheduleCode, executor);
 		updateCheckingThread = new Thread(updateChecking);
 		updateCheckingThread.setDaemon(true);

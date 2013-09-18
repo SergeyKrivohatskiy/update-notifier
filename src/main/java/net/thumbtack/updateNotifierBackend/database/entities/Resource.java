@@ -2,6 +2,7 @@ package net.thumbtack.updateNotifierBackend.database.entities;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class Resource implements Serializable {
@@ -17,11 +18,14 @@ public class Resource implements Serializable {
 	private transient int hash;
 	private String filter;
 	private List<Long> tags = Collections.emptyList();
+	private transient Date lastModified;
 
 	public Resource() {
+		lastModified = null;
 	}
 
 	public Resource(long id) {
+		this();
 		this.id = id;
 	}
 
@@ -75,6 +79,14 @@ public class Resource implements Serializable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Date getLastModified() {
+		return lastModified;
+	}
+	
+	public void setLastModified(Date lastModified) {
+		this.lastModified = lastModified;
 	}
 
 	@Override

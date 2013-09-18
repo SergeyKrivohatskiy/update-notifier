@@ -1,5 +1,8 @@
 package net.thumbtack.updateNotifierBackend.updateListener;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
 
@@ -23,26 +26,39 @@ import net.thumbtack.updateNotifierBackend.database.entities.User;
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseException;
 
 public class ResourcesUpdateListener {
-	//REVU: extract authentification credentails to paramaters file.
-	private static final String PASS = "updatenotifierpass";
-	private static final String USER = "UpdateNotifier@mail.ru";
+	private static final String CREDENTIALS_FILE_NAME = "credentials.cfg";
 	private static final Logger log = LoggerFactory
 			.getLogger(ResourcesUpdateListener.class);
 	private static Properties PROPS = null;
-	private static final String FROM = USER;
-	private static final String HOST = "smtp.mail.ru";
 	private static Address addressFrom;
 	private static Authenticator authenticator;
 	private static ResourcesUpdateListener updateListener = null;
-	
+	private static String HOST = "";
+	private static String PASS = "";
+	private static String USER = "";
+	private static String FROM = "";
+
 	public static ResourcesUpdateListener getInstance() {
 		if (updateListener == null) {
 			updateListener = new ResourcesUpdateListener();
 		}
 		return updateListener;
 	}
-	
+
 	private ResourcesUpdateListener() {
+		Properties configFile = new Properties();
+		try {
+			configFile.load(new FileInputStream(CREDENTIALS_FILE_NAME));
+			USER = configFile.getProperty("user");
+			PASS = configFile.getProperty("password");
+			FROM = configFile.getProperty("from");
+			HOST = configFile.getProperty("host");
+		} catch (FileNotFoundException e) {
+			log.error("Config file {} not found: {}", CREDENTIALS_FILE_NAME, e);
+		} catch (IOException e) {
+			log.error("Error reading config file {}: {}", CREDENTIALS_FILE_NAME, e);
+		}
+
 		PROPS = new Properties();
 
 		PROPS.put("mail.transport.protocol", "smtp");
@@ -58,7 +74,7 @@ public class ResourcesUpdateListener {
 		} catch (AddressException e) {
 			// Ignore. Address from must be valid
 			log.error("Address from no valid!", e);
-		} 
+		}
 	}
 
 	public void onResourceUpdate(Resource resource) {
@@ -91,7 +107,8 @@ public class ResourcesUpdateListener {
 			msg.setSubject("Resource " + resource.getUrl() + " was updated");
 			msg.setSentDate(new Date());
 
-			msg.setText("Dear "+user.getName()+", your resource "+resource.getName()+" was changed :-)");
+			msg.setText("Dear " + user.getName() + ", your resource "
+					+ resource.getName() + " was changed :-)");
 
 			Transport.send(msg);
 			return true;
@@ -103,7 +120,6 @@ public class ResourcesUpdateListener {
 
 	private class SMTPAuthenticator extends javax.mail.Authenticator {
 		public PasswordAuthentication getPasswordAuthentication() {
-			// TODO may be move this allocation to the constructor?
 			return new PasswordAuthentication(USER, PASS);
 		}
 	}

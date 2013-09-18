@@ -1,7 +1,5 @@
 package net.thumbtack.updateNotifierBackend.database;
 
-import static net.thumbtack.updateNotifierBackend.updateChecker.CheckForUpdate.getNewHashCode;
-
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URI;
@@ -29,6 +27,7 @@ import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseSeriousEx
 import net.thumbtack.updateNotifierBackend.database.exceptions.DatabaseTinyException;
 import net.thumbtack.updateNotifierBackend.database.mappers.UserMapper;
 import net.thumbtack.updateNotifierBackend.resourceHandlers.UsersHandler;
+import net.thumbtack.updateNotifierBackend.updateChecker.ResourceInvestigator;
 
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -126,7 +125,8 @@ public class DatabaseWrapper {
 				savedUser.setName(user.getName());
 			}
 			if (!savedUser.getSurname().equals(user.getSurname())
-					&& !UsersHandler.USER_DEFAULT_SURNAME.equals(user.getSurname())) {
+					&& !UsersHandler.USER_DEFAULT_SURNAME.equals(user
+							.getSurname())) {
 				updateNeed = true;
 				savedUser.setSurname(user.getSurname());
 			}
@@ -165,9 +165,12 @@ public class DatabaseWrapper {
 					"Can't add resource to nonexist user");
 		}
 		log.debug("User exists");
-		resource.setHash(getNewHashCode(resource));
+		if (!ResourceInvestigator.setResourceMask(resource)) {
+			log.debug("Database exception: can't get resource info for updating check");
+			throw new DatabaseTinyException(
+					"Can't get resource info for updating check");
+		}
 		if (!resourceDao.add(resource)) {
-			log.error("Serious exception: resource addition failed");
 			throw new DatabaseSeriousException("Resource addition failed");
 		}
 		session.commit();
@@ -321,9 +324,13 @@ public class DatabaseWrapper {
 					"Database exception: not found resource for edit"));
 		}
 		if (!savedResource.getUrl().equals(resource.getUrl())) {
-			log.debug("Hash update need");
-			resourceDao.updateAfterCheck(resource.getId(),
-					getNewHashCode(resource));
+			log.debug("Mask update need");
+			if (!ResourceInvestigator.setResourceMask(resource)) {
+				log.debug("Database exception: can't get resource info for updating check");
+				throw new DatabaseTinyException(
+						"Can't get resource info for updating check");
+			}
+			resourceDao.updateAfterCheck(resource);
 		}
 		if (!tagDao.exists(resource.getUserId(), resource.getTags())) {
 			log.debug("Database exception: can't assign nonexistant tags to resource");
@@ -357,7 +364,8 @@ public class DatabaseWrapper {
 	}
 
 	/**
-	 * Update (in database) hash for resource with <code>resourceId</code>.
+	 * Update (in database) mask for resource with <code>resourceId</code>. Mask
+	 * is the resource information for updating chec
 	 * 
 	 * @param resourceId
 	 *            resource, which hash will be overridden
@@ -365,19 +373,18 @@ public class DatabaseWrapper {
 	 *            new hash value
 	 * @throws DatabaseSeriousException
 	 */
-	public void updateResourceHash(long resourceId, int newHash)
+	public void updateResourceHash(Resource resource)
 			throws DatabaseSeriousException {
-		log.trace("Update resource hash; resource id: {}, new hash: {}",
-				resourceId, newHash);
-		if (!resourceDao.exists(new Resource(resourceId))) {
+		log.trace("Update resource mask; resource: {}", resource);
+		if (!resourceDao.exists(new Resource(resource.getId()))) {
 			// TODO What can i dooo?
-			log.error("Serious exception: hash updating failed");
+			log.error("Serious exception: mask updating failed");
 			throw new DatabaseSeriousException(
-					"Can't update hash for nonexistent resource");
+					"Can't update mask for nonexistent resource");
 		}
-		if (!resourceDao.updateAfterCheck(resourceId, newHash)) {
-			log.error("Serious exception: hash updating failed");
-			throw new DatabaseSeriousException("Hash updating failed");
+		if (!resourceDao.updateAfterCheck(resource)) {
+			log.error("Serious exception: mask updating failed");
+			throw new DatabaseSeriousException("Mask updating failed");
 		}
 		session.commit();
 	}
@@ -459,23 +466,25 @@ public class DatabaseWrapper {
 		session.commit();
 	}
 
-	public List<Long> getUpdated(long userId, Date date) throws DatabaseTinyException {
-		if(log.isTraceEnabled()) {
-			log.trace("Get updated resources; userId: {}, date: {}", userId, date);
+	public List<Long> getUpdated(long userId, Date date)
+			throws DatabaseTinyException {
+		if (log.isTraceEnabled()) {
+			log.trace("Get updated resources; userId: {}, date: {}", userId,
+					date);
 		}
 		User user = new User(userId);
-		if(!userDao.exists(user)) {
+		if (!userDao.exists(user)) {
 			log.debug("Can't get updated resources for nonexistent user");
 			throw new DatabaseTinyException(
 					"Can't get updated resources for nonexistent user");
 		}
 		log.debug("User exists");
 		List<Long> ids = resourceDao.getUpdated(userId, date);
-		if(ids == null) {
+		if (ids == null) {
 			log.debug("Resource list is null");
 			ids = Collections.emptyList();
 		}
-		if(ids.isEmpty()) {
+		if (ids.isEmpty()) {
 			log.debug("Resource list is empty");
 		} else {
 			log.debug("Resource list is not empty");

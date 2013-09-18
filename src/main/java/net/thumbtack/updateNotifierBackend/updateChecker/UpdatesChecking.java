@@ -54,34 +54,22 @@ public class UpdatesChecking implements Runnable {
 	 * Start update checking if last one has terminated
 	 */
 	public void startIfTerminated() {
-		if(isTerminated()) {
-			start();
+		if(canBeRunned.availablePermits() == 0 && isTerminated) {
+			isTerminated = false;
+			canBeRunned.release();
 		}
 	}
 
-	private void start() {
-		isTerminated = false;
-		canBeRunned.release();
-	}
-
-	private boolean isTerminated() {
-		return canBeRunned.availablePermits() == 0 && isTerminated;
-	}
-
 	private void doUpdateChecking() {
-		resources = loadResources();
+		resources = UpdateNotifierBackend.getDatabaseService().
+		getResourcesByScheduleCode(scheduleCode);
 		if(resources == null) {
 			log.error("Load resources failed. UpdatesChecking failed.");
 			return;
 		}
 		for(Resource resource: resources) {
-			executor.execute(new CheckForUpdate(resource));
+			executor.execute(new ResourceInvestigator(resource));
 		}
-	}
-
-	private Set<Resource> loadResources() {
-		return UpdateNotifierBackend.getDatabaseService().
-				getResourcesByScheduleCode(scheduleCode);
 	}
 
 }

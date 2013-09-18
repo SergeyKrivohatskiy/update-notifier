@@ -16,7 +16,7 @@ public interface ResourceDAO extends BaseDAO<Resource> {
 
 	Set<Resource> getByscheduleCode(byte scheduleCode);
 
-	boolean updateAfterCheck(Long id, Integer hash);
+	boolean updateAfterCheck(Resource resource);
 
 	boolean deleteByTags(long userId, List<Long> tagIds);
 

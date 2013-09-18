@@ -90,6 +90,11 @@
 			<artifactId>libidn</artifactId>
 			<version>1.15</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.2.5</version>
+		</dependency>
 
 	</dependencies>
 	<build>

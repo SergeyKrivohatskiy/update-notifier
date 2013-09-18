@@ -17,6 +17,7 @@ create table resources (
 	url varchar(255) not null,
 	schedule_code tinyint not null,
 	filter varchar(255),
+	last_modified timestamp null default null,
 	hash int not null,
 	last_update timestamp not null DEFAULT '1973-04-28 00:00:00',
 	primary key (id),
