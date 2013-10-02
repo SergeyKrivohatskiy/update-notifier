@@ -18,7 +18,7 @@ public class UpdateCheckLauncher {
 	private static final int STARTING_DELAY_FACTOR = 5;
 	private static final Logger log = LoggerFactory
 			.getLogger(UpdateCheckLauncher.class);
-	private static final long VERY_OFTEN = 60000;
+	private static final long VERY_OFTEN = 15000;
 	private static final long OFTEN = 300000;
 	private static final long REGULAR = 600000;
 	private static final long RARELY = 3600000;

@@ -19,9 +19,11 @@ public class Resource implements Serializable {
 	private String filter;
 	private List<Long> tags = Collections.emptyList();
 	private transient Date lastModified;
+	private transient List<Filter> filters;
 
 	public Resource() {
 		lastModified = null;
+		filters = Collections.emptyList();
 	}
 
 	public Resource(long id) {
@@ -87,6 +89,14 @@ public class Resource implements Serializable {
 	
 	public void setLastModified(Date lastModified) {
 		this.lastModified = lastModified;
+	}
+
+	public List<Filter> getFilters() {
+		return filters;
+	}
+
+	public void setFilters(List<Filter> filters) {
+		this.filters = filters;
 	}
 
 	@Override

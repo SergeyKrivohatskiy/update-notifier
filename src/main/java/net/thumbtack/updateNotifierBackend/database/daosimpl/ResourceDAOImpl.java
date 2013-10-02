@@ -7,23 +7,49 @@ import java.util.Set;
 import org.apache.ibatis.session.SqlSession;
 
 import net.thumbtack.updateNotifierBackend.database.daos.ResourceDAO;
+import net.thumbtack.updateNotifierBackend.database.entities.Filter;
 import net.thumbtack.updateNotifierBackend.database.entities.Resource;
+import net.thumbtack.updateNotifierBackend.database.mappers.AttributeMapper;
+import net.thumbtack.updateNotifierBackend.database.mappers.FilterMapper;
 import net.thumbtack.updateNotifierBackend.database.mappers.ResourceMapper;
 
 public class ResourceDAOImpl implements ResourceDAO {
 
 	private final ResourceMapper mapper;
+	private final FilterMapper filterMapper;
+	private final AttributeMapper attributeMapper;
 
 	public ResourceDAOImpl(SqlSession session) {
 		mapper = session.getMapper(ResourceMapper.class);
+		filterMapper = session.getMapper(FilterMapper.class);
+		attributeMapper = session.getMapper(AttributeMapper.class);
 	}
 
 	public boolean add(Resource resource) {
-		return mapper.add(resource) > 0;
+		boolean result = mapper.add(resource) > 0;
+		for (Filter f : resource.getFilters()) {
+			// if(result) {
+			// result = result && filterMapper.add(f) > 0;
+			f.setResourceId(resource.getId());
+			filterMapper.add(f);
+			for (String attrName : f.getAttrs()) {
+				// result = result && attributeMapper.add(attr) > 0;
+				attributeMapper.add(f.getId(), attrName);
+			}
+			// }
+		}
+		return result;
 	}
 
 	public Resource get(long userId, long resourceId) {
-		return mapper.get(userId, resourceId);
+		// List<Filter> filters = filterMapper.get(resourceId);
+		// for(Filter f : filters) {
+		// f.setAttrs(attributeMapper.get(f.getId()));
+		// }
+		Resource resource = mapper.get(userId, resourceId);
+		// resource.setFilters(filters);
+		return resource;
+		// return mapper.get(userId, resourceId);
 	}
 
 	public List<Resource> getByUserIdAndTags(Long userId, List<Long> tagIds) {
@@ -35,8 +61,16 @@ public class ResourceDAOImpl implements ResourceDAO {
 	}
 
 	public Set<Resource> getByscheduleCode(byte scheduleCode) {
+		Set<Resource> resources = mapper.getByscheduleCode(scheduleCode);
+		for (Resource resource : resources) {
+			List<Filter> filters = filterMapper.get(resource.getId());
+			for (Filter f : filters) {
+				f.setAttrs(attributeMapper.get(f.getId()));
+			}
+			resource.setFilters(filters);
+		}
 		// TODO Does it return collection of resources?
-		return mapper.getByscheduleCode(scheduleCode);
+		return resources;
 	}
 
 	public boolean edit(Resource resource) {
@@ -44,13 +78,14 @@ public class ResourceDAOImpl implements ResourceDAO {
 	}
 
 	public boolean updateAfterCheck(Resource resource) {
-		return mapper.updateAfterUpdate(resource.getId(), resource.getHash(), new Date()) > 0;
+		return mapper.updateAfterUpdate(resource.getId(), resource.getHash(),
+				new Date()) > 0;
 	}
 
 	public boolean exists(Resource resource) {
 		return mapper.check(resource);
 	}
-	
+
 	public boolean delete(Resource resource) {
 		return mapper.delete(resource) > 0;
 	}
@@ -58,7 +93,7 @@ public class ResourceDAOImpl implements ResourceDAO {
 	public boolean deleteByTags(long userId, List<Long> tagIds) {
 		return mapper.deleteByTags(userId, makeString(tagIds)) > 0;
 	}
-	
+
 	public boolean deleteAll(long userId) {
 		return mapper.deleteAll(userId) > 0;
 	}
@@ -74,10 +109,10 @@ public class ResourceDAOImpl implements ResourceDAO {
 	}
 
 	public List<Long> getUpdated(long userId, Date date) {
-//		TimeZone zone = TimeZone.getDefault();
-//		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+		// TimeZone zone = TimeZone.getDefault();
+		// TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 		List<Long> result = mapper.getUpdated(userId, date);
-//		TimeZone.setDefault(zone);
+		// TimeZone.setDefault(zone);
 		return result;
 	}
 

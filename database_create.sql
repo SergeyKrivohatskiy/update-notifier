@@ -40,3 +40,21 @@ create table resource_tag (
 	foreign key (tag_id) references tags(id) on delete cascade,
 	foreign key (resource_id) references resources(id) on delete cascade
 );
+
+create table filters (
+	id bigint(20) unsigned auto_increment,
+	resource_id bigint(20) unsigned not null,
+	path varchar(255) CHARACTER SET utf8 COLLATE utf8_bin not null,
+	primary key (id),
+	constraint no_duplicate_filters unique(resource_id, path),
+	foreign key (resource_id) references resources(id) on delete cascade
+);
+
+create table attributes (
+	id bigint(20) unsigned auto_increment,
+	filter_id bigint(20) unsigned not null,
+	attr_name varchar(255) CHARACTER SET utf8 COLLATE utf8_bin not null,
+	primary key (id),
+	constraint no_duplicate_attributes unique(filter_id, attr_name),
+	foreign key (filter_id) references filters(id) on delete cascade
+);
