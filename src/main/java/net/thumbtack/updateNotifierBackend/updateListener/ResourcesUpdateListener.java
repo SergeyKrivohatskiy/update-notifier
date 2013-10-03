@@ -118,7 +118,7 @@ public class ResourcesUpdateListener {
 		}
 	}
 
-	private class SMTPAuthenticator extends javax.mail.Authenticator {
+	private class SMTPAuthenticator extends Authenticator {
 		public PasswordAuthentication getPasswordAuthentication() {
 			return new PasswordAuthentication(USER, PASS);
 		}

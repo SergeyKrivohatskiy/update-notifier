@@ -3,8 +3,6 @@ package net.thumbtack.updateNotifierBackend.updateChecker;
 import static net.thumbtack.updateNotifierBackend.util.IDN.ChangeToPunycode;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
@@ -51,6 +49,12 @@ public class ResourceInvestigator implements Runnable {
 		this.resource = resource;
 	}
 
+	/** 
+	 * Get some resource info for update checking
+	 * 
+	 * @param resource
+	 * @return
+	 */
 	public static boolean setResourceMask(Resource resource) {
 		log.debug("Try to get resource info for update checking: {}", resource);
 		boolean result = false;
@@ -64,8 +68,8 @@ public class ResourceInvestigator implements Runnable {
 					.timeout(TIMEOUT).execute().parse().body();
 
 			Element body1 = response.parse().body();
-			clearPage(body1);
-			clearPage(body2);
+			cleanPage(body1);
+			cleanPage(body2);
 			String filter = resource.getFilter();
 			// try {
 			// body1.select(filter);
@@ -75,8 +79,14 @@ public class ResourceInvestigator implements Runnable {
 			// body1.outerHtml().hashCode();
 			// }
 			List<Filter> filters = new LinkedList<Filter>();
+			log.debug("Try to filter differences");
 			filterDifferences(body1, body2, filters);
-			resource.setHash(getHashCode(body1, filters, filter));
+			log.debug("Differences filtered");
+			String filteredPage = getFilteredPage(body1, filters, filter);
+			// TODO how to mark file on resource adding, when resource hasn't id?
+//			savePage(resource.getId(), body1);
+
+			resource.setHash(filteredPage.hashCode());
 			resource.setFilters(filters);
 			log.debug("Info received successfully");
 			result = true;
@@ -86,6 +96,46 @@ public class ResourceInvestigator implements Runnable {
 		return result;
 	}
 
+	/**
+	 * Save page to the file storage. Page name will be 'page_'+ resource id,
+	 * which links to this page
+	 * 
+	 * @param id resource
+	 * @param body
+	 * @return
+	 */
+	private static boolean savePage(long id, Element body) {
+		log.debug("Try to save page to the file storage; resource id: {}", id);
+		FileWriter writer = null;
+		try {
+			writer = new FileWriter(new File(System.getProperty("user.dir")
+					+ "\\page_" + id + ".txt"));
+			writer.write(body.outerHtml());
+			writer.close();
+			log.debug("Page saved");
+			return true;
+		} catch (IOException e) {
+			log.debug("Can't save page, stack trace: {}", e);
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Find Last-Modified header in the response and set it to resource, if
+	 * header exists.
+	 * 
+	 * @param resource
+	 *            resource to set header
+	 * @param response
+	 *            response for searching header
+	 */
 	private static void setLastModified(Resource resource, Response response) {
 		String header = response.header(LAST_MODIFIED);
 		if (header != null) {
@@ -102,10 +152,25 @@ public class ResourceInvestigator implements Runnable {
 		}
 	}
 
-	private static int getHashCode(Element body, List<Filter> filters,
+	/**
+	 * Filter 'body' tag from <code>filters<code> and select necessary 
+	 * element(-s) by <code>filter<code>
+	 * 
+	 * @param body
+	 *            body element, containing page html code
+	 * @param filters
+	 *            list of filters (note, that order is important, so list is
+	 *            used)
+	 * @param filter
+	 *            some filter for selecting necessary element(-s)
+	 * @return
+	 */
+	private static String getFilteredPage(Element body, List<Filter> filters,
 			String filter) {
+		log.debug("Try to get filtered page");
 		if (filter == null) {
-			return body.outerHtml().hashCode();
+			log.debug("Filter is null, nothing to do more");
+			return body.outerHtml();
 		}
 		try {
 			Elements forRemoving = new Elements();
@@ -125,36 +190,34 @@ public class ResourceInvestigator implements Runnable {
 						}
 					}
 				} catch (IndexOutOfBoundsException e) {
-					System.err.println("Oops");
+					log.debug("Bad filter: can't to find elem for filtering");
 				}
 			}
-			for(Element elem : forRemoving){
+			for (Element elem : forRemoving) {
 				elem.remove();
 			}
 
-			try {
-				FileWriter fw = new FileWriter(new File(
-						"D:\\update-notifier-web\\page_"
-								+ body.outerHtml().hashCode() + ".txt"));
-				fw.write(body.outerHtml());
-				fw.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			log.debug("Successfully, return page");
 			// http://jsoup.org/apidocs/org/jsoup/select/Selector.html
-			return body.select(filter).outerHtml().hashCode();
+			return body.select(filter).outerHtml();
 		} catch (Throwable e) {
 			log.debug("Selection error, filter ignored");
-			return body.outerHtml().hashCode();
+			return body.outerHtml();
 		}
 	}
 
-	private static void clearPage(Element body) {
-		if (body == null) {
+	/**
+	 * Clean element from different a priori useless tags
+	 * 
+	 * @param element
+	 */
+	private static void cleanPage(Element element) {
+
+		if (element == null) {
 			return;
 		}
 		try {
-			Elements scripts = body.select("script");
+			Elements scripts = element.select("script");
 			for (Element script : scripts) {
 				script.remove();
 			}
@@ -176,27 +239,16 @@ public class ResourceInvestigator implements Runnable {
 			List<Filter> filters) {
 		Filter filter = new Filter();
 		if (elem1.outerHtml().hashCode() != elem2.outerHtml().hashCode()) {
-			// // Will be true if something changed in element attrs or its
-			// // children
-			// boolean changes = false;
 			filter.setPath(buildPath(elem1));
 			if (!elem1.tag().getName().equals(elem2.tag().getName())) {
-				// elem1.remove();
-				// elem2.remove();
 				return;
-			}
-			if((elem1.tagName().equals("a"))&&(elem1.parent().tagName().equals("li"))) {
-				System.out.println();
 			}
 			Set<String> attributes = filterAttributes(elem1.attributes(),
 					elem2.attributes());
 			if ((attributes != null) && (!attributes.isEmpty())) {
-				// changes = true;
 				filter.setAttrs(attributes);
 				filters.add(filter);
 			}
-			// changes = changes
-			// || filterChildren(elem1.children(), elem2.children(), filters);
 			int size = filters.size();
 			filterChildren(elem1.children(), elem2.children(), filters);
 			if ((size == filters.size()) && (!filters.contains(filter))) {
@@ -263,19 +315,13 @@ public class ResourceInvestigator implements Runnable {
 	}
 
 	private static String buildPath(Element elem1) {
-		// TODO If there is some elements with the same tag in the parent?
 		Element parent = elem1;
-		// StringBuilder path = new StringBuilder(elem1.tagName());
 		StringBuilder path = new StringBuilder();
-//		StringBuilder path = new StringBuilder(String.valueOf(parent
-//				.elementSiblingIndex()));
 
 		while (!"body".equals(parent.tagName())) {
-			// path.append("/").append(parent.tagName());
 			path.insert(0, "/").insert(0, parent.elementSiblingIndex());
 			parent = parent.parent();
 		}
-//		path.reverse();
 
 		return path.toString();
 
@@ -301,8 +347,10 @@ public class ResourceInvestigator implements Runnable {
 					Document document = response.parse();
 					String filter = resource.getFilter();
 					List<Filter> filters = resource.getFilters();
-					clearPage(document.body());
-					newHashCode = getHashCode(document.body(), filters, filter);
+					cleanPage(document.body());
+					String filteredPage = getFilteredPage(document.body(),
+							filters, filter);
+					newHashCode = filteredPage.hashCode();
 					if (newHashCode == 0) {
 						log.debug("getNewHashCode failed");
 					} else if (newHashCode != resource.getHash()) {

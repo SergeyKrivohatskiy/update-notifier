@@ -130,12 +130,10 @@ public class DatabaseWrapper {
 				updateNeed = true;
 				savedUser.setSurname(user.getSurname());
 			}
-			if (updateNeed) {
-				if (!userDao.edit(savedUser)) {
-					log.error("Serious exception: DB can't update user initials");
-					throw new DatabaseSeriousException(
-							"Automatic initials update failed");
-				}
+			if (updateNeed && !userDao.edit(savedUser)) {
+				log.error("Serious exception: DB can't update user initials");
+				throw new DatabaseSeriousException(
+						"Automatic initials update failed");
 			}
 			user = savedUser;
 		}

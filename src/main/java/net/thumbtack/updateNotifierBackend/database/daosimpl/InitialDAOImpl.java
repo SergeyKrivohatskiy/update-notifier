@@ -24,6 +24,12 @@ public class InitialDAOImpl implements InitialDAO {
 		mapper.createTagTable();
 		
 		mapper.createResourceTagTable();
+		
+		mapper.createFiltersInc();
+		mapper.createFiltersTbl();
+
+		mapper.createAttributesInc();
+		mapper.createAttributesTbl();
 	}
 
 }

@@ -5,6 +5,11 @@ import gnu.inet.encoding.IDNAException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+/**
+ * Class contains one method for converting url. Spike for Jsoup.
+ * @author Dmitry
+ *
+ */
 public class IDN {
 	/**
 	 * Jsoup throws UnknownHostException if domain name(?) contains UTF-8, this
