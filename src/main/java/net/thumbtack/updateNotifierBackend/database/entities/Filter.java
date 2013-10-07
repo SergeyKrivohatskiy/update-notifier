@@ -11,11 +11,11 @@ public class Filter implements Serializable {
 	private Long id;
 	private Long resourceId;
 	private String path;
-	private Set<String> attrs;
+//	private Set<String> attrs;
 	
 	public Filter() {
 		super();
-		attrs = Collections.emptySet();
+//		attrs = Collections.emptySet();
 	}
 
 //	public Filter(Long id, Long resourceId, String path, String attrs) {
@@ -50,19 +50,19 @@ public class Filter implements Serializable {
 		this.path = path;
 	}
 
-	public Set<String> getAttrs() {
-		return attrs;
-	}
+//	public Set<String> getAttrs() {
+//		return attrs;
+//	}
 
-	public void setAttrs(Set<String> attributes) {
-		this.attrs = attributes;
-	}
+//	public void setAttrs(Set<String> attributes) {
+//		this.attrs = attributes;
+//	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((attrs == null) ? 0 : attrs.hashCode());
+//		result = prime * result + ((attrs == null) ? 0 : attrs.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((path == null) ? 0 : path.hashCode());
 		result = prime * result
@@ -79,11 +79,11 @@ public class Filter implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Filter other = (Filter) obj;
-		if (attrs == null) {
-			if (other.attrs != null)
-				return false;
-		} else if (!attrs.equals(other.attrs))
-			return false;
+//		if (attrs == null) {
+//			if (other.attrs != null)
+//				return false;
+//		} else if (!attrs.equals(other.attrs))
+//			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;

@@ -23,4 +23,6 @@ public interface ResourceDAO extends BaseDAO<Resource> {
 	boolean deleteAll(long userId);
 
 	List<Long> getUpdated(long userId, Date date);
+	
+	String loadPage(long pageId);
 }

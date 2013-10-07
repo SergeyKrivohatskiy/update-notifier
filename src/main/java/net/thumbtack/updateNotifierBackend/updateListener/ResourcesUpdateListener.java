@@ -4,6 +4,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import javax.mail.Address;
@@ -15,6 +17,7 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 
 import org.slf4j.Logger;
@@ -77,14 +80,14 @@ public class ResourcesUpdateListener {
 		}
 	}
 
-	public void onResourceUpdate(Resource resource) {
+	public void onResourceUpdate(Resource resource, List<String> differences) {
 		log.trace("Resource updated URL =  " + resource.getUrl());
-		if (!sendEmail(resource)) {
+		if (!sendEmail(resource, differences)) {
 			log.error("SendEmail failed.");
 		}
 	}
 
-	private boolean sendEmail(Resource resource) {
+	private boolean sendEmail(Resource resource, List<String> differences) {
 		String to = null;
 		User user = null;
 		try {
@@ -104,11 +107,33 @@ public class ResourcesUpdateListener {
 			msg.setFrom(addressFrom);
 			InternetAddress[] address = { new InternetAddress(to) };
 			msg.setRecipients(Message.RecipientType.TO, address);
-			msg.setSubject("Resource " + resource.getUrl() + " was updated");
+			msg.setSubject("Resource " + resource.getName() + " was updated");
 			msg.setSentDate(new Date());
-
-			msg.setText("Dear " + user.getName() + ", your resource "
-					+ resource.getName() + " was changed :-)");
+			
+//			MimeBodyPart messageBodyPart = new MimeBodyPart();
+//			messageBodyPart.setText(messageBody,"UTF-8","html");
+//			Multipart multipart = new MimeMultipart();
+//			multipart.addBodyPart(messageBodyPart);
+//			message.setContent(multipart);
+//			Transport.send(message);
+			
+			StringBuilder msgBuilder = new StringBuilder();
+			msgBuilder.append("Dear ");
+			msgBuilder.append(user.getName());
+			msgBuilder.append(", your resource ");
+			msgBuilder.append(resource.getName());
+			msgBuilder.append(" was changed :-) \n\n");
+			
+			Iterator<String> iterator = differences.iterator();
+			for(int i = 1; iterator.hasNext(); i++) {
+				msgBuilder.append(i);
+				msgBuilder.append(". ");
+				msgBuilder.append(iterator.next());
+				msgBuilder.append("\n");
+				
+			}
+			
+			msg.setText(msgBuilder.toString());
 
 			Transport.send(msg);
 			return true;

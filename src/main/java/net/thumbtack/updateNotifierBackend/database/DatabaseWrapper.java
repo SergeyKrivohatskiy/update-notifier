@@ -371,7 +371,7 @@ public class DatabaseWrapper {
 	 *            new hash value
 	 * @throws DatabaseSeriousException
 	 */
-	public void updateResourceHash(Resource resource)
+	public void updateResourceHashAndTrace(Resource resource)
 			throws DatabaseSeriousException {
 		log.trace("Update resource mask; resource: {}", resource);
 		if (!resourceDao.exists(new Resource(resource.getId()))) {
@@ -493,6 +493,11 @@ public class DatabaseWrapper {
 	public void deleteAllData() {
 		session.getMapper(UserMapper.class).deleteAll();
 		session.commit();
+	}
+
+	
+	public String getPage(long pageId) {
+		return resourceDao.loadPage(pageId);
 	}
 
 }

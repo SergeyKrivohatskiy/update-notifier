@@ -19,6 +19,7 @@ create table resources (
 	filter varchar(255),
 	last_modified timestamp null default null,
 	hash int not null,
+	page_id bigint(20) unsigned not null,
 	last_update timestamp not null DEFAULT '1973-04-28 00:00:00',
 	primary key (id),
 	foreign key (user_id) references users(id) on delete cascade
@@ -57,4 +58,10 @@ create table attributes (
 	primary key (id),
 	constraint no_duplicate_attributes unique(filter_id, attr_name),
 	foreign key (filter_id) references filters(id) on delete cascade
+);
+
+create table pages (
+	id bigint(20) unsigned auto_increment,
+	page text,  
+	primary key (id)
 );

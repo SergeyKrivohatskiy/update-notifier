@@ -20,6 +20,8 @@ public class Resource implements Serializable {
 	private List<Long> tags = Collections.emptyList();
 	private transient Date lastModified;
 	private transient List<Filter> filters;
+	private transient long pageId;
+	private transient String page;
 
 	public Resource() {
 		lastModified = null;
@@ -97,6 +99,22 @@ public class Resource implements Serializable {
 
 	public void setFilters(List<Filter> filters) {
 		this.filters = filters;
+	}
+
+	public long getPageId() {
+		return pageId;
+	}
+
+	public void setPageId(long pageId) {
+		this.pageId = pageId;
+	}
+
+	public String getPage() {
+		return page;
+	}
+
+	public void setPage(String page) {
+		this.page = page;
 	}
 
 	@Override
